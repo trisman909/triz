@@ -3,6 +3,7 @@ using Lanternfall.Gameplay.Bosses;
 using Lanternfall.Gameplay.Combat;
 using Lanternfall.Gameplay.Input;
 using Lanternfall.Gameplay.Hub;
+using Lanternfall.Gameplay.Localization;
 using Lanternfall.Gameplay.Progression;
 using Lanternfall.Gameplay.Save;
 using UnityEngine;
@@ -237,10 +238,15 @@ namespace Lanternfall.Gameplay.UI
 
         private static string OnOff(bool value) => value ? "ON" : "OFF";
 
+        private static string L(string key, string fallback) =>
+            LocalizationRuntime.Get(key, fallback);
+
         private void OnHealthChanged(float current, float maximum)
         {
             _healthFill.fillAmount = maximum > 0f ? current / maximum : 0f;
-            _healthText.text = $"LANTERN  {Mathf.CeilToInt(current)} / {Mathf.CeilToInt(maximum)}";
+            _healthText.text =
+                $"{L("hud.health", "LANTERN")}  {Mathf.CeilToInt(current)} / " +
+                $"{Mathf.CeilToInt(maximum)}";
         }
 
         private void OnWalletChanged(CurrencyKind _, int __) => RefreshResources();
@@ -250,7 +256,10 @@ namespace Lanternfall.Gameplay.UI
             int gold = _inventory?.Wallet.Get(CurrencyKind.Gold) ?? 0;
             int relics = _inventory?.Owned.Count ?? 0;
             _resourcesText.text =
-                $"GOLD {gold}   ECHOES {relics}/3   BUFFS —   DEBUFFS —";
+                $"{L("hud.gold", "GOLD")} {gold}   " +
+                $"{L("hud.echoes", "ECHOES")} {relics}/3   " +
+                $"{L("hud.buffs", "BUFFS")} —   " +
+                $"{L("hud.debuffs", "DEBUFFS")} —";
         }
 
         private void OnBossIntro(string bossName)
@@ -264,12 +273,13 @@ namespace Lanternfall.Gameplay.UI
         private void OnBossHealth(float current, float maximum) =>
             _bossFill.fillAmount = maximum > 0f ? current / maximum : 0f;
 
-        private void OnBossPhase(int phase) => Announce($"Guardian phase {phase}");
+        private void OnBossPhase(int phase) =>
+            Announce($"{L("boss.phase", "Guardian phase")} {phase}");
 
         private void OnBossDefeated(string _)
         {
             _bossPanel.SetActive(false);
-            Announce("GUARDIAN MEMORY CLAIMED");
+            Announce(L("boss.defeated", "GUARDIAN MEMORY CLAIMED"));
         }
 
         private void Announce(string copy)

@@ -1,6 +1,7 @@
 using System.IO;
 using Lanternfall.Gameplay.Camera;
 using Lanternfall.Gameplay.Audio;
+using Lanternfall.Gameplay.Balance;
 using Lanternfall.Gameplay.Bosses;
 using Lanternfall.Gameplay.Combat;
 using Lanternfall.Gameplay.Enemies;
@@ -8,6 +9,8 @@ using Lanternfall.Gameplay.Input;
 using Lanternfall.Gameplay.Hub;
 using Lanternfall.Gameplay.Player;
 using Lanternfall.Gameplay.Progression;
+using Lanternfall.Gameplay.Localization;
+using Lanternfall.Gameplay.Performance;
 using Lanternfall.Gameplay.UI;
 using Lanternfall.Gameplay.World;
 using UnityEditor;
@@ -96,6 +99,9 @@ namespace Lanternfall.Editor
                 CreateClassRoster(weapons, abilities);
             CreateContentCatalog(classes, biomes, enemies, bosses);
             CreateAchievementCatalog();
+            CreateBalanceProfile();
+            CreateLocalizationCatalog();
+            CreateExperienceSystems();
 
             CreateBlock("Floor", new Vector3(0f, -0.5f, 0f),
                 new Vector3(24f, 1f, 18f), floorMaterial);
@@ -207,6 +213,8 @@ namespace Lanternfall.Editor
                 new EditorBuildSettingsScene(VerticalSliceScenePath, true)
             };
             AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            ReleaseReadinessValidator.ValidateOrThrow();
             Debug.Log($"Lanternfall combat sandbox built at {ScenePath}");
         }
 
@@ -217,6 +225,7 @@ namespace Lanternfall.Editor
 
         public static void BuildWindowsDevelopment()
         {
+            ReleaseReadinessValidator.ValidateOrThrow();
             BuildPlayerOptions options = new BuildPlayerOptions
             {
                 scenes = new[]
@@ -275,6 +284,83 @@ namespace Lanternfall.Editor
             Directory.CreateDirectory("Assets/_Project/Lanternfall/Settings");
             Directory.CreateDirectory("Assets/_Project/Lanternfall/Art/Materials");
             AssetDatabase.Refresh();
+        }
+
+        private static void CreateExperienceSystems()
+        {
+            LocalizationCatalog catalog =
+                AssetDatabase.LoadAssetAtPath<LocalizationCatalog>(
+                    "Assets/_Project/Lanternfall/Settings/" +
+                    "LanternfallLocalizationCatalog.asset");
+            GameObject systems = new GameObject("Experience Systems");
+            systems.AddComponent<LocalizationBootstrap>().Configure(catalog, "en");
+            systems.AddComponent<FrameBudgetMonitor>();
+        }
+
+        private static BalanceProfile CreateBalanceProfile()
+        {
+            const string path =
+                "Assets/_Project/Lanternfall/Settings/LanternfallBalance.asset";
+            BalanceProfile profile =
+                AssetDatabase.LoadAssetAtPath<BalanceProfile>(path);
+            if (profile == null)
+            {
+                profile = ScriptableObject.CreateInstance<BalanceProfile>();
+                AssetDatabase.CreateAsset(profile, path);
+            }
+            if (profile.Validate().Count > 0)
+                throw new BuildFailedException(string.Join("\n", profile.Validate()));
+            EditorUtility.SetDirty(profile);
+            return profile;
+        }
+
+        private static LocalizationCatalog CreateLocalizationCatalog()
+        {
+            const string path =
+                "Assets/_Project/Lanternfall/Settings/" +
+                "LanternfallLocalizationCatalog.asset";
+            LocalizationCatalog catalog =
+                AssetDatabase.LoadAssetAtPath<LocalizationCatalog>(path);
+            if (catalog == null)
+            {
+                catalog = ScriptableObject.CreateInstance<LocalizationCatalog>();
+                AssetDatabase.CreateAsset(catalog, path);
+            }
+            string[,] source =
+            {
+                { "hud.health", "LANTERN" },
+                { "hud.gold", "GOLD" },
+                { "hud.echoes", "ECHOES" },
+                { "hud.buffs", "BUFFS" },
+                { "hud.debuffs", "DEBUFFS" },
+                { "hud.ability_ready", "ABILITY READY" },
+                { "hud.current_chamber", "CURRENT CHAMBER" },
+                { "hud.uncharted", "UNCHARTED" },
+                { "pause.title", "LANTERN PAUSED" },
+                { "pause.resume", "RESUME" },
+                { "settings.accessibility", "ACCESSIBILITY" },
+                { "settings.ui_scale", "UI SCALE" },
+                { "settings.reduced_motion", "REDUCED MOTION" },
+                { "settings.subtitles", "SUBTITLES" },
+                { "settings.high_contrast", "HIGH CONTRAST" },
+                { "settings.controls", "CONTROLS" },
+                { "settings.on", "ON" },
+                { "settings.off", "OFF" },
+                { "boss.phase", "GUARDIAN PHASE" },
+                { "boss.defeated", "GUARDIAN MEMORY CLAIMED" },
+                { "run.summary", "RUN SUMMARY" },
+                { "run.victory", "THE LANTERN ENDURES" },
+                { "run.defeat", "THE MEMORY FADES" },
+                { "menu.start", "BEGIN DESCENT" }
+            };
+            var entries = new LocalizedEntry[source.GetLength(0)];
+            for (int index = 0; index < entries.Length; index++)
+                entries[index] = new LocalizedEntry(source[index, 0], source[index, 1]);
+            catalog.Configure(entries);
+            EditorUtility.SetDirty(catalog);
+            if (catalog.Validate().Count > 0)
+                throw new BuildFailedException(string.Join("\n", catalog.Validate()));
+            return catalog;
         }
 
         private static Material CreateMaterial(string name, Color color, float smoothness)
@@ -559,6 +645,7 @@ namespace Lanternfall.Editor
             Scene scene = EditorSceneManager.NewScene(
                 NewSceneSetup.EmptyScene,
                 NewSceneMode.Single);
+            CreateExperienceSystems();
             GameObject roomTemplate = CreateRoomTemplatePrefab(material);
             GameObject presenterObject = new GameObject("Seeded Run Layout");
             RunLayoutPresenter presenter =
@@ -912,6 +999,7 @@ namespace Lanternfall.Editor
             Scene scene = EditorSceneManager.NewScene(
                 NewSceneSetup.EmptyScene,
                 NewSceneMode.Single);
+            CreateExperienceSystems();
             CreateBlock("Narthex Floor", new Vector3(0f, -.5f, 0f),
                 new Vector3(32f, 1f, 24f), floorMaterial);
             CreateBlock("North Ruin", new Vector3(0f, 1.5f, 12f),
@@ -1033,6 +1121,7 @@ namespace Lanternfall.Editor
             Scene scene = EditorSceneManager.NewScene(
                 NewSceneSetup.EmptyScene,
                 NewSceneMode.Single);
+            CreateExperienceSystems();
             CreateBlock("Lantern Court", new Vector3(0f, -.5f, 0f),
                 new Vector3(28f, 1f, 22f), floorMaterial);
             CreateBlock("North Arcade", new Vector3(0f, 2f, 11f),

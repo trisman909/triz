@@ -4,6 +4,10 @@ using Lanternfall.Gameplay.Progression;
 using Lanternfall.Gameplay.Bosses;
 using Lanternfall.Gameplay.Save;
 using Lanternfall.Gameplay.Accessibility;
+using Lanternfall.Gameplay.Balance;
+using Lanternfall.Gameplay.Localization;
+using Lanternfall.Gameplay.Performance;
+using Lanternfall.Editor;
 using UnityEngine;
 using UnityEditor;
 using Lanternfall.Gameplay.World;
@@ -235,6 +239,59 @@ namespace Lanternfall.Tests
             Assert.That(AccessibilityRuntime.FlashIntensity, Is.EqualTo(0f));
             Assert.That(AccessibilityRuntime.UiScale, Is.EqualTo(1.5f));
             Assert.That(AccessibilityRuntime.ReducedMotion, Is.True);
+        }
+
+        [Test]
+        public void ReleaseBalanceProfileMeetsDurationAndMultiplierBounds()
+        {
+            BalanceProfile profile = AssetDatabase.LoadAssetAtPath<BalanceProfile>(
+                "Assets/_Project/Lanternfall/Settings/LanternfallBalance.asset");
+            Assert.That(profile, Is.Not.Null);
+            Assert.That(profile.Validate(), Is.Empty);
+            Assert.That(profile.TargetRunMinutes, Is.InRange(25f, 45f));
+            Assert.That(
+                profile.HealthMultiplier(DifficultyTier.Eclipse, 4),
+                Is.GreaterThan(profile.HealthMultiplier(
+                    DifficultyTier.Standard, 0)));
+        }
+
+        [Test]
+        public void LocalizationFallsBackAndPseudoLocaleExpandsCopy()
+        {
+            LocalizationCatalog catalog =
+                AssetDatabase.LoadAssetAtPath<LocalizationCatalog>(
+                    "Assets/_Project/Lanternfall/Settings/" +
+                    "LanternfallLocalizationCatalog.asset");
+            Assert.That(catalog, Is.Not.Null);
+            Assert.That(catalog.Validate(), Is.Empty);
+            var english = new LocalizationTable(catalog, "en");
+            var pseudo = new LocalizationTable(catalog, "qps-ploc");
+
+            Assert.That(english.Get("hud.health"), Is.EqualTo("LANTERN"));
+            Assert.That(english.Get("missing.key", "Fallback"), Is.EqualTo("Fallback"));
+            Assert.That(pseudo.Get("hud.health"), Does.StartWith("["));
+            Assert.That(
+                pseudo.Get("hud.health").Length,
+                Is.GreaterThan(english.Get("hud.health").Length));
+        }
+
+        [Test]
+        public void FrameBudgetWindowReportsSixtyFpsCompliance()
+        {
+            var window = new FrameBudgetWindow(120);
+            for (int index = 0; index < 120; index++)
+                window.AddSeconds(.016f);
+            FrameBudgetSnapshot snapshot = window.Snapshot();
+
+            Assert.That(snapshot.Samples, Is.EqualTo(120));
+            Assert.That(snapshot.AverageMilliseconds, Is.EqualTo(16f).Within(.01f));
+            Assert.That(snapshot.Meets60FpsBudget, Is.True);
+        }
+
+        [Test]
+        public void ReleaseReadinessValidatorHasNoOutstandingErrors()
+        {
+            Assert.That(ReleaseReadinessValidator.CollectErrors(), Is.Empty);
         }
     }
 }

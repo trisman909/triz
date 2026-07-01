@@ -22,3 +22,13 @@ uses an original procedural motif so every build is complete and license-safe.
 Achievements are immutable catalog entries with stable IDs. The release catalog
 is builder-generated and build-validated at exactly 100 entries, while mutable
 progress and unlock ownership stay in save-backed runtime state.
+
+Balance multipliers live in one authored profile covering four difficulty tiers
+and five biome depths. Runtime performance telemetry uses a fixed ring buffer;
+it never allocates on update. Localization is stable-key based, always falls
+back to English source, and supports `qps-ploc` pseudo-localization for layout
+and glyph QA.
+
+`ReleaseReadinessValidator` is the shared local/CI/build boundary. It rejects
+missing or invalid content, achievement, localization and balance catalogs, or
+an incomplete build-scene list before a player build starts.

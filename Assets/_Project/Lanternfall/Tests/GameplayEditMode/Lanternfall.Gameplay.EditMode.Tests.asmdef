@@ -1,7 +1,7 @@
 {
   "name": "Lanternfall.Gameplay.EditMode.Tests",
   "rootNamespace": "Lanternfall.Tests",
-  "references": ["Lanternfall.Gameplay"],
+  "references": ["Lanternfall.Gameplay", "Lanternfall.Editor"],
   "includePlatforms": ["Editor"],
   "overrideReferences": true,
   "precompiledReferences": ["nunit.framework.dll"],
@@ -9,4 +9,3 @@
   "defineConstraints": ["UNITY_INCLUDE_TESTS"],
   "noEngineReferences": false
 }
-

@@ -57,7 +57,7 @@ public sealed class FoundationTests
         public void HundredsOfSeedsPreservePacingAndCriticalBranches()
         {
             var generator = new RoomGraphGenerator();
-            for (ulong seed = 0; seed < 250; seed++)
+            for (ulong seed = 0; seed < 1000; seed++)
             {
                 var rooms = generator.Generate(seed, 12);
                 Assert.That(rooms[0].Kind, Is.EqualTo(RoomKind.Start));

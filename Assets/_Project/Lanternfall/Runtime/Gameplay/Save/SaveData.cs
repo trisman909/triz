@@ -28,6 +28,7 @@ namespace Lanternfall.Gameplay.Save
         public bool reducedMotion;
         public bool subtitles = true;
         public bool highContrastTelegraphs;
+        public string locale = "en";
         public string bindingOverrides = string.Empty;
     }
 

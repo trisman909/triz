@@ -1,0 +1,63 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01dfe266aa5bf6c41a5c2398c38c693e, type: 3}
+  m_Name: LanternfallLocalizationCatalog
+  m_EditorClassIdentifier: Lanternfall.Gameplay::Lanternfall.Gameplay.Localization.LocalizationCatalog
+  entries:
+  - key: hud.health
+    english: LANTERN
+  - key: hud.gold
+    english: GOLD
+  - key: hud.echoes
+    english: ECHOES
+  - key: hud.buffs
+    english: BUFFS
+  - key: hud.debuffs
+    english: DEBUFFS
+  - key: hud.ability_ready
+    english: ABILITY READY
+  - key: hud.current_chamber
+    english: CURRENT CHAMBER
+  - key: hud.uncharted
+    english: UNCHARTED
+  - key: pause.title
+    english: LANTERN PAUSED
+  - key: pause.resume
+    english: RESUME
+  - key: settings.accessibility
+    english: ACCESSIBILITY
+  - key: settings.ui_scale
+    english: UI SCALE
+  - key: settings.reduced_motion
+    english: REDUCED MOTION
+  - key: settings.subtitles
+    english: SUBTITLES
+  - key: settings.high_contrast
+    english: HIGH CONTRAST
+  - key: settings.controls
+    english: CONTROLS
+  - key: settings.on
+    english: ON
+  - key: settings.off
+    english: OFF
+  - key: boss.phase
+    english: GUARDIAN PHASE
+  - key: boss.defeated
+    english: GUARDIAN MEMORY CLAIMED
+  - key: run.summary
+    english: RUN SUMMARY
+  - key: run.victory
+    english: THE LANTERN ENDURES
+  - key: run.defeat
+    english: THE MEMORY FADES
+  - key: menu.start
+    english: BEGIN DESCENT

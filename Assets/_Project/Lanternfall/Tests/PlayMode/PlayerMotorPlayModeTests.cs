@@ -8,6 +8,8 @@ using Lanternfall.Gameplay.Bosses;
 using Lanternfall.Gameplay.Audio;
 using Lanternfall.Gameplay.Input;
 using Lanternfall.Gameplay.UI;
+using Lanternfall.Gameplay.Performance;
+using UnityEngine.SceneManagement;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -217,6 +219,31 @@ namespace Lanternfall.Tests
 
             Object.Destroy(audio);
             yield return null;
+        }
+
+        [UnityTest]
+        public IEnumerator VerticalSliceStaysInsideRuntimeFrameAndPopulationBudgets()
+        {
+            SceneManager.LoadScene("FirstBiomeVerticalSlice");
+            yield return null;
+            FrameBudgetMonitor monitor =
+                Object.FindFirstObjectByType<FrameBudgetMonitor>();
+            Assert.That(monitor, Is.Not.Null);
+
+            for (int frame = 0; frame < 180; frame++)
+                yield return null;
+
+            FrameBudgetSnapshot snapshot = monitor.Snapshot;
+            Assert.That(snapshot.Samples, Is.GreaterThanOrEqualTo(120));
+            Assert.That(snapshot.Meets60FpsBudget, Is.True,
+                $"Average {snapshot.AverageMilliseconds:0.00}ms; " +
+                $"over-budget {snapshot.OverBudgetRatio:P1}");
+            Assert.That(
+                Object.FindObjectsByType<EnemyBrain>(FindObjectsSortMode.None).Length,
+                Is.LessThanOrEqualTo(8));
+            Assert.That(
+                Object.FindObjectsByType<BossBrain>(FindObjectsSortMode.None).Length,
+                Is.LessThanOrEqualTo(1));
         }
     }
 }

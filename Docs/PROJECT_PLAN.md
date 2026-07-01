@@ -15,8 +15,8 @@ Updated: 2026-07-01
 | 8 | Hub, saves, meta progression, NPC quests | Complete |
 | 9 | Five-biome content production | Complete |
 | 10 | UI, audio, accessibility, 100 achievements | Complete |
-| 11 | Optimization, balance, QA, localization | In progress |
-| 12 | Windows release candidate | Pending |
+| 11 | Optimization, balance, QA, localization | Complete |
+| 12 | Windows release candidate | In progress |
 
 ## Phase rules
 
@@ -157,3 +157,19 @@ commit before the next phase begins.
 - [x] EditMode tests: 17/17 passed.
 - [x] PlayMode integration tests: 8/8 passed.
 - [x] Four-scene Windows x64 smoke build succeeded (164,793,134 bytes).
+
+## Phase 11 verification
+
+- [x] Fixed-memory 300-frame telemetry window and explicit minimum-PC budgets.
+- [x] Live first-biome frame/population PlayMode budget gate.
+- [x] Central four-tier, five-biome health/damage/reward balance profile.
+- [x] Target run duration constrained to the 25–45 minute release definition.
+- [x] English source catalog with fallback and deterministic pseudo-locale QA.
+- [x] Localized runtime HUD boundaries and per-profile locale persistence.
+- [x] Unified release-readiness validator for content, achievements, balance,
+  localization and four enabled build scenes.
+- [x] Deterministic generation soak expanded to 1,000 seeds.
+- [x] EditMode tests: 21/21 passed.
+- [x] PlayMode integration/performance tests: 9/9 passed.
+- [x] Readiness-gated four-scene Windows x64 build succeeded
+  (164,806,502 bytes).
