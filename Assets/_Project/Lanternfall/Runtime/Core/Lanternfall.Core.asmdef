@@ -1,0 +1,7 @@
+{
+  "name": "Lanternfall.Core",
+  "rootNamespace": "Lanternfall",
+  "references": [],
+  "noEngineReferences": true
+}
+
