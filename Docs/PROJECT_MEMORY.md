@@ -44,7 +44,8 @@ remain authoritative.
 | 10 Experience/accessibility | `feat: deliver accessible game experience layer` | 17/17 EditMode; 8/8 PlayMode; four-scene Windows build |
 | 11 Optimization/QA | `feat: add measurable release quality gates` | 21/21 EditMode; 9/9 PlayMode; readiness-gated Windows build |
 | 12 Packaging/audit | `04fc84d` | 21/21 EditMode; 9/9 PlayMode; strict build; packaged hub-to-biome smoke |
-| 13 Integrated run | pending commit | 22/22 EditMode; 10/10 PlayMode; five-scene build; packaged hub-to-run smoke |
+| 13 Integrated run | `d0fe3f5` | 22/22 EditMode; 10/10 PlayMode; five-scene build; packaged hub-to-run smoke |
+| 14 Pillar mechanics | pending commit | 26/26 EditMode; 10/10 PlayMode; five-scene build; packaged pillar smoke |
 
 ## Current state
 
@@ -75,9 +76,9 @@ fixed real player corruption caused by secondary `LocalizationBootstrap` and
 own matching source file, and no scene contains embedded MonoScripts.
 
 The final audit proved the packaging pipeline but found the game is not
-commercially complete: the route generator, classes and most content are
-catalog/sandbox-only; Radiance geometry and Vows are absent; achievements,
-accessibility and audio are incompletely wired; presentation remains greybox.
+commercially complete. Integrated runs, classes, Radiance, Vows and Echo
+cadence are now implemented through Phase 14, while encounter presentation,
+achievements, accessibility and audio still need their remediation phases.
 `Docs/COMPLETION_AUDIT.md` is authoritative. The plan now continues through
 Phases 13–17 rather than making a false completion claim.
 
@@ -91,8 +92,18 @@ orchestration, exit gating, death/victory returns and statistics capture.
 
 Evidence is 22/22 EditMode, 10/10 PlayMode, a 164,843,603-byte Windows
 development build, and a packaged hub-to-`RunChamber` smoke exit 0. Next:
-commit/push Phase 13, then implement Radiance geometry, Vows, passive class
-identities and full Echo reward cadence in Phase 14.
+Phase 13 was committed and pushed as `d0fe3f5`.
+
+## Phase 14 active work
+
+Phase 13 is committed and pushed. Phase 14 is verified and ready to commit. It adds a movable
+`RadianceField`, archetype-specific light responses, danger/reward beyond the
+lantern, five stable-tag class passives, three selectable Vows with fulfillment
+or break consequences, persistent Echo/gold state and deterministic
+post-encounter reward choices. Evidence: 26/26 EditMode, 10/10 PlayMode,
+readiness validation, a 164,855,989-byte Windows development build and packaged
+smoke exit 0. Next: commit/push Phase 14, then deliver biome-specific playable
+spaces and distinct release encounters in Phase 15.
 
 ## Architecture invariants
 

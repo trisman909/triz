@@ -12,6 +12,8 @@ using Lanternfall.Gameplay.Performance;
 using UnityEngine.SceneManagement;
 using Lanternfall.Gameplay.Hub;
 using Lanternfall.Gameplay.Run;
+using Lanternfall.Gameplay.Progression;
+using Lanternfall.Gameplay.Radiance;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -272,6 +274,13 @@ namespace Lanternfall.Tests
             Assert.That(
                 Object.FindFirstObjectByType<Health>().Maximum,
                 Is.EqualTo(125f).Within(.01f));
+            Assert.That(hub.ActiveRun.OutsideRewardMultiplier, Is.EqualTo(2f));
+            Assert.That(
+                Object.FindFirstObjectByType<ClassPassiveController>().ActivePassive,
+                Is.EqualTo("boundary.crossing"));
+            Assert.That(
+                Object.FindFirstObjectByType<RadianceField>(),
+                Is.Not.Null);
         }
     }
 }

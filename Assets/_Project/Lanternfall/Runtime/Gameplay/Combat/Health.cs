@@ -14,6 +14,7 @@ namespace Lanternfall.Gameplay.Combat
         [SerializeField, Min(1f)] private float maximum = 100f;
         [SerializeField, Min(0f)] private float armor;
         [SerializeField] private bool destroyOnDeath;
+        private float _runtimeArmor;
 
         public event Action<float, float> Changed;
         public event Action<DamageResult> Damaged;
@@ -21,6 +22,7 @@ namespace Lanternfall.Gameplay.Combat
 
         public float Current { get; private set; }
         public float Maximum => maximum;
+        public float RuntimeArmor => _runtimeArmor;
         public bool IsAlive => Current > 0f;
 
         private void Awake() => Current = maximum;
@@ -33,7 +35,7 @@ namespace Lanternfall.Gameplay.Combat
                 request.AdditiveBonus,
                 request.CriticalChance,
                 request.CriticalMultiplier,
-                request.Armor + armor,
+                request.Armor + Mathf.Max(0f, armor + _runtimeArmor),
                 request.Element,
                 request.CriticalRoll);
             DamageResult result = DamageResolver.Resolve(armored);
@@ -61,5 +63,7 @@ namespace Lanternfall.Gameplay.Combat
             Current = Mathf.Clamp(value, 0f, maximum);
             Changed?.Invoke(Current, maximum);
         }
+
+        public void SetRuntimeArmor(float value) => _runtimeArmor = value;
     }
 }

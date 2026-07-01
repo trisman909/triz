@@ -17,7 +17,8 @@ namespace Lanternfall.Gameplay.Progression
 
         public bool TryAdd(RelicDefinition relic)
         {
-            if (relic == null || _owned.Contains(relic)) return false;
+            if (relic == null || _owned.Contains(relic) || _owned.Count >= 3)
+                return false;
             _owned.Add(relic);
             for (int slot = 0; slot < _chain.Slots.Count; slot++)
             {

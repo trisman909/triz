@@ -13,6 +13,7 @@ namespace Lanternfall.Gameplay.Run
         [SerializeField] private ContentCatalog contentCatalog;
         private Health _health;
         private HubController _hub;
+        private RunInventory _inventory;
 
         public void Configure(ContentCatalog catalog) => contentCatalog = catalog;
 
@@ -31,6 +32,7 @@ namespace Lanternfall.Gameplay.Run
             if (selected == null) return;
 
             _health = GetComponent<Health>();
+            _inventory = GetComponent<RunInventory>();
             _health.Configure(selected.MaximumHealth, 5f, false);
             if (_hub.ActiveRun.CurrentHealth >= 0f)
                 _health.Restore(_hub.ActiveRun.CurrentHealth);
@@ -39,15 +41,28 @@ namespace Lanternfall.Gameplay.Run
             GetComponent<PlayerMotor>().ConfigureMoveSpeed(selected.MovementSpeed);
             GetComponent<PlayerCombat>().ApplyLoadout(
                 selected.StartingWeapon, selected.StartingAbility);
+            RestoreRunInventory();
+            ClassPassiveController passives =
+                GetComponent<ClassPassiveController>();
+            if (passives != null) passives.Configure(selected, _hub.ActiveRun);
             _health.Changed += OnHealthChanged;
+            _health.Damaged += OnDamaged;
             _health.Died += OnDied;
+            _inventory.Changed += OnInventoryChanged;
+            _inventory.Wallet.Changed += OnWalletChanged;
         }
 
         private void OnDestroy()
         {
             if (_health == null) return;
             _health.Changed -= OnHealthChanged;
+            _health.Damaged -= OnDamaged;
             _health.Died -= OnDied;
+            if (_inventory != null)
+            {
+                _inventory.Changed -= OnInventoryChanged;
+                _inventory.Wallet.Changed -= OnWalletChanged;
+            }
         }
 
         private void OnHealthChanged(float current, float _) 
@@ -57,5 +72,38 @@ namespace Lanternfall.Gameplay.Run
         }
 
         private void OnDied() => _hub?.FailRun();
+
+        private void OnDamaged(DamageResult result) =>
+            _hub?.ActiveRun?.RecordDamage(result.Amount);
+
+        private void OnWalletChanged(CurrencyKind currency, int balance)
+        {
+            if (currency == CurrencyKind.Gold && _hub?.ActiveRun != null)
+                _hub.ActiveRun.Gold = balance;
+        }
+
+        private void OnInventoryChanged()
+        {
+            if (_hub?.ActiveRun == null || _inventory == null) return;
+            var ids = new string[_inventory.Owned.Count];
+            for (int index = 0; index < ids.Length; index++)
+                ids[index] = _inventory.Owned[index].StableId;
+            _hub.ActiveRun.SetEchoes(ids);
+        }
+
+        private void RestoreRunInventory()
+        {
+            RunSession session = _hub.ActiveRun;
+            for (int id = 0; id < session.EchoIds.Count; id++)
+                for (int relic = 0; relic < contentCatalog.Relics.Count; relic++)
+                    if (contentCatalog.Relics[relic].StableId ==
+                        session.EchoIds[id])
+                    {
+                        _inventory.TryAdd(contentCatalog.Relics[relic]);
+                        break;
+                    }
+            if (session.Gold > 0)
+                _inventory.Wallet.Add(CurrencyKind.Gold, session.Gold);
+        }
     }
 }

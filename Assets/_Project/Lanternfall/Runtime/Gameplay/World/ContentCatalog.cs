@@ -13,11 +13,13 @@ namespace Lanternfall.Gameplay.World
         [SerializeField] private BiomeDefinition[] biomes;
         [SerializeField] private EnemyDefinition[] enemies;
         [SerializeField] private BossDefinition[] bosses;
+        [SerializeField] private RelicDefinition[] relics;
 
         public IReadOnlyList<CharacterClassDefinition> Classes => classes;
         public IReadOnlyList<BiomeDefinition> Biomes => biomes;
         public IReadOnlyList<EnemyDefinition> Enemies => enemies;
         public IReadOnlyList<BossDefinition> Bosses => bosses;
+        public IReadOnlyList<RelicDefinition> Relics => relics;
 
         public List<string> ValidateReleaseCounts()
         {
@@ -26,6 +28,7 @@ namespace Lanternfall.Gameplay.World
             Validate(biomes, 5, "biomes", item => item.StableId, errors);
             Validate(enemies, 40, "enemies", item => item.StableId, errors);
             Validate(bosses, 15, "bosses", item => item.StableId, errors);
+            Validate(relics, 6, "relics", item => item.StableId, errors);
             return errors;
         }
 
@@ -34,12 +37,14 @@ namespace Lanternfall.Gameplay.World
             CharacterClassDefinition[] classDefinitions,
             BiomeDefinition[] biomeDefinitions,
             EnemyDefinition[] enemyDefinitions,
-            BossDefinition[] bossDefinitions)
+            BossDefinition[] bossDefinitions,
+            RelicDefinition[] relicDefinitions)
         {
             classes = classDefinitions;
             biomes = biomeDefinitions;
             enemies = enemyDefinitions;
             bosses = bossDefinitions;
+            relics = relicDefinitions;
         }
 #endif
 
@@ -68,4 +73,3 @@ namespace Lanternfall.Gameplay.World
         }
     }
 }
-

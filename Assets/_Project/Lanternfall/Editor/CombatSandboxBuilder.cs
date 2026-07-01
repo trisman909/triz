@@ -9,6 +9,7 @@ using Lanternfall.Gameplay.Input;
 using Lanternfall.Gameplay.Hub;
 using Lanternfall.Gameplay.Player;
 using Lanternfall.Gameplay.Progression;
+using Lanternfall.Gameplay.Radiance;
 using Lanternfall.Gameplay.Run;
 using Lanternfall.Gameplay.Localization;
 using Lanternfall.Gameplay.Performance;
@@ -101,7 +102,7 @@ namespace Lanternfall.Editor
             CharacterClassDefinition[] classes =
                 CreateClassRoster(weapons, abilities);
             ContentCatalog contentCatalog =
-                CreateContentCatalog(classes, biomes, enemies, bosses);
+                CreateContentCatalog(classes, biomes, enemies, bosses, relics);
             CreateAchievementCatalog();
             CreateBalanceProfile();
             CreateLocalizationCatalog();
@@ -973,7 +974,8 @@ namespace Lanternfall.Editor
             CharacterClassDefinition[] classes,
             BiomeDefinition[] biomes,
             EnemyDefinition[] enemies,
-            BossDefinition[] bosses)
+            BossDefinition[] bosses,
+            RelicDefinition[] relics)
         {
             const string path =
                 "Assets/_Project/Lanternfall/Settings/LanternfallContentCatalog.asset";
@@ -984,7 +986,7 @@ namespace Lanternfall.Editor
                 catalog = ScriptableObject.CreateInstance<ContentCatalog>();
                 AssetDatabase.CreateAsset(catalog, path);
             }
-            catalog.Configure(classes, biomes, enemies, bosses);
+            catalog.Configure(classes, biomes, enemies, bosses, relics);
             EditorUtility.SetDirty(catalog);
             System.Collections.Generic.List<string> errors =
                 catalog.ValidateReleaseCounts();
@@ -1287,8 +1289,10 @@ namespace Lanternfall.Editor
             lanternLight.color = new Color(1f, .36f, .12f);
             lanternLight.range = 10f;
             lanternLight.intensity = 6f;
+            lantern.AddComponent<RadianceField>();
             player.AddComponent<PlayerCombat>().Configure(
                 defaultWeapon, defaultAbility, projectilePrefab, lantern.transform);
+            player.AddComponent<ClassPassiveController>();
             player.AddComponent<RunPlayerInitializer>().Configure(contentCatalog);
 
             GameObject gateObject =

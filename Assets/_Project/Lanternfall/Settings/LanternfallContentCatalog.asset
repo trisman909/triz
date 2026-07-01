@@ -81,3 +81,10 @@ MonoBehaviour:
   - {fileID: 11400000, guid: ce1d7b8b29a12204eaa7c60fbae4ad7c, type: 2}
   - {fileID: 11400000, guid: 9491c9fb1c1c00f4e84d93398676ecc9, type: 2}
   - {fileID: 11400000, guid: 8205039120b4def458d6598b572fec8b, type: 2}
+  relics:
+  - {fileID: 11400000, guid: f978804cc678cf5419fad0cecfbc79d3, type: 2}
+  - {fileID: 11400000, guid: 1ebdad6475188a34abd71d01941fa15d, type: 2}
+  - {fileID: 11400000, guid: e9b14f2605514ab439f1995455d6ef14, type: 2}
+  - {fileID: 11400000, guid: f23c600543d19904d8c29dab823f6be2, type: 2}
+  - {fileID: 11400000, guid: 796a98e6582cb644391d0feee86439c1, type: 2}
+  - {fileID: 11400000, guid: 050d25d0187edb74982caecadee3a833, type: 2}

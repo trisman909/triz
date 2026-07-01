@@ -9,10 +9,10 @@ Catalog counts and passing unit tests do not prove a feature is playable.
 |---|---|---|---|
 | Windows x64 player starts cleanly | `1.0.0-rc.1` strict build, independent SHA-256 verification, packaged D3D12 smoke exit 0 on Intel UHD 620 | Proven | Re-run every release |
 | Deterministic 25–45 minute hub-to-run loop | Hub starts a persistent 40-room/five-biome `RunSession`; 100 seeds meet the authored duration target; packaged hub-to-run smoke passes | Partial: full human timing capture remains | Phase 17 |
-| Five selectable, skill-distinct classes | Five in-world selectors apply distinct health, speed, weapons and abilities in `RunChamber` | Proven for selection/loadouts; passive behaviors remain | Phase 14 |
-| Light as battlefield geometry | Radiance currently exists only as a damage element/aspect; no light-volume gameplay system | Not achieved | Phase 14 |
-| Route Vows with later consequences | No runtime Vow model or encounter integration exists | Not achieved | Phase 14 |
-| Echo resonance builds | Runtime inventory and three-slot evaluation exist and are exercised | Partial: no full-run reward cadence | Phases 13–14 |
+| Five selectable, skill-distinct classes | Five selectors apply distinct stats/loadouts and five stable-tag passive rules | Proven | Regression gate |
+| Light as battlefield geometry | Carried planar field changes speed/windup/armor/aggression by archetype; beyond-light combat increases danger and reward | Proven | Regression gate |
+| Route Vows with later consequences | Three visible conditions measure combat and alter reward plus following encounter size | Proven | Regression gate |
+| Echo resonance builds | Deterministic post-encounter choices, three-slot persistence and resonance evaluation are integrated across rooms | Proven | Regression gate |
 | Five playable biomes | Five definitions exist; build contains one guardian arena using the first biome | Not achieved | Phase 15 |
 | 40 readable enemy families | Forty definitions exist; they share a small prefab/brain vocabulary and are not all encountered in a run | Not achieved | Phase 15 |
 | 15 distinctive multi-phase guardians | Fifteen definitions and eight patterns exist; all share one greybox presentation and one arena | Partial | Phase 15 |

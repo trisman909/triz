@@ -39,3 +39,14 @@ elapsed time, persisted health and run statistics. `RunChamberController`
 adapts the current room plan into combat, guardian or utility presentation;
 scene reloads never regenerate or mutate the route. `HubController` owns the
 session lifecycle because it already persists across hub/run transitions.
+
+`RadianceField` is the geometric authority for carried-light exposure; enemy
+brains query it without coupling to visual `Light` components. Class passives
+are applied from stable tags by `ClassPassiveController`. Vow state, room
+measurements, outcomes and downstream modifiers live in `RunSession`, so scene
+presentation cannot reroll or erase consequences.
+
+The content catalog now owns Echo definitions alongside classes, biomes,
+enemies and guardians. `RunPlayerInitializer` rehydrates gold and the
+three-slot Echo chain on each chamber load, while deterministic room rewards
+write stable IDs back into the session.

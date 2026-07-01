@@ -18,8 +18,8 @@ Updated: 2026-07-01
 | 11 | Optimization, balance, QA, localization | Complete |
 | 12 | Windows RC pipeline and completion audit | Complete |
 | 13 | Integrated 25–45 minute run and class selection | Complete |
-| 14 | Radiance geometry, Vows, full Echo reward cadence | In progress |
-| 15 | Five playable biomes and distinct release encounters | Pending |
+| 14 | Radiance geometry, Vows, full Echo reward cadence | Complete |
+| 15 | Five playable biomes and distinct release encounters | In progress |
 | 16 | Production presentation, audio, UI and achievement wiring | Pending |
 | 17 | Minimum-PC QA and final Windows release candidate | Pending |
 
@@ -218,3 +218,23 @@ commit before the next phase begins.
 - [x] PlayMode integration tests: 10/10 passed.
 - [x] Five-scene Windows x64 development build succeeded (164,843,603 bytes).
 - [x] Packaged hub-to-`RunChamber` smoke passed with exit code 0.
+
+## Phase 14 verification
+
+- [x] Movable planar `RadianceField` centered on the carried lantern.
+- [x] Eight enemy archetypes receive light-dependent speed, windup, armor or
+  aggression responses.
+- [x] Enemies beyond the lantern deal 25% more damage and pay enhanced rewards.
+- [x] Vanguard guard, Wayfinder radius, Gloamstep boundary, Cantor sequence and
+  Artificer refraction passives execute through stable authored tags.
+- [x] Three visible Vow choices with no-hit, timed-clear and beyond-light
+  conditions.
+- [x] Fulfilled/broken Vows alter reward yield and following encounter size.
+- [x] Deterministic three-choice Echo rewards after encounters and in treasure
+  rooms.
+- [x] Gold, three-slot Echo chain and class passive state survive room reloads.
+- [x] Non-damageable reward/Vow triggers no longer absorb projectiles.
+- [x] EditMode tests: 26/26 passed.
+- [x] PlayMode integration tests: 10/10 passed.
+- [x] Five-scene Windows x64 development build succeeded (164,855,989 bytes).
+- [x] Packaged hub-to-pillar-chamber smoke passed with exit code 0.

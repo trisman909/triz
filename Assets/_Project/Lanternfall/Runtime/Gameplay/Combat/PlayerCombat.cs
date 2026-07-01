@@ -18,6 +18,7 @@ namespace Lanternfall.Gameplay.Combat
         private ComponentPool<Projectile> _projectiles;
         private float _attackCooldown;
         private float _abilityCooldown;
+        private float _abilityCooldownMultiplier = 1f;
 
         public float AttackCooldownRemaining => _attackCooldown;
         public float AbilityCooldownRemaining => _abilityCooldown;
@@ -25,6 +26,7 @@ namespace Lanternfall.Gameplay.Combat
             startingAbility != null ? startingAbility.Cooldown : 0f;
         public string AbilityName =>
             startingAbility != null ? startingAbility.name : "Ability";
+        public float AbilityCooldownMultiplier => _abilityCooldownMultiplier;
 
         private void Awake()
         {
@@ -74,7 +76,7 @@ namespace Lanternfall.Gameplay.Combat
                         startingAbility.Damage, 0f, 0f, 1f, 0f,
                         startingAbility.Element, 1f));
             }
-            _abilityCooldown = startingAbility.Cooldown;
+            _abilityCooldown = startingAbility.Cooldown * _abilityCooldownMultiplier;
             return true;
         }
 
@@ -95,6 +97,9 @@ namespace Lanternfall.Gameplay.Combat
             if (weapon != null) startingWeapon = weapon;
             if (ability != null) startingAbility = ability;
         }
+
+        public void SetAbilityCooldownMultiplier(float value) =>
+            _abilityCooldownMultiplier = Mathf.Clamp(value, .35f, 2f);
 
         private Vector3 ResolveAimDirection()
         {

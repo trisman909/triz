@@ -47,6 +47,9 @@ namespace Lanternfall.Gameplay.Combat
             {
                 RaycastHit candidate = _hits[index];
                 if (candidate.collider.transform.root == _ownerRoot) continue;
+                if (candidate.collider.isTrigger &&
+                    candidate.collider.GetComponentInParent<Health>() == null)
+                    continue;
                 if (candidate.distance < closest)
                 {
                     selected = index;

@@ -1,5 +1,6 @@
 using System;
 using Lanternfall.Gameplay.Combat;
+using Lanternfall.Gameplay.Radiance;
 using UnityEngine;
 
 namespace Lanternfall.Gameplay.Enemies
@@ -26,6 +27,7 @@ namespace Lanternfall.Gameplay.Enemies
         public event Action<EnemyBrain> Died;
         public EnemyDefinition Definition => definition;
         public bool IsAlive => _state != BrainState.Dead;
+        public bool InRadiance { get; private set; }
 
         private void Awake()
         {
@@ -46,6 +48,7 @@ namespace Lanternfall.Gameplay.Enemies
         private void Update()
         {
             if (_state == BrainState.Dead || target == null || definition == null) return;
+            UpdateRadianceResponse();
             float distance = Vector3.Distance(
                 Vector3.ProjectOnPlane(transform.position, Vector3.up),
                 Vector3.ProjectOnPlane(target.position, Vector3.up));
@@ -128,6 +131,7 @@ namespace Lanternfall.Gameplay.Enemies
             }
 
             float speed = definition.MoveSpeed;
+            speed *= RadianceSpeedMultiplier();
             if (eliteModifier == EliteModifier.Frenzied) speed *= 1.35f;
             _controller.Move(direction * speed * Time.deltaTime + Vector3.down * 2f * Time.deltaTime);
             if (direction.sqrMagnitude > 0.01f)
@@ -146,6 +150,7 @@ namespace Lanternfall.Gameplay.Enemies
                 target.GetComponentInParent<Health>() is Health targetHealth)
             {
                 float multiplier = eliteModifier == EliteModifier.Frenzied ? 1.25f : 1f;
+                if (!InRadiance) multiplier *= 1.25f;
                 targetHealth.ApplyDamage(new DamageRequest(
                     definition.AttackDamage * multiplier, 0f, 0f, 1f, 0f,
                     DamageElement.Physical, 1f));
@@ -159,9 +164,37 @@ namespace Lanternfall.Gameplay.Enemies
 
         private float AdjustedWindup()
         {
-            return eliteModifier == EliteModifier.Frenzied
+            float result = eliteModifier == EliteModifier.Frenzied
                 ? definition.Windup * 0.72f
                 : definition.Windup;
+            if (InRadiance && definition.Archetype == EnemyArchetype.Summoner)
+                result *= 1.35f;
+            if (InRadiance && definition.Archetype == EnemyArchetype.Explosive)
+                result *= .72f;
+            return result;
+        }
+
+        private void UpdateRadianceResponse()
+        {
+            InRadiance = RadianceField.ContainsActive(transform.position);
+            if (definition.Archetype == EnemyArchetype.Tank)
+                _health.SetRuntimeArmor(InRadiance ? -definition.Armor : 0f);
+        }
+
+        private float RadianceSpeedMultiplier()
+        {
+            if (!InRadiance) return 1f;
+            switch (definition.Archetype)
+            {
+                case EnemyArchetype.Assassin:
+                case EnemyArchetype.Burrowing:
+                    return .65f;
+                case EnemyArchetype.Flying:
+                case EnemyArchetype.Explosive:
+                    return 1.25f;
+                default:
+                    return .9f;
+            }
         }
 
         private void ChangeState(BrainState next, float duration)

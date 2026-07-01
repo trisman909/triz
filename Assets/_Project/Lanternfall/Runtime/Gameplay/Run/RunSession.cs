@@ -5,6 +5,9 @@ using Lanternfall.Core.Run;
 
 namespace Lanternfall.Gameplay.Run
 {
+    public enum VowKind { UnbrokenFlame, SwiftPassage, BeyondLantern }
+    public enum VowOutcome { None, Active, Fulfilled, Broken }
+
     public readonly struct RunRoomPlan
     {
         public RunRoomPlan(
@@ -36,6 +39,7 @@ namespace Lanternfall.Gameplay.Run
 
         private readonly List<RunRoomPlan> _rooms =
             new List<RunRoomPlan>(BiomeCount * MainRoomsPerBiome);
+        private readonly List<string> _echoIds = new List<string>(3);
 
         public RunSession(ulong seed, string classId)
         {
@@ -49,12 +53,19 @@ namespace Lanternfall.Gameplay.Run
         public ulong Seed { get; }
         public string ClassId { get; }
         public IReadOnlyList<RunRoomPlan> Rooms => _rooms;
+        public IReadOnlyList<string> EchoIds => _echoIds;
         public int CurrentIndex { get; private set; }
         public float ElapsedSeconds { get; private set; }
         public float CurrentHealth { get; set; } = -1f;
         public int Gold { get; set; }
         public int EnemiesDefeated { get; set; }
         public int BossesDefeated { get; set; }
+        public float OutsideRewardMultiplier { get; set; } = 1f;
+        public VowKind? ActiveVow { get; private set; }
+        public VowOutcome LastVowOutcome { get; private set; }
+        private float _roomStartedAt;
+        private float _damageThisRoom;
+        private int _outsideKillsThisRoom;
         public float EstimatedDurationMinutes
         {
             get
@@ -77,6 +88,73 @@ namespace Lanternfall.Gameplay.Run
             if (IsComplete) return false;
             CurrentIndex++;
             return !IsComplete;
+        }
+
+        public bool ActivateVow(VowKind vow)
+        {
+            if (ActiveVow.HasValue) return false;
+            ActiveVow = vow;
+            LastVowOutcome = VowOutcome.Active;
+            return true;
+        }
+
+        public void BeginRoom()
+        {
+            _roomStartedAt = ElapsedSeconds;
+            _damageThisRoom = 0f;
+            _outsideKillsThisRoom = 0;
+        }
+
+        public void RecordDamage(float amount) =>
+            _damageThisRoom += Math.Max(0f, amount);
+
+        public void RecordKill(bool inRadiance)
+        {
+            if (!inRadiance) _outsideKillsThisRoom++;
+        }
+
+        public VowOutcome ResolveVowForCombatRoom()
+        {
+            if (!ActiveVow.HasValue) return LastVowOutcome;
+            bool fulfilled;
+            switch (ActiveVow.Value)
+            {
+                case VowKind.UnbrokenFlame:
+                    fulfilled = _damageThisRoom <= 0f;
+                    break;
+                case VowKind.SwiftPassage:
+                    fulfilled = ElapsedSeconds - _roomStartedAt <= 75f;
+                    break;
+                default:
+                    fulfilled = _outsideKillsThisRoom >= 3;
+                    break;
+            }
+            LastVowOutcome = fulfilled
+                ? VowOutcome.Fulfilled
+                : VowOutcome.Broken;
+            ActiveVow = null;
+            return LastVowOutcome;
+        }
+
+        public int ConsumeEncounterConsequence()
+        {
+            int modifier = LastVowOutcome == VowOutcome.Fulfilled ? -1 :
+                LastVowOutcome == VowOutcome.Broken ? 2 : 0;
+            LastVowOutcome = VowOutcome.None;
+            return modifier;
+        }
+
+        public float CurrentRewardMultiplier =>
+            LastVowOutcome == VowOutcome.Fulfilled ? 1.5f :
+            LastVowOutcome == VowOutcome.Broken ? .75f : 1f;
+
+        public void SetEchoes(IReadOnlyList<string> stableIds)
+        {
+            _echoIds.Clear();
+            if (stableIds == null) return;
+            for (int index = 0; index < stableIds.Count && index < 3; index++)
+                if (!string.IsNullOrWhiteSpace(stableIds[index]))
+                    _echoIds.Add(stableIds[index]);
         }
 
         private void BuildRoute()

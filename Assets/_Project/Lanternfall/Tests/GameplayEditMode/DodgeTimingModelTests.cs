@@ -10,6 +10,7 @@ using Lanternfall.Gameplay.Performance;
 using Lanternfall.Editor;
 using Lanternfall.Gameplay.Run;
 using Lanternfall.Core.Run;
+using Lanternfall.Gameplay.Radiance;
 using UnityEngine;
 using UnityEditor;
 using Lanternfall.Gameplay.World;
@@ -194,6 +195,7 @@ namespace Lanternfall.Tests
             Assert.That(catalog.Biomes.Count, Is.EqualTo(5));
             Assert.That(catalog.Enemies.Count, Is.EqualTo(40));
             Assert.That(catalog.Bosses.Count, Is.EqualTo(15));
+            Assert.That(catalog.Relics.Count, Is.EqualTo(6));
         }
 
         [Test]
@@ -324,6 +326,111 @@ namespace Lanternfall.Tests
                 Assert.That(
                     new RunSession(seed, "class.vanguard").EstimatedDurationMinutes,
                     Is.InRange(25f, 45f));
+        }
+
+        [Test]
+        public void RadianceFieldUsesPlanarMovableGeometry()
+        {
+            GameObject owner = new GameObject("Radiance");
+            RadianceField field = owner.AddComponent<RadianceField>();
+            field.ConfigureRadius(6f);
+
+            Assert.That(field.Contains(new Vector3(5.9f, 99f, 0f)), Is.True);
+            Assert.That(field.Contains(new Vector3(6.1f, 0f, 0f)), Is.False);
+
+            Object.DestroyImmediate(owner);
+        }
+
+        [Test]
+        public void VowsResolveAndAlterTheFollowingEncounter()
+        {
+            var session = new RunSession(9UL, "class.vanguard");
+            Assert.That(session.ActivateVow(VowKind.UnbrokenFlame), Is.True);
+            session.BeginRoom();
+            session.RecordDamage(1f);
+            Assert.That(
+                session.ResolveVowForCombatRoom(),
+                Is.EqualTo(VowOutcome.Broken));
+            Assert.That(session.CurrentRewardMultiplier, Is.EqualTo(.75f));
+            Assert.That(session.ConsumeEncounterConsequence(), Is.EqualTo(2));
+
+            Assert.That(session.ActivateVow(VowKind.BeyondLantern), Is.True);
+            session.BeginRoom();
+            session.RecordKill(false);
+            session.RecordKill(false);
+            session.RecordKill(false);
+            Assert.That(
+                session.ResolveVowForCombatRoom(),
+                Is.EqualTo(VowOutcome.Fulfilled));
+            Assert.That(session.CurrentRewardMultiplier, Is.EqualTo(1.5f));
+            Assert.That(session.ConsumeEncounterConsequence(), Is.EqualTo(-1));
+        }
+
+        [Test]
+        public void EchoStableIdsPersistAcrossRoomScenes()
+        {
+            var session = new RunSession(10UL, "class.cantor");
+            session.SetEchoes(new[] { "relic.a", "relic.b", "relic.c", "relic.d" });
+            Assert.That(
+                session.EchoIds,
+                Is.EqualTo(new[] { "relic.a", "relic.b", "relic.c" }));
+        }
+
+        [Test]
+        public void AllFiveClassPassiveTagsApplyDistinctRuntimeRules()
+        {
+            GameObject bearer = new GameObject("Passive Bearer");
+            Health health = bearer.AddComponent<Health>();
+            PlayerCombat combat = bearer.AddComponent<PlayerCombat>();
+            RunInventory inventory = bearer.AddComponent<RunInventory>();
+            ClassPassiveController passives =
+                bearer.AddComponent<ClassPassiveController>();
+            GameObject light = new GameObject("Radiance");
+            light.transform.SetParent(bearer.transform);
+            RadianceField field = light.AddComponent<RadianceField>();
+            var session = new RunSession(1UL, "class.test");
+
+            CharacterClassDefinition vanguard =
+                CreateClass("guard.radiance");
+            passives.Configure(vanguard, session);
+            Assert.That(health.RuntimeArmor, Is.EqualTo(20f));
+
+            CharacterClassDefinition wayfinder = CreateClass("mote.pin");
+            passives.Configure(wayfinder, session);
+            Assert.That(field.Radius, Is.EqualTo(8f));
+
+            CharacterClassDefinition gloam = CreateClass("boundary.crossing");
+            passives.Configure(gloam, session);
+            Assert.That(session.OutsideRewardMultiplier, Is.EqualTo(2f));
+
+            CharacterClassDefinition artificer = CreateClass("lens.refraction");
+            passives.Configure(artificer, session);
+            Assert.That(combat.AbilityCooldownMultiplier, Is.EqualTo(.7f));
+
+            CharacterClassDefinition cantor = CreateClass("verse.sequence");
+            passives.Configure(cantor, session);
+            RelicDefinition relic = CreateRelic(
+                "passive.relic", MemoryAspect.Ember, 1f);
+            inventory.TryAdd(relic);
+            Assert.That(combat.AbilityCooldownMultiplier, Is.EqualTo(.88f));
+
+            Object.DestroyImmediate(vanguard);
+            Object.DestroyImmediate(wayfinder);
+            Object.DestroyImmediate(gloam);
+            Object.DestroyImmediate(artificer);
+            Object.DestroyImmediate(cantor);
+            Object.DestroyImmediate(relic);
+            Object.DestroyImmediate(bearer);
+        }
+
+        private static CharacterClassDefinition CreateClass(string passive)
+        {
+            CharacterClassDefinition definition =
+                ScriptableObject.CreateInstance<CharacterClassDefinition>();
+            definition.Configure(
+                $"class.{passive}", passive, passive,
+                null, null, 100f, 6f);
+            return definition;
         }
     }
 }
