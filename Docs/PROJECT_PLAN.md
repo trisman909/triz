@@ -9,8 +9,8 @@ Updated: 2026-07-01
 | 2 | Player movement, dodge, input, isometric camera | Complete |
 | 3 | Damage, weapons, abilities, pooling | Complete |
 | 4 | Enemy state machines and encounter director | Complete |
-| 5 | Modular rooms and seeded run generation | In progress |
-| 6 | Rewards, resonance builds, economy | Pending |
+| 5 | Modular rooms and seeded run generation | Complete |
+| 6 | Rewards, resonance builds, economy | In progress |
 | 7 | First-biome vertical slice and three bosses | Pending |
 | 8 | Hub, saves, meta progression, NPC quests | Pending |
 | 9 | Five-biome content production | Pending |
@@ -79,3 +79,15 @@ commit before the next phase begins.
 - [x] EditMode tests: 6/6 passed.
 - [x] PlayMode integration tests: 3/3 passed.
 - [x] Windows x64 development smoke build succeeded (164,681,931 bytes).
+
+## Phase 5 verification
+
+- [x] Deterministic main route plus treasure, shop and secret branches.
+- [x] Combat, elite, treasure, shop, shrine, puzzle, secret, challenge,
+  mini-boss, boss, event and healing room vocabulary.
+- [x] Guaranteed mini-boss, healing and boss pacing beats.
+- [x] Runtime greybox route presenter and dedicated generation sandbox.
+- [x] 250-seed invariant test for critical topology and pacing.
+- [x] EditMode tests: 7/7 passed.
+- [x] PlayMode integration tests: 4/4 passed.
+- [x] Two-scene Windows x64 smoke build succeeded (164,689,823 bytes).

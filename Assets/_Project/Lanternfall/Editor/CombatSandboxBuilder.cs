@@ -4,6 +4,7 @@ using Lanternfall.Gameplay.Combat;
 using Lanternfall.Gameplay.Enemies;
 using Lanternfall.Gameplay.Input;
 using Lanternfall.Gameplay.Player;
+using Lanternfall.Gameplay.World;
 using UnityEditor;
 using UnityEditor.Build;
 using UnityEditor.SceneManagement;
@@ -19,6 +20,8 @@ namespace Lanternfall.Editor
     {
         private const string ScenePath =
             "Assets/_Project/Lanternfall/Scenes/CombatSandbox.unity";
+        private const string RunScenePath =
+            "Assets/_Project/Lanternfall/Scenes/RunGenerationSandbox.unity";
 
         [MenuItem("Lanternfall/Build Combat Sandbox")]
         public static void Build()
@@ -145,9 +148,11 @@ namespace Lanternfall.Editor
             RenderSettings.ambientGroundColor = new Color(0.015f, 0.018f, 0.025f);
 
             EditorSceneManager.SaveScene(scene, ScenePath);
+            BuildRunGenerationSandbox(floorMaterial);
             EditorBuildSettings.scenes = new[]
             {
-                new EditorBuildSettingsScene(ScenePath, true)
+                new EditorBuildSettingsScene(ScenePath, true),
+                new EditorBuildSettingsScene(RunScenePath, true)
             };
             AssetDatabase.SaveAssets();
             Debug.Log($"Lanternfall combat sandbox built at {ScenePath}");
@@ -162,7 +167,7 @@ namespace Lanternfall.Editor
         {
             BuildPlayerOptions options = new BuildPlayerOptions
             {
-                scenes = new[] { ScenePath },
+                scenes = new[] { ScenePath, RunScenePath },
                 locationPathName = "Builds/Windows/Lanternfall.exe",
                 target = BuildTarget.StandaloneWindows64,
                 options = BuildOptions.Development
@@ -368,6 +373,53 @@ namespace Lanternfall.Editor
             GameObject prefab = PrefabUtility.SaveAsPrefabAsset(source, path);
             Object.DestroyImmediate(source);
             return prefab.GetComponent<EnemyBrain>();
+        }
+
+        private static void BuildRunGenerationSandbox(Material material)
+        {
+            Scene scene = EditorSceneManager.NewScene(
+                NewSceneSetup.EmptyScene,
+                NewSceneMode.Single);
+            GameObject roomTemplate = CreateRoomTemplatePrefab(material);
+            GameObject presenterObject = new GameObject("Seeded Run Layout");
+            RunLayoutPresenter presenter =
+                presenterObject.AddComponent<RunLayoutPresenter>();
+            presenter.Configure(roomTemplate, 20260701UL, 12);
+
+            GameObject cameraObject = new GameObject("Run Overview Camera");
+            cameraObject.tag = "MainCamera";
+            UnityEngine.Camera camera =
+                cameraObject.AddComponent<UnityEngine.Camera>();
+            camera.orthographic = true;
+            camera.orthographicSize = 46f;
+            camera.backgroundColor = new Color(0.015f, 0.02f, 0.035f);
+            camera.clearFlags = CameraClearFlags.SolidColor;
+            cameraObject.transform.position = new Vector3(55f, 70f, -55f);
+            cameraObject.transform.rotation = Quaternion.Euler(50f, 0f, 0f);
+
+            GameObject lightObject = new GameObject("Route Light");
+            Light light = lightObject.AddComponent<Light>();
+            light.type = LightType.Directional;
+            light.intensity = 1.4f;
+            light.color = new Color(0.65f, 0.72f, 0.9f);
+            lightObject.transform.rotation = Quaternion.Euler(55f, -30f, 0f);
+
+            EditorSceneManager.SaveScene(scene, RunScenePath);
+        }
+
+        private static GameObject CreateRoomTemplatePrefab(Material material)
+        {
+            const string path =
+                "Assets/_Project/Lanternfall/Art/RoomTemplateGreybox.prefab";
+            GameObject existing = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+            if (existing != null) return existing;
+            GameObject source = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            source.name = "Room Template Greybox";
+            source.transform.localScale = new Vector3(8f, 1f, 6f);
+            source.GetComponent<Renderer>().sharedMaterial = material;
+            GameObject prefab = PrefabUtility.SaveAsPrefabAsset(source, path);
+            Object.DestroyImmediate(source);
+            return prefab;
         }
 
         private static GameObject CreateBlock(

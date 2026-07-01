@@ -42,16 +42,33 @@ public sealed class FoundationTests
     }
 
     [Test]
-    public void GeneratedRouteHasRequiredRoomsAndReachableBoss()
+        public void GeneratedRouteHasRequiredRoomsAndReachableBoss()
     {
         var rooms = new RoomGraphGenerator().Generate(99, 10);
         Assert.That(rooms.First().Kind, Is.EqualTo(RoomKind.Start));
         Assert.That(rooms.Any(x => x.Kind == RoomKind.Treasure), Is.True);
         Assert.That(rooms.Any(x => x.Kind == RoomKind.Secret), Is.True);
         Assert.That(rooms.Take(10).Last().Kind, Is.EqualTo(RoomKind.Boss));
-        for (int i = 0; i < 9; i++)
-            Assert.That(rooms[i].Connections, Does.Contain(i + 1));
-    }
+            for (int i = 0; i < 9; i++)
+                Assert.That(rooms[i].Connections, Does.Contain(i + 1));
+        }
+
+        [Test]
+        public void HundredsOfSeedsPreservePacingAndCriticalBranches()
+        {
+            var generator = new RoomGraphGenerator();
+            for (ulong seed = 0; seed < 250; seed++)
+            {
+                var rooms = generator.Generate(seed, 12);
+                Assert.That(rooms[0].Kind, Is.EqualTo(RoomKind.Start));
+                Assert.That(rooms[11].Kind, Is.EqualTo(RoomKind.Boss));
+                Assert.That(rooms[10].Kind, Is.EqualTo(RoomKind.Healing));
+                Assert.That(rooms.Any(x => x.Kind == RoomKind.MiniBoss), Is.True);
+                Assert.That(rooms.Any(x => x.Kind == RoomKind.Treasure), Is.True);
+                Assert.That(rooms.Any(x => x.Kind == RoomKind.Shop), Is.True);
+                Assert.That(rooms.Any(x => x.Kind == RoomKind.Secret), Is.True);
+            }
+        }
 
     private readonly struct Value
     {

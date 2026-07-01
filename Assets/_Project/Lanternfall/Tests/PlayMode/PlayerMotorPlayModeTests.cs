@@ -2,6 +2,7 @@ using System.Collections;
 using Lanternfall.Gameplay.Player;
 using Lanternfall.Gameplay.Combat;
 using Lanternfall.Gameplay.Enemies;
+using Lanternfall.Gameplay.World;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -102,6 +103,31 @@ namespace Lanternfall.Tests
             Object.Destroy(enemy);
             Object.Destroy(target);
             Object.Destroy(definition);
+        }
+
+        [UnityTest]
+        public IEnumerator SeededRunPresenterBuildsCriticalRoomViews()
+        {
+            GameObject template = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            template.SetActive(false);
+            GameObject root = new GameObject("Run Presenter");
+            RunLayoutPresenter presenter = root.AddComponent<RunLayoutPresenter>();
+            presenter.Configure(template, 42UL, 12);
+            presenter.Generate(42UL);
+            yield return null;
+
+            Assert.That(presenter.SpawnedRooms.Count, Is.GreaterThan(15));
+            bool hasBoss = false;
+            bool hasSecret = false;
+            foreach (GameObject item in presenter.SpawnedRooms)
+            {
+                hasBoss |= item.name.Contains("Boss");
+                hasSecret |= item.name.Contains("Secret");
+            }
+            Assert.That(hasBoss, Is.True);
+            Assert.That(hasSecret, Is.True);
+            Object.Destroy(root);
+            Object.Destroy(template);
         }
     }
 }
