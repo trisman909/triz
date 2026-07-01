@@ -90,6 +90,12 @@ namespace Lanternfall.Gameplay.Combat
             muzzle = muzzlePoint;
         }
 
+        public void ApplyLoadout(WeaponDefinition weapon, AbilityDefinition ability)
+        {
+            if (weapon != null) startingWeapon = weapon;
+            if (ability != null) startingAbility = ability;
+        }
+
         private Vector3 ResolveAimDirection()
         {
             UnityEngine.Camera camera = UnityEngine.Camera.main;

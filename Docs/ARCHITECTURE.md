@@ -32,3 +32,10 @@ and glyph QA.
 `ReleaseReadinessValidator` is the shared local/CI/build boundary. It rejects
 missing or invalid content, achievement, localization and balance catalogs, or
 an incomplete build-scene list before a player build starts.
+
+`RunSession` is the authoritative, scene-independent run aggregate. It owns the
+master seed, selected class, deterministic 40-room plan, biome/room cursor,
+elapsed time, persisted health and run statistics. `RunChamberController`
+adapts the current room plan into combat, guardian or utility presentation;
+scene reloads never regenerate or mutate the route. `HubController` owns the
+session lifecycle because it already persists across hub/run transitions.

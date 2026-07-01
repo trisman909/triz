@@ -21,6 +21,9 @@ namespace Lanternfall.Gameplay.Player
 
         public bool IsInvulnerable => _dodge != null && _dodge.IsInvulnerable;
 
+        public void ConfigureMoveSpeed(float speed) =>
+            moveSpeed = Mathf.Max(.1f, speed);
+
         private void Awake()
         {
             _controller = GetComponent<CharacterController>();

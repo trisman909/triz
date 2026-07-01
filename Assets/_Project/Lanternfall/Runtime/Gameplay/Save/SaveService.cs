@@ -69,6 +69,16 @@ namespace Lanternfall.Gameplay.Save
                 data.quests = data.quests ?? new System.Collections.Generic.List<QuestRecord>();
                 data.version = 1;
             }
+            if (data.version < 2)
+            {
+                if (string.IsNullOrWhiteSpace(data.selectedClassId))
+                    data.selectedClassId = "class.vanguard";
+                data.achievements =
+                    data.achievements ?? new System.Collections.Generic.List<string>();
+                data.cosmetics =
+                    data.cosmetics ?? new System.Collections.Generic.List<string>();
+                data.version = 2;
+            }
             if (data.version > SaveData.CurrentVersion)
                 throw new InvalidDataException("Save comes from a newer game version.");
             return data;

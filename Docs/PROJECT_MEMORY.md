@@ -43,6 +43,8 @@ remain authoritative.
 | 9 Content catalog | `e8eb043` | 14/14 EditMode; 6/6 PlayMode; four-scene Windows build |
 | 10 Experience/accessibility | `feat: deliver accessible game experience layer` | 17/17 EditMode; 8/8 PlayMode; four-scene Windows build |
 | 11 Optimization/QA | `feat: add measurable release quality gates` | 21/21 EditMode; 9/9 PlayMode; readiness-gated Windows build |
+| 12 Packaging/audit | `04fc84d` | 21/21 EditMode; 9/9 PlayMode; strict build; packaged hub-to-biome smoke |
+| 13 Integrated run | pending commit | 22/22 EditMode; 10/10 PlayMode; five-scene build; packaged hub-to-run smoke |
 
 ## Current state
 
@@ -63,7 +65,7 @@ PlayMode including the live vertical slice, validator pass, and a
 
 Next actions:
 
-Phase 12 is verified and ready to commit. The production builder sets version
+Phase 12 is verified, committed and pushed as `04fc84d`. The production builder sets version
 `1.0.0-rc.1`, strict non-development Windows x64 options, clean output,
 core-file SHA-256 checksums and a JSON release manifest. A packaged D3D12 smoke
 run on Intel UHD 620 traversed hub to first biome and exited 0 with
@@ -79,12 +81,18 @@ accessibility and audio are incompletely wired; presentation remains greybox.
 `Docs/COMPLETION_AUDIT.md` is authoritative. The plan now continues through
 Phases 13–17 rather than making a false completion claim.
 
-Next actions:
+## Phase 13 verified work
 
-1. Commit and push the verified Phase 12 packaging/audit milestone.
-2. Integrate class selection and the deterministic graph into a real
-   multi-room, multi-biome 25–45 minute run lifecycle.
-3. Continue through every remediation phase in the completion audit.
+The worktree contains a verified persistent seeded 40-room route spanning five biome
+indices, class-selection pedestals, class health/speed/loadout application,
+room-to-room health persistence, integrated combat/guardian chamber
+orchestration, exit gating, death/victory returns and statistics capture.
+`RunChamber.unity` generation and five-scene build wiring are verified.
+
+Evidence is 22/22 EditMode, 10/10 PlayMode, a 164,843,603-byte Windows
+development build, and a packaged hub-to-`RunChamber` smoke exit 0. Next:
+commit/push Phase 13, then implement Radiance geometry, Vows, passive class
+identities and full Echo reward cadence in Phase 14.
 
 ## Architecture invariants
 

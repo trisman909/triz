@@ -55,6 +55,11 @@ namespace Lanternfall.Gameplay.Combat
             destroyOnDeath = destroy;
             Current = maximum;
         }
+
+        public void Restore(float value)
+        {
+            Current = Mathf.Clamp(value, 0f, maximum);
+            Changed?.Invoke(Current, maximum);
+        }
     }
 }
-

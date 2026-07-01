@@ -17,6 +17,7 @@ namespace Lanternfall.Gameplay.Enemies
 
         public event Action EncounterStarted;
         public event Action EncounterCleared;
+        public event Action EnemyDefeated;
         public int ActiveCount => _active.Count;
 
         private void Start() => BeginEncounter();
@@ -78,6 +79,7 @@ namespace Lanternfall.Gameplay.Enemies
                 enemy.Died -= OnEnemyDied;
             }
             _active.Remove(enemy);
+            EnemyDefeated?.Invoke();
             if (_active.Count == 0) EncounterCleared?.Invoke();
         }
     }

@@ -9,6 +9,9 @@ EditorBuildSettings:
     path: Assets/_Project/Lanternfall/Scenes/LanternfallHub.unity
     guid: 87c29054d4b95684891a9a70a0012239
   - enabled: 1
+    path: Assets/_Project/Lanternfall/Scenes/RunChamber.unity
+    guid: 18333a4ede924ae458900915a9151306
+  - enabled: 1
     path: Assets/_Project/Lanternfall/Scenes/CombatSandbox.unity
     guid: f45b28752e2fb97488c5cd2d541f9f79
   - enabled: 1

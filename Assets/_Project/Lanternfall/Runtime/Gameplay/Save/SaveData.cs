@@ -6,12 +6,13 @@ namespace Lanternfall.Gameplay.Save
     [Serializable]
     public sealed class SaveData
     {
-        public const int CurrentVersion = 1;
+        public const int CurrentVersion = 2;
         public int version = CurrentVersion;
         public List<string> unlocks = new List<string>();
         public List<string> achievements = new List<string>();
         public List<string> cosmetics = new List<string>();
         public List<QuestRecord> quests = new List<QuestRecord>();
+        public string selectedClassId = "class.vanguard";
         public SettingsData settings = new SettingsData();
         public StatisticsData statistics = new StatisticsData();
     }

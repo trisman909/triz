@@ -17,8 +17,8 @@ Updated: 2026-07-01
 | 10 | UI, audio, accessibility, 100 achievements | Complete |
 | 11 | Optimization, balance, QA, localization | Complete |
 | 12 | Windows RC pipeline and completion audit | Complete |
-| 13 | Integrated 25–45 minute run and class selection | In progress |
-| 14 | Radiance geometry, Vows, full Echo reward cadence | Pending |
+| 13 | Integrated 25–45 minute run and class selection | Complete |
+| 14 | Radiance geometry, Vows, full Echo reward cadence | In progress |
 | 15 | Five playable biomes and distinct release encounters | Pending |
 | 16 | Production presentation, audio, UI and achievement wiring | Pending |
 | 17 | Minimum-PC QA and final Windows release candidate | Pending |
@@ -197,3 +197,24 @@ commit before the next phase begins.
   `Docs/COMPLETION_AUDIT.md`.
 - [ ] Commercial completion: audit found runtime/content gaps, now scoped into
   Phases 13–17.
+
+## Phase 13 verification
+
+- [x] Persistent authoritative run session survives room scene reloads.
+- [x] Forty deterministic main-route rooms span five biome indices and five
+  guardian milestones.
+- [x] One hundred sampled seeds remain inside the authored 25–45 minute pacing
+  target.
+- [x] Five in-world class-selection pedestals with visible selected state.
+- [x] Selected class health, movement speed, weapon and ability are applied in
+  the integrated chamber.
+- [x] Health, seed, elapsed time, kills and guardian progress persist across
+  rooms.
+- [x] Combat, elite, challenge, mini-boss, guardian, healing and utility room
+  orchestration with locked/unlocked exit flow.
+- [x] Death and victory return to the hub and update persistent statistics.
+- [x] Generated `RunChamber` and five-scene readiness/build configuration.
+- [x] EditMode tests: 22/22 passed.
+- [x] PlayMode integration tests: 10/10 passed.
+- [x] Five-scene Windows x64 development build succeeded (164,843,603 bytes).
+- [x] Packaged hub-to-`RunChamber` smoke passed with exit code 0.

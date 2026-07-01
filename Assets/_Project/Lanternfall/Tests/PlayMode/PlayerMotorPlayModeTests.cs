@@ -10,6 +10,8 @@ using Lanternfall.Gameplay.Input;
 using Lanternfall.Gameplay.UI;
 using Lanternfall.Gameplay.Performance;
 using UnityEngine.SceneManagement;
+using Lanternfall.Gameplay.Hub;
+using Lanternfall.Gameplay.Run;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -244,6 +246,32 @@ namespace Lanternfall.Tests
             Assert.That(
                 Object.FindObjectsByType<BossBrain>(FindObjectsSortMode.None).Length,
                 Is.LessThanOrEqualTo(1));
+        }
+
+        [UnityTest]
+        public IEnumerator HubPreparedRunLoadsIntegratedClassAppliedChamber()
+        {
+            SceneManager.LoadScene("LanternfallHub");
+            yield return null;
+            HubController hub = HubController.Instance;
+            Assert.That(hub, Is.Not.Null);
+            hub.PrepareRun(777UL, "class.gloamstep");
+
+            SceneManager.LoadScene("RunChamber");
+            yield return null;
+            yield return null;
+
+            Assert.That(hub.ActiveRun.Rooms.Count, Is.EqualTo(40));
+            Assert.That(hub.ActiveRun.ClassId, Is.EqualTo("class.gloamstep"));
+            Assert.That(
+                Object.FindFirstObjectByType<RunChamberController>(),
+                Is.Not.Null);
+            Assert.That(
+                Object.FindFirstObjectByType<RunExitGate>().Unlocked,
+                Is.True);
+            Assert.That(
+                Object.FindFirstObjectByType<Health>().Maximum,
+                Is.EqualTo(125f).Within(.01f));
         }
     }
 }

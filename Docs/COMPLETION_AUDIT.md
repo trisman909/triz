@@ -8,8 +8,8 @@ Catalog counts and passing unit tests do not prove a feature is playable.
 | Release requirement | Evidence | Result | Remediation |
 |---|---|---|---|
 | Windows x64 player starts cleanly | `1.0.0-rc.1` strict build, independent SHA-256 verification, packaged D3D12 smoke exit 0 on Intel UHD 620 | Proven | Re-run every release |
-| Deterministic 25–45 minute hub-to-run loop | Hub portal loads `FirstBiomeVerticalSlice` directly; `RoomGraphGenerator` is used only by `RunLayoutPresenter` sandbox | Not achieved | Phase 13 |
-| Five selectable, skill-distinct classes | Five definitions exist; no runtime class selection or stat/loadout application references them | Not achieved | Phase 13 |
+| Deterministic 25–45 minute hub-to-run loop | Hub starts a persistent 40-room/five-biome `RunSession`; 100 seeds meet the authored duration target; packaged hub-to-run smoke passes | Partial: full human timing capture remains | Phase 17 |
+| Five selectable, skill-distinct classes | Five in-world selectors apply distinct health, speed, weapons and abilities in `RunChamber` | Proven for selection/loadouts; passive behaviors remain | Phase 14 |
 | Light as battlefield geometry | Radiance currently exists only as a damage element/aspect; no light-volume gameplay system | Not achieved | Phase 14 |
 | Route Vows with later consequences | No runtime Vow model or encounter integration exists | Not achieved | Phase 14 |
 | Echo resonance builds | Runtime inventory and three-slot evaluation exist and are exercised | Partial: no full-run reward cadence | Phases 13–14 |

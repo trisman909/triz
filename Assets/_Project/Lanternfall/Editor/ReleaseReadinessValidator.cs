@@ -55,8 +55,8 @@ namespace Lanternfall.Editor
             Append(errors, balance?.Validate(), "Balance profile missing.");
 
             EditorBuildSettingsScene[] scenes = EditorBuildSettings.scenes;
-            if (scenes.Length != 4)
-                errors.Add($"Expected four build scenes, found {scenes.Length}.");
+            if (scenes.Length != 5)
+                errors.Add($"Expected five build scenes, found {scenes.Length}.");
             foreach (EditorBuildSettingsScene scene in scenes)
             {
                 if (!scene.enabled) errors.Add($"Build scene disabled: {scene.path}");

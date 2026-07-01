@@ -1,8 +1,9 @@
 using System;
 using System.Collections;
-using Lanternfall.Gameplay.Bosses;
 using Lanternfall.Gameplay.Combat;
 using Lanternfall.Gameplay.Input;
+using Lanternfall.Gameplay.Hub;
+using Lanternfall.Gameplay.Run;
 using Lanternfall.Gameplay.World;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -39,14 +40,16 @@ namespace Lanternfall.Gameplay.Performance
                 yield break;
             }
 
-            SceneManager.LoadScene("FirstBiomeVerticalSlice");
+            HubController.Instance.PrepareRun(20260701UL, "class.vanguard");
+            SceneManager.LoadScene("RunChamber");
             for (int frame = 0; frame < 10; frame++) yield return null;
             bool runValid =
                 UnityEngine.Camera.main != null &&
                 FindFirstObjectByType<PlayerInputReader>() != null &&
                 FindFirstObjectByType<Health>() != null &&
                 FindFirstObjectByType<BiomeAtmosphere>() != null &&
-                FindFirstObjectByType<BossEncounterDirector>() != null;
+                FindFirstObjectByType<RunChamberController>() != null &&
+                FindFirstObjectByType<RunExitGate>() != null;
             if (!runValid)
             {
                 Fail("required vertical-slice services missing");

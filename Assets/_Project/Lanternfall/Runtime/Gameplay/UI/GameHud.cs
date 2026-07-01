@@ -255,9 +255,11 @@ namespace Lanternfall.Gameplay.UI
         {
             int gold = _inventory?.Wallet.Get(CurrencyKind.Gold) ?? 0;
             int relics = _inventory?.Owned.Count ?? 0;
+            string calling = HubController.Instance?.SelectedClassName ?? "Bearer";
             _resourcesText.text =
                 $"{L("hud.gold", "GOLD")} {gold}   " +
                 $"{L("hud.echoes", "ECHOES")} {relics}/3   " +
+                $"CALLING {calling.ToUpperInvariant()}   " +
                 $"{L("hud.buffs", "BUFFS")} —   " +
                 $"{L("hud.debuffs", "DEBUFFS")} —";
         }

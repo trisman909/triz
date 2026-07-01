@@ -8,6 +8,8 @@ using Lanternfall.Gameplay.Balance;
 using Lanternfall.Gameplay.Localization;
 using Lanternfall.Gameplay.Performance;
 using Lanternfall.Editor;
+using Lanternfall.Gameplay.Run;
+using Lanternfall.Core.Run;
 using UnityEngine;
 using UnityEditor;
 using Lanternfall.Gameplay.World;
@@ -292,6 +294,36 @@ namespace Lanternfall.Tests
         public void ReleaseReadinessValidatorHasNoOutstandingErrors()
         {
             Assert.That(ReleaseReadinessValidator.CollectErrors(), Is.Empty);
+        }
+
+        [Test]
+        public void IntegratedRunPlanIsDeterministicAndSpansFiveBiomes()
+        {
+            var first = new RunSession(424242UL, "class.vanguard");
+            var second = new RunSession(424242UL, "class.vanguard");
+
+            Assert.That(first.Rooms.Count, Is.EqualTo(40));
+            Assert.That(first.Rooms[39].BiomeIndex, Is.EqualTo(4));
+            Assert.That(first.EstimatedDurationMinutes, Is.InRange(25f, 45f));
+            int bosses = 0;
+            for (int index = 0; index < first.Rooms.Count; index++)
+            {
+                Assert.That(first.Rooms[index].Kind,
+                    Is.EqualTo(second.Rooms[index].Kind));
+                Assert.That(first.Rooms[index].EncounterSeed,
+                    Is.EqualTo(second.Rooms[index].EncounterSeed));
+                if (first.Rooms[index].Kind == RoomKind.Boss) bosses++;
+            }
+            Assert.That(bosses, Is.EqualTo(5));
+            int advances = 0;
+            while (first.Advance()) advances++;
+            Assert.That(advances, Is.EqualTo(39));
+            Assert.That(first.IsComplete, Is.True);
+            Assert.That(first.Advance(), Is.False);
+            for (ulong seed = 0; seed < 100; seed++)
+                Assert.That(
+                    new RunSession(seed, "class.vanguard").EstimatedDurationMinutes,
+                    Is.InRange(25f, 45f));
         }
     }
 }
