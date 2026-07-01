@@ -1,6 +1,7 @@
 using System.IO;
 using Lanternfall.Gameplay.Progression;
 using Lanternfall.Gameplay.Save;
+using Lanternfall.Gameplay.Accessibility;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -16,12 +17,19 @@ namespace Lanternfall.Gameplay.Hub
 
         private void Awake()
         {
+            if (Instance != null && Instance != this)
+            {
+                Destroy(gameObject);
+                return;
+            }
             Instance = this;
+            DontDestroyOnLoad(gameObject);
             string directory = Path.Combine(Application.persistentDataPath, "Saves");
             _saves = new SaveService(new FileSaveStorage(directory));
             Profile = _saves.Load();
             Progression = new MetaProgression(Profile);
             Quests = new QuestJournal(Profile);
+            AccessibilityRuntime.Apply(Profile.settings);
         }
 
         private void OnDestroy()
@@ -55,4 +63,3 @@ namespace Lanternfall.Gameplay.Hub
         }
     }
 }
-

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -12,6 +13,7 @@ namespace Lanternfall.Gameplay.Progression
         public IReadOnlyList<RelicDefinition> Owned => _owned;
         public ResonanceChain Chain => _chain;
         public RunWallet Wallet => _wallet;
+        public event Action Changed;
 
         public bool TryAdd(RelicDefinition relic)
         {
@@ -25,6 +27,7 @@ namespace Lanternfall.Gameplay.Progression
                     break;
                 }
             }
+            Changed?.Invoke();
             return true;
         }
 
@@ -36,4 +39,3 @@ namespace Lanternfall.Gameplay.Progression
         }
     }
 }
-

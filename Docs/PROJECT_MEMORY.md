@@ -40,21 +40,24 @@ remain authoritative.
 | 6 Rewards/economy | `bc81283` | 10/10 EditMode; 5/5 PlayMode; Windows build |
 | 7 Biome/guardians | `04b8b36` | 11/11 EditMode; 6/6 PlayMode; three-scene Windows build |
 | 8 Hub/persistence | `0baf064` | 13/13 EditMode; 6/6 PlayMode; four-scene Windows build |
-| 9 Content catalog | `feat: scale validated release content catalog` | 14/14 EditMode; 6/6 PlayMode; four-scene Windows build |
+| 9 Content catalog | `e8eb043` | 14/14 EditMode; 6/6 PlayMode; four-scene Windows build |
+| 10 Experience/accessibility | `feat: deliver accessible game experience layer` | 17/17 EditMode; 8/8 PlayMode; four-scene Windows build |
 
 ## Current state
 
-Phase 9 is verified and ready for its milestone commit. Its catalog contains
-five classes, five biomes, 40 enemies and 15 guardians with build-enforced
-stable-ID/count validation. Phase 10 (UI, audio, accessibility, settings and
-100 achievements) is next.
+Phase 10 is verified and committed locally. It includes a
+responsive generated HUD, live keyboard/controller settings, persisted binding
+overrides, a clamped accessibility runtime profile, original procedural
+adaptive music, and an exactly 100-entry validated achievement catalog with
+save-backed tracking. Final evidence is 17/17 EditMode, 8/8 PlayMode, and a
+164,793,134-byte Windows development build. The user explicitly confirmed that
+`trisman909/triz` is the intended remote and authorized pushing `master`.
 
 Next actions:
 
-1. Commit and push Phase 9.
-2. Build the runtime HUD, boss bar, pause/settings and run-summary flows.
-3. Add dynamic music-state and pooled audio-event infrastructure.
-4. Implement accessibility settings and a validated 100-achievement catalog.
+1. Commit Phase 10 and push the pending Phase 9 and Phase 10 commits.
+2. Begin Phase 11 optimization, balance, QA and localization infrastructure.
+3. Establish repeatable performance telemetry and minimum-PC budgets.
 
 ## Architecture invariants
 

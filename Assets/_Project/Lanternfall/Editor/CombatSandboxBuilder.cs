@@ -1,5 +1,6 @@
 using System.IO;
 using Lanternfall.Gameplay.Camera;
+using Lanternfall.Gameplay.Audio;
 using Lanternfall.Gameplay.Bosses;
 using Lanternfall.Gameplay.Combat;
 using Lanternfall.Gameplay.Enemies;
@@ -7,6 +8,7 @@ using Lanternfall.Gameplay.Input;
 using Lanternfall.Gameplay.Hub;
 using Lanternfall.Gameplay.Player;
 using Lanternfall.Gameplay.Progression;
+using Lanternfall.Gameplay.UI;
 using Lanternfall.Gameplay.World;
 using UnityEditor;
 using UnityEditor.Build;
@@ -93,6 +95,7 @@ namespace Lanternfall.Editor
             CharacterClassDefinition[] classes =
                 CreateClassRoster(weapons, abilities);
             CreateContentCatalog(classes, biomes, enemies, bosses);
+            CreateAchievementCatalog();
 
             CreateBlock("Floor", new Vector3(0f, -0.5f, 0f),
                 new Vector3(24f, 1f, 18f), floorMaterial);
@@ -129,6 +132,7 @@ namespace Lanternfall.Editor
             Health playerHealth = player.AddComponent<Health>();
             playerHealth.Configure(180f, 5f, false);
             player.AddComponent<RunInventory>();
+            player.AddComponent<GameHud>();
 
             GameObject lantern = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             lantern.name = "Lantern";
@@ -167,6 +171,7 @@ namespace Lanternfall.Editor
             camera.nearClipPlane = 0.1f;
             camera.farClipPlane = 100f;
             cameraObject.AddComponent<AudioListener>();
+            cameraObject.AddComponent<DynamicAudioDirector>();
             IsometricCameraRig rig = cameraObject.AddComponent<IsometricCameraRig>();
             rig.SetTarget(player.transform);
             cameraObject.transform.position = player.transform.position + new Vector3(0f, 12f, -10f);
@@ -286,6 +291,97 @@ namespace Lanternfall.Editor
             material.SetFloat("_Smoothness", smoothness);
             EditorUtility.SetDirty(material);
             return material;
+        }
+
+        private static AchievementCatalog CreateAchievementCatalog()
+        {
+            const string path =
+                "Assets/_Project/Lanternfall/Settings/LanternfallAchievementCatalog.asset";
+            AchievementCatalog catalog =
+                AssetDatabase.LoadAssetAtPath<AchievementCatalog>(path);
+            if (catalog == null)
+            {
+                catalog = ScriptableObject.CreateInstance<AchievementCatalog>();
+                AssetDatabase.CreateAsset(catalog, path);
+            }
+
+            string[] progression =
+            {
+                "First Ember", "A Door Below", "Echo Keeper", "Lantern Mended",
+                "Second Calling", "Third Calling", "Fourth Calling", "All Callings",
+                "Smith's Promise", "Reader's Map", "Alchemist's Dawn", "Soul Vessel",
+                "Crystal Memory", "Relic Binder", "Awakened Chain", "Golden Thread",
+                "Ten Descents", "Twenty Descents", "Fifty Descents", "First Return",
+                "Veteran Bearer", "Unbroken Flame", "Guardian Key", "Narthex Crown",
+                "Orchard Crown", "Ossuary Crown", "Observatory Crown", "Foundry Crown",
+                "Fivefold Passage", "Armory Open", "Archive Open", "Wardrobe Open",
+                "Lantern Complete", "Inheritance"
+            };
+            string[] exploration =
+            {
+                "Off the Path", "Whispered Wall", "Flooded Step", "Gloam Fruit",
+                "Marrow Script", "Siltglass Star", "Stormvault Spark", "Secret One",
+                "Secret Five", "Secret Ten", "Treasure Scent", "Merchant Friend",
+                "Shrine Listener", "Puzzle Reader", "Challenge Accepted", "Event Horizon",
+                "Healing Light", "Every Chamber", "Narthex Cartographer",
+                "Orchard Cartographer", "Ossuary Cartographer",
+                "Observatory Cartographer", "Foundry Cartographer", "Ruin Naturalist",
+                "Forty Faces", "Guardian Gallery", "Fifteen Memories", "Hidden Choir",
+                "Moonlit Detour", "Impossible Corner", "Seed Revisited",
+                "World Remembered", "Lanternfarer"
+            };
+            string[] mastery =
+            {
+                "First Victory", "Untouched Room", "Untouched Guardian", "Quick Hands",
+                "Perfect Dodge", "Dodge Dancer", "Critical Memory", "Ember Adept",
+                "Storm Adept", "Gloam Adept", "Radiance Adept", "Frost Adept",
+                "Vanguard Master", "Wayfinder Master", "Gloamstep Master",
+                "Cantor Master", "Artificer Master", "Cinder Master", "Prism Master",
+                "Echo Master", "Spear Master", "Lens Master", "Harmony Run",
+                "Clash Run", "Awakened Run", "No Gold Spent", "Every Gold Spent",
+                "Swift Descent", "Patient Descent", "Boss Rush", "Last Spark",
+                "Hundred Victories", "Bearer Ascendant"
+            };
+            var definitions = new AchievementDefinition[100];
+            int cursor = 0;
+            AddAchievementSet(
+                definitions, ref cursor, progression,
+                AchievementCategory.Progression, "progression");
+            AddAchievementSet(
+                definitions, ref cursor, exploration,
+                AchievementCategory.Exploration, "exploration");
+            AddAchievementSet(
+                definitions, ref cursor, mastery,
+                AchievementCategory.Mastery, "mastery");
+            catalog.Configure(definitions);
+            EditorUtility.SetDirty(catalog);
+            System.Collections.Generic.List<string> errors =
+                catalog.ValidateReleaseCatalog();
+            if (errors.Count > 0)
+                throw new BuildFailedException(string.Join("\n", errors));
+            return catalog;
+        }
+
+        private static void AddAchievementSet(
+            AchievementDefinition[] destination,
+            ref int cursor,
+            string[] titles,
+            AchievementCategory category,
+            string prefix)
+        {
+            for (int index = 0; index < titles.Length; index++)
+            {
+                int target = index < 8 ? 1 : index < 22 ? 5 : 10;
+                bool hidden = category == AchievementCategory.Exploration &&
+                    index >= titles.Length - 4;
+                destination[cursor++] = new AchievementDefinition(
+                    $"achievement.{prefix}.{index + 1:00}",
+                    titles[index],
+                    $"Complete the {titles[index].ToLowerInvariant()} challenge.",
+                    category,
+                    target,
+                    hidden);
+            }
         }
 
         private static WeaponDefinition CreateWeapon(
@@ -838,6 +934,7 @@ namespace Lanternfall.Editor
             Health playerHealth = player.AddComponent<Health>();
             playerHealth.Configure(180f, 5f, false);
             player.AddComponent<RunInventory>();
+            player.AddComponent<GameHud>();
 
             GameObject lantern = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             lantern.name = "Lantern";
@@ -861,6 +958,7 @@ namespace Lanternfall.Editor
                 cameraObject.AddComponent<UnityEngine.Camera>();
             camera.backgroundColor = new Color(.015f, .025f, .045f);
             cameraObject.AddComponent<AudioListener>();
+            cameraObject.AddComponent<DynamicAudioDirector>();
             IsometricCameraRig cameraRig =
                 cameraObject.AddComponent<IsometricCameraRig>();
             cameraRig.SetTarget(player.transform);
@@ -956,6 +1054,8 @@ namespace Lanternfall.Editor
             player.AddComponent<PlayerInputReader>();
             player.AddComponent<PlayerMotor>();
             player.AddComponent<Health>().Configure(180f, 5f, false);
+            player.AddComponent<RunInventory>();
+            player.AddComponent<GameHud>();
 
             GameObject lantern = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             lantern.name = "Lantern";
@@ -1002,6 +1102,7 @@ namespace Lanternfall.Editor
                 cameraObject.AddComponent<UnityEngine.Camera>();
             camera.backgroundColor = new Color(.025f, .035f, .055f);
             cameraObject.AddComponent<AudioListener>();
+            cameraObject.AddComponent<DynamicAudioDirector>();
             IsometricCameraRig rig =
                 cameraObject.AddComponent<IsometricCameraRig>();
             rig.SetTarget(player.transform);

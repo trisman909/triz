@@ -1,0 +1,615 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb329b3c23a2797468e2dc88ef927b26, type: 3}
+  m_Name: LanternfallAchievementCatalog
+  m_EditorClassIdentifier: Lanternfall.Gameplay::Lanternfall.Gameplay.Progression.AchievementCatalog
+  entries:
+  - stableId: achievement.progression.01
+    title: First Ember
+    description: Complete the first ember challenge.
+    category: 0
+    target: 1
+    hidden: 0
+  - stableId: achievement.progression.02
+    title: A Door Below
+    description: Complete the a door below challenge.
+    category: 0
+    target: 1
+    hidden: 0
+  - stableId: achievement.progression.03
+    title: Echo Keeper
+    description: Complete the echo keeper challenge.
+    category: 0
+    target: 1
+    hidden: 0
+  - stableId: achievement.progression.04
+    title: Lantern Mended
+    description: Complete the lantern mended challenge.
+    category: 0
+    target: 1
+    hidden: 0
+  - stableId: achievement.progression.05
+    title: Second Calling
+    description: Complete the second calling challenge.
+    category: 0
+    target: 1
+    hidden: 0
+  - stableId: achievement.progression.06
+    title: Third Calling
+    description: Complete the third calling challenge.
+    category: 0
+    target: 1
+    hidden: 0
+  - stableId: achievement.progression.07
+    title: Fourth Calling
+    description: Complete the fourth calling challenge.
+    category: 0
+    target: 1
+    hidden: 0
+  - stableId: achievement.progression.08
+    title: All Callings
+    description: Complete the all callings challenge.
+    category: 0
+    target: 1
+    hidden: 0
+  - stableId: achievement.progression.09
+    title: Smith's Promise
+    description: Complete the smith's promise challenge.
+    category: 0
+    target: 5
+    hidden: 0
+  - stableId: achievement.progression.10
+    title: Reader's Map
+    description: Complete the reader's map challenge.
+    category: 0
+    target: 5
+    hidden: 0
+  - stableId: achievement.progression.11
+    title: Alchemist's Dawn
+    description: Complete the alchemist's dawn challenge.
+    category: 0
+    target: 5
+    hidden: 0
+  - stableId: achievement.progression.12
+    title: Soul Vessel
+    description: Complete the soul vessel challenge.
+    category: 0
+    target: 5
+    hidden: 0
+  - stableId: achievement.progression.13
+    title: Crystal Memory
+    description: Complete the crystal memory challenge.
+    category: 0
+    target: 5
+    hidden: 0
+  - stableId: achievement.progression.14
+    title: Relic Binder
+    description: Complete the relic binder challenge.
+    category: 0
+    target: 5
+    hidden: 0
+  - stableId: achievement.progression.15
+    title: Awakened Chain
+    description: Complete the awakened chain challenge.
+    category: 0
+    target: 5
+    hidden: 0
+  - stableId: achievement.progression.16
+    title: Golden Thread
+    description: Complete the golden thread challenge.
+    category: 0
+    target: 5
+    hidden: 0
+  - stableId: achievement.progression.17
+    title: Ten Descents
+    description: Complete the ten descents challenge.
+    category: 0
+    target: 5
+    hidden: 0
+  - stableId: achievement.progression.18
+    title: Twenty Descents
+    description: Complete the twenty descents challenge.
+    category: 0
+    target: 5
+    hidden: 0
+  - stableId: achievement.progression.19
+    title: Fifty Descents
+    description: Complete the fifty descents challenge.
+    category: 0
+    target: 5
+    hidden: 0
+  - stableId: achievement.progression.20
+    title: First Return
+    description: Complete the first return challenge.
+    category: 0
+    target: 5
+    hidden: 0
+  - stableId: achievement.progression.21
+    title: Veteran Bearer
+    description: Complete the veteran bearer challenge.
+    category: 0
+    target: 5
+    hidden: 0
+  - stableId: achievement.progression.22
+    title: Unbroken Flame
+    description: Complete the unbroken flame challenge.
+    category: 0
+    target: 5
+    hidden: 0
+  - stableId: achievement.progression.23
+    title: Guardian Key
+    description: Complete the guardian key challenge.
+    category: 0
+    target: 10
+    hidden: 0
+  - stableId: achievement.progression.24
+    title: Narthex Crown
+    description: Complete the narthex crown challenge.
+    category: 0
+    target: 10
+    hidden: 0
+  - stableId: achievement.progression.25
+    title: Orchard Crown
+    description: Complete the orchard crown challenge.
+    category: 0
+    target: 10
+    hidden: 0
+  - stableId: achievement.progression.26
+    title: Ossuary Crown
+    description: Complete the ossuary crown challenge.
+    category: 0
+    target: 10
+    hidden: 0
+  - stableId: achievement.progression.27
+    title: Observatory Crown
+    description: Complete the observatory crown challenge.
+    category: 0
+    target: 10
+    hidden: 0
+  - stableId: achievement.progression.28
+    title: Foundry Crown
+    description: Complete the foundry crown challenge.
+    category: 0
+    target: 10
+    hidden: 0
+  - stableId: achievement.progression.29
+    title: Fivefold Passage
+    description: Complete the fivefold passage challenge.
+    category: 0
+    target: 10
+    hidden: 0
+  - stableId: achievement.progression.30
+    title: Armory Open
+    description: Complete the armory open challenge.
+    category: 0
+    target: 10
+    hidden: 0
+  - stableId: achievement.progression.31
+    title: Archive Open
+    description: Complete the archive open challenge.
+    category: 0
+    target: 10
+    hidden: 0
+  - stableId: achievement.progression.32
+    title: Wardrobe Open
+    description: Complete the wardrobe open challenge.
+    category: 0
+    target: 10
+    hidden: 0
+  - stableId: achievement.progression.33
+    title: Lantern Complete
+    description: Complete the lantern complete challenge.
+    category: 0
+    target: 10
+    hidden: 0
+  - stableId: achievement.progression.34
+    title: Inheritance
+    description: Complete the inheritance challenge.
+    category: 0
+    target: 10
+    hidden: 0
+  - stableId: achievement.exploration.01
+    title: Off the Path
+    description: Complete the off the path challenge.
+    category: 1
+    target: 1
+    hidden: 0
+  - stableId: achievement.exploration.02
+    title: Whispered Wall
+    description: Complete the whispered wall challenge.
+    category: 1
+    target: 1
+    hidden: 0
+  - stableId: achievement.exploration.03
+    title: Flooded Step
+    description: Complete the flooded step challenge.
+    category: 1
+    target: 1
+    hidden: 0
+  - stableId: achievement.exploration.04
+    title: Gloam Fruit
+    description: Complete the gloam fruit challenge.
+    category: 1
+    target: 1
+    hidden: 0
+  - stableId: achievement.exploration.05
+    title: Marrow Script
+    description: Complete the marrow script challenge.
+    category: 1
+    target: 1
+    hidden: 0
+  - stableId: achievement.exploration.06
+    title: Siltglass Star
+    description: Complete the siltglass star challenge.
+    category: 1
+    target: 1
+    hidden: 0
+  - stableId: achievement.exploration.07
+    title: Stormvault Spark
+    description: Complete the stormvault spark challenge.
+    category: 1
+    target: 1
+    hidden: 0
+  - stableId: achievement.exploration.08
+    title: Secret One
+    description: Complete the secret one challenge.
+    category: 1
+    target: 1
+    hidden: 0
+  - stableId: achievement.exploration.09
+    title: Secret Five
+    description: Complete the secret five challenge.
+    category: 1
+    target: 5
+    hidden: 0
+  - stableId: achievement.exploration.10
+    title: Secret Ten
+    description: Complete the secret ten challenge.
+    category: 1
+    target: 5
+    hidden: 0
+  - stableId: achievement.exploration.11
+    title: Treasure Scent
+    description: Complete the treasure scent challenge.
+    category: 1
+    target: 5
+    hidden: 0
+  - stableId: achievement.exploration.12
+    title: Merchant Friend
+    description: Complete the merchant friend challenge.
+    category: 1
+    target: 5
+    hidden: 0
+  - stableId: achievement.exploration.13
+    title: Shrine Listener
+    description: Complete the shrine listener challenge.
+    category: 1
+    target: 5
+    hidden: 0
+  - stableId: achievement.exploration.14
+    title: Puzzle Reader
+    description: Complete the puzzle reader challenge.
+    category: 1
+    target: 5
+    hidden: 0
+  - stableId: achievement.exploration.15
+    title: Challenge Accepted
+    description: Complete the challenge accepted challenge.
+    category: 1
+    target: 5
+    hidden: 0
+  - stableId: achievement.exploration.16
+    title: Event Horizon
+    description: Complete the event horizon challenge.
+    category: 1
+    target: 5
+    hidden: 0
+  - stableId: achievement.exploration.17
+    title: Healing Light
+    description: Complete the healing light challenge.
+    category: 1
+    target: 5
+    hidden: 0
+  - stableId: achievement.exploration.18
+    title: Every Chamber
+    description: Complete the every chamber challenge.
+    category: 1
+    target: 5
+    hidden: 0
+  - stableId: achievement.exploration.19
+    title: Narthex Cartographer
+    description: Complete the narthex cartographer challenge.
+    category: 1
+    target: 5
+    hidden: 0
+  - stableId: achievement.exploration.20
+    title: Orchard Cartographer
+    description: Complete the orchard cartographer challenge.
+    category: 1
+    target: 5
+    hidden: 0
+  - stableId: achievement.exploration.21
+    title: Ossuary Cartographer
+    description: Complete the ossuary cartographer challenge.
+    category: 1
+    target: 5
+    hidden: 0
+  - stableId: achievement.exploration.22
+    title: Observatory Cartographer
+    description: Complete the observatory cartographer challenge.
+    category: 1
+    target: 5
+    hidden: 0
+  - stableId: achievement.exploration.23
+    title: Foundry Cartographer
+    description: Complete the foundry cartographer challenge.
+    category: 1
+    target: 10
+    hidden: 0
+  - stableId: achievement.exploration.24
+    title: Ruin Naturalist
+    description: Complete the ruin naturalist challenge.
+    category: 1
+    target: 10
+    hidden: 0
+  - stableId: achievement.exploration.25
+    title: Forty Faces
+    description: Complete the forty faces challenge.
+    category: 1
+    target: 10
+    hidden: 0
+  - stableId: achievement.exploration.26
+    title: Guardian Gallery
+    description: Complete the guardian gallery challenge.
+    category: 1
+    target: 10
+    hidden: 0
+  - stableId: achievement.exploration.27
+    title: Fifteen Memories
+    description: Complete the fifteen memories challenge.
+    category: 1
+    target: 10
+    hidden: 0
+  - stableId: achievement.exploration.28
+    title: Hidden Choir
+    description: Complete the hidden choir challenge.
+    category: 1
+    target: 10
+    hidden: 0
+  - stableId: achievement.exploration.29
+    title: Moonlit Detour
+    description: Complete the moonlit detour challenge.
+    category: 1
+    target: 10
+    hidden: 0
+  - stableId: achievement.exploration.30
+    title: Impossible Corner
+    description: Complete the impossible corner challenge.
+    category: 1
+    target: 10
+    hidden: 1
+  - stableId: achievement.exploration.31
+    title: Seed Revisited
+    description: Complete the seed revisited challenge.
+    category: 1
+    target: 10
+    hidden: 1
+  - stableId: achievement.exploration.32
+    title: World Remembered
+    description: Complete the world remembered challenge.
+    category: 1
+    target: 10
+    hidden: 1
+  - stableId: achievement.exploration.33
+    title: Lanternfarer
+    description: Complete the lanternfarer challenge.
+    category: 1
+    target: 10
+    hidden: 1
+  - stableId: achievement.mastery.01
+    title: First Victory
+    description: Complete the first victory challenge.
+    category: 2
+    target: 1
+    hidden: 0
+  - stableId: achievement.mastery.02
+    title: Untouched Room
+    description: Complete the untouched room challenge.
+    category: 2
+    target: 1
+    hidden: 0
+  - stableId: achievement.mastery.03
+    title: Untouched Guardian
+    description: Complete the untouched guardian challenge.
+    category: 2
+    target: 1
+    hidden: 0
+  - stableId: achievement.mastery.04
+    title: Quick Hands
+    description: Complete the quick hands challenge.
+    category: 2
+    target: 1
+    hidden: 0
+  - stableId: achievement.mastery.05
+    title: Perfect Dodge
+    description: Complete the perfect dodge challenge.
+    category: 2
+    target: 1
+    hidden: 0
+  - stableId: achievement.mastery.06
+    title: Dodge Dancer
+    description: Complete the dodge dancer challenge.
+    category: 2
+    target: 1
+    hidden: 0
+  - stableId: achievement.mastery.07
+    title: Critical Memory
+    description: Complete the critical memory challenge.
+    category: 2
+    target: 1
+    hidden: 0
+  - stableId: achievement.mastery.08
+    title: Ember Adept
+    description: Complete the ember adept challenge.
+    category: 2
+    target: 1
+    hidden: 0
+  - stableId: achievement.mastery.09
+    title: Storm Adept
+    description: Complete the storm adept challenge.
+    category: 2
+    target: 5
+    hidden: 0
+  - stableId: achievement.mastery.10
+    title: Gloam Adept
+    description: Complete the gloam adept challenge.
+    category: 2
+    target: 5
+    hidden: 0
+  - stableId: achievement.mastery.11
+    title: Radiance Adept
+    description: Complete the radiance adept challenge.
+    category: 2
+    target: 5
+    hidden: 0
+  - stableId: achievement.mastery.12
+    title: Frost Adept
+    description: Complete the frost adept challenge.
+    category: 2
+    target: 5
+    hidden: 0
+  - stableId: achievement.mastery.13
+    title: Vanguard Master
+    description: Complete the vanguard master challenge.
+    category: 2
+    target: 5
+    hidden: 0
+  - stableId: achievement.mastery.14
+    title: Wayfinder Master
+    description: Complete the wayfinder master challenge.
+    category: 2
+    target: 5
+    hidden: 0
+  - stableId: achievement.mastery.15
+    title: Gloamstep Master
+    description: Complete the gloamstep master challenge.
+    category: 2
+    target: 5
+    hidden: 0
+  - stableId: achievement.mastery.16
+    title: Cantor Master
+    description: Complete the cantor master challenge.
+    category: 2
+    target: 5
+    hidden: 0
+  - stableId: achievement.mastery.17
+    title: Artificer Master
+    description: Complete the artificer master challenge.
+    category: 2
+    target: 5
+    hidden: 0
+  - stableId: achievement.mastery.18
+    title: Cinder Master
+    description: Complete the cinder master challenge.
+    category: 2
+    target: 5
+    hidden: 0
+  - stableId: achievement.mastery.19
+    title: Prism Master
+    description: Complete the prism master challenge.
+    category: 2
+    target: 5
+    hidden: 0
+  - stableId: achievement.mastery.20
+    title: Echo Master
+    description: Complete the echo master challenge.
+    category: 2
+    target: 5
+    hidden: 0
+  - stableId: achievement.mastery.21
+    title: Spear Master
+    description: Complete the spear master challenge.
+    category: 2
+    target: 5
+    hidden: 0
+  - stableId: achievement.mastery.22
+    title: Lens Master
+    description: Complete the lens master challenge.
+    category: 2
+    target: 5
+    hidden: 0
+  - stableId: achievement.mastery.23
+    title: Harmony Run
+    description: Complete the harmony run challenge.
+    category: 2
+    target: 10
+    hidden: 0
+  - stableId: achievement.mastery.24
+    title: Clash Run
+    description: Complete the clash run challenge.
+    category: 2
+    target: 10
+    hidden: 0
+  - stableId: achievement.mastery.25
+    title: Awakened Run
+    description: Complete the awakened run challenge.
+    category: 2
+    target: 10
+    hidden: 0
+  - stableId: achievement.mastery.26
+    title: No Gold Spent
+    description: Complete the no gold spent challenge.
+    category: 2
+    target: 10
+    hidden: 0
+  - stableId: achievement.mastery.27
+    title: Every Gold Spent
+    description: Complete the every gold spent challenge.
+    category: 2
+    target: 10
+    hidden: 0
+  - stableId: achievement.mastery.28
+    title: Swift Descent
+    description: Complete the swift descent challenge.
+    category: 2
+    target: 10
+    hidden: 0
+  - stableId: achievement.mastery.29
+    title: Patient Descent
+    description: Complete the patient descent challenge.
+    category: 2
+    target: 10
+    hidden: 0
+  - stableId: achievement.mastery.30
+    title: Boss Rush
+    description: Complete the boss rush challenge.
+    category: 2
+    target: 10
+    hidden: 0
+  - stableId: achievement.mastery.31
+    title: Last Spark
+    description: Complete the last spark challenge.
+    category: 2
+    target: 10
+    hidden: 0
+  - stableId: achievement.mastery.32
+    title: Hundred Victories
+    description: Complete the hundred victories challenge.
+    category: 2
+    target: 10
+    hidden: 0
+  - stableId: achievement.mastery.33
+    title: Bearer Ascendant
+    description: Complete the bearer ascendant challenge.
+    category: 2
+    target: 10
+    hidden: 0

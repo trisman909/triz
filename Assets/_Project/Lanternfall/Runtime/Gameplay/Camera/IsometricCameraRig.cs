@@ -1,4 +1,5 @@
 using UnityEngine;
+using Lanternfall.Gameplay.Accessibility;
 
 namespace Lanternfall.Gameplay.Camera
 {
@@ -21,7 +22,9 @@ namespace Lanternfall.Gameplay.Camera
 
         public void Shake(float amplitude, float duration)
         {
-            _shakeAmplitude = Mathf.Max(_shakeAmplitude, amplitude);
+            if (AccessibilityRuntime.ReducedMotion) return;
+            _shakeAmplitude = Mathf.Max(
+                _shakeAmplitude, amplitude * AccessibilityRuntime.CameraShake);
             _shakeTime = Mathf.Max(_shakeTime, duration);
         }
 
@@ -55,4 +58,3 @@ namespace Lanternfall.Gameplay.Camera
         }
     }
 }
-

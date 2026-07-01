@@ -19,6 +19,13 @@ namespace Lanternfall.Gameplay.Combat
         private float _attackCooldown;
         private float _abilityCooldown;
 
+        public float AttackCooldownRemaining => _attackCooldown;
+        public float AbilityCooldownRemaining => _abilityCooldown;
+        public float AbilityCooldownDuration =>
+            startingAbility != null ? startingAbility.Cooldown : 0f;
+        public string AbilityName =>
+            startingAbility != null ? startingAbility.name : "Ability";
+
         private void Awake()
         {
             _input = GetComponent<PlayerInputReader>();

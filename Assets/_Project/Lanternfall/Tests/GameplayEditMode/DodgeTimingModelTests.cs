@@ -3,6 +3,7 @@ using Lanternfall.Gameplay.Combat;
 using Lanternfall.Gameplay.Progression;
 using Lanternfall.Gameplay.Bosses;
 using Lanternfall.Gameplay.Save;
+using Lanternfall.Gameplay.Accessibility;
 using UnityEngine;
 using UnityEditor;
 using Lanternfall.Gameplay.World;
@@ -187,6 +188,53 @@ namespace Lanternfall.Tests
             Assert.That(catalog.Biomes.Count, Is.EqualTo(5));
             Assert.That(catalog.Enemies.Count, Is.EqualTo(40));
             Assert.That(catalog.Bosses.Count, Is.EqualTo(15));
+        }
+
+        [Test]
+        public void AchievementCatalogHasOneHundredUniqueCrossCategoryEntries()
+        {
+            AchievementCatalog catalog =
+                AssetDatabase.LoadAssetAtPath<AchievementCatalog>(
+                    "Assets/_Project/Lanternfall/Settings/" +
+                    "LanternfallAchievementCatalog.asset");
+            Assert.That(catalog, Is.Not.Null);
+            Assert.That(catalog.ValidateReleaseCatalog(), Is.Empty);
+            Assert.That(catalog.Entries.Count, Is.EqualTo(100));
+        }
+
+        [Test]
+        public void AchievementTrackerUnlocksOnceAtTarget()
+        {
+            var save = new SaveData();
+            var tracker = new AchievementTracker(save);
+            var achievement = new AchievementDefinition(
+                "achievement.test", "Test", "Test progress",
+                AchievementCategory.Mastery, 2, false);
+
+            Assert.That(tracker.AddProgress(achievement), Is.False);
+            Assert.That(tracker.AddProgress(achievement), Is.True);
+            Assert.That(tracker.AddProgress(achievement), Is.False);
+            Assert.That(save.achievements, Is.EqualTo(
+                new[] { "achievement.test" }));
+        }
+
+        [Test]
+        public void AccessibilityProfileClampsUnsafePresentationValues()
+        {
+            var settings = new SettingsData
+            {
+                cameraShake = 4f,
+                flashIntensity = -2f,
+                uiScale = 3f,
+                reducedMotion = true
+            };
+
+            AccessibilityRuntime.Apply(settings);
+
+            Assert.That(AccessibilityRuntime.CameraShake, Is.EqualTo(1f));
+            Assert.That(AccessibilityRuntime.FlashIntensity, Is.EqualTo(0f));
+            Assert.That(AccessibilityRuntime.UiScale, Is.EqualTo(1.5f));
+            Assert.That(AccessibilityRuntime.ReducedMotion, Is.True);
         }
     }
 }

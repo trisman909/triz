@@ -24,8 +24,11 @@ namespace Lanternfall.Gameplay.Save
         public float effectsVolume = .9f;
         public float cameraShake = 1f;
         public float flashIntensity = 1f;
+        public float uiScale = 1f;
         public bool reducedMotion;
         public bool subtitles = true;
+        public bool highContrastTelegraphs;
+        public string bindingOverrides = string.Empty;
     }
 
     [Serializable]
@@ -55,4 +58,3 @@ namespace Lanternfall.Gameplay.Save
         public string checksum;
     }
 }
-

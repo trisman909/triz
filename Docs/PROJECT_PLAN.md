@@ -14,8 +14,8 @@ Updated: 2026-07-01
 | 7 | First-biome vertical slice and three bosses | Complete |
 | 8 | Hub, saves, meta progression, NPC quests | Complete |
 | 9 | Five-biome content production | Complete |
-| 10 | UI, audio, accessibility, 100 achievements | In progress |
-| 11 | Optimization, balance, QA, localization | Pending |
+| 10 | UI, audio, accessibility, 100 achievements | Complete |
+| 11 | Optimization, balance, QA, localization | In progress |
 | 12 | Windows release candidate | Pending |
 
 ## Phase rules
@@ -140,3 +140,20 @@ commit before the next phase begins.
 - [x] EditMode tests: 14/14 passed.
 - [x] PlayMode regression tests: 6/6 passed.
 - [x] Four-scene Windows x64 smoke build succeeded (164,767,000 bytes).
+
+## Phase 10 verification
+
+- [x] Responsive 720p-to-4K HUD for vitality, guardian health, cooldown,
+  run currency, Echo inventory, statuses and route orientation.
+- [x] Pause/settings surface operable from keyboard and controller.
+- [x] Persisted Input System binding overrides and settings profile.
+- [x] Scalable UI, subtitles, reduced motion, camera-shake suppression,
+  flash clamping and high-contrast telegraph preferences.
+- [x] Original, license-safe procedural adaptive score with exploration,
+  combat, guardian and secret states.
+- [x] Exactly 100 validated achievements across progression, exploration and
+  mastery, with idempotent save-backed unlock tracking.
+- [x] Regenerated HUD/audio integration in all playable scenes.
+- [x] EditMode tests: 17/17 passed.
+- [x] PlayMode integration tests: 8/8 passed.
+- [x] Four-scene Windows x64 smoke build succeeded (164,793,134 bytes).

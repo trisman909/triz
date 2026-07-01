@@ -5,7 +5,7 @@ namespace Lanternfall.Gameplay.Input
 {
     /// <summary>
     /// Owns the gameplay action map and exposes device-neutral intent.
-    /// Rebinding persistence is added with the settings/save phase.
+    /// Owns default bindings and serializes Input System override JSON.
     /// </summary>
     public sealed class PlayerInputReader : MonoBehaviour
     {
@@ -17,6 +17,12 @@ namespace Lanternfall.Gameplay.Input
         private InputAction _primaryFire;
         private InputAction _ability;
         private InputAction _interact;
+        private InputAction _pause;
+        private InputAction _uiScaleUp;
+        private InputAction _uiScaleDown;
+        private InputAction _reducedMotion;
+        private InputAction _subtitles;
+        private InputAction _highContrast;
 
         public Vector2 Move => _move?.ReadValue<Vector2>() ?? Vector2.zero;
         public bool SprintHeld => _sprint?.IsPressed() ?? false;
@@ -25,6 +31,17 @@ namespace Lanternfall.Gameplay.Input
         public bool PrimaryFireHeld => _primaryFire?.IsPressed() ?? false;
         public bool AbilityPressedThisFrame => _ability?.WasPressedThisFrame() ?? false;
         public bool InteractPressedThisFrame => _interact?.WasPressedThisFrame() ?? false;
+        public bool PausePressedThisFrame => _pause?.WasPressedThisFrame() ?? false;
+        public bool UiScaleUpPressedThisFrame =>
+            _uiScaleUp?.WasPressedThisFrame() ?? false;
+        public bool UiScaleDownPressedThisFrame =>
+            _uiScaleDown?.WasPressedThisFrame() ?? false;
+        public bool ReducedMotionPressedThisFrame =>
+            _reducedMotion?.WasPressedThisFrame() ?? false;
+        public bool SubtitlesPressedThisFrame =>
+            _subtitles?.WasPressedThisFrame() ?? false;
+        public bool HighContrastPressedThisFrame =>
+            _highContrast?.WasPressedThisFrame() ?? false;
 
         private void Awake()
         {
@@ -45,6 +62,43 @@ namespace Lanternfall.Gameplay.Input
             _ability.AddBinding("<Gamepad>/leftShoulder");
             _interact = _map.AddAction("Interact", InputActionType.Button, "<Keyboard>/e");
             _interact.AddBinding("<Gamepad>/buttonSouth");
+            _pause = _map.AddAction("Pause", InputActionType.Button, "<Keyboard>/escape");
+            _pause.AddBinding("<Gamepad>/start");
+            _uiScaleUp = _map.AddAction(
+                "UI Scale Up", InputActionType.Button, "<Keyboard>/equals");
+            _uiScaleUp.AddBinding("<Gamepad>/dpad/right");
+            _uiScaleDown = _map.AddAction(
+                "UI Scale Down", InputActionType.Button, "<Keyboard>/minus");
+            _uiScaleDown.AddBinding("<Gamepad>/dpad/left");
+            _reducedMotion = _map.AddAction(
+                "Reduced Motion", InputActionType.Button, "<Keyboard>/r");
+            _reducedMotion.AddBinding("<Gamepad>/rightStickPress");
+            _subtitles = _map.AddAction(
+                "Subtitles", InputActionType.Button, "<Keyboard>/t");
+            _subtitles.AddBinding("<Gamepad>/buttonNorth");
+            _highContrast = _map.AddAction(
+                "High Contrast", InputActionType.Button, "<Keyboard>/h");
+            _highContrast.AddBinding("<Gamepad>/leftStickPress");
+        }
+
+        public string SaveBindingOverrides() =>
+            _map?.SaveBindingOverridesAsJson() ?? string.Empty;
+
+        public void LoadBindingOverrides(string json)
+        {
+            if (_map == null || string.IsNullOrWhiteSpace(json)) return;
+            _map.LoadBindingOverridesFromJson(json);
+        }
+
+        public bool ApplyBindingOverride(
+            string actionName, int bindingIndex, string controlPath)
+        {
+            InputAction action = _map?.FindAction(actionName);
+            if (action == null || bindingIndex < 0 ||
+                bindingIndex >= action.bindings.Count ||
+                string.IsNullOrWhiteSpace(controlPath)) return false;
+            action.ApplyBindingOverride(bindingIndex, controlPath);
+            return true;
         }
 
         private void OnEnable() => _map?.Enable();

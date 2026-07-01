@@ -3,8 +3,8 @@
   "rootNamespace": "Lanternfall.Gameplay",
   "references": [
     "Lanternfall.Core",
-    "Unity.InputSystem"
+    "Unity.InputSystem",
+    "Unity.ugui"
   ],
   "noEngineReferences": false
 }
-

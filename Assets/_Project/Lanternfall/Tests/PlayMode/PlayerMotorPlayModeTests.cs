@@ -5,6 +5,9 @@ using Lanternfall.Gameplay.Enemies;
 using Lanternfall.Gameplay.World;
 using Lanternfall.Gameplay.Progression;
 using Lanternfall.Gameplay.Bosses;
+using Lanternfall.Gameplay.Audio;
+using Lanternfall.Gameplay.Input;
+using Lanternfall.Gameplay.UI;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -179,6 +182,41 @@ namespace Lanternfall.Tests
             Object.Destroy(guardian);
             Object.Destroy(target);
             Object.Destroy(definition);
+        }
+
+        [UnityTest]
+        public IEnumerator HudBuildsResponsiveCanvasAndPauseSurface()
+        {
+            GameObject player = new GameObject("HUD Test Bearer");
+            player.AddComponent<Health>().Configure(180f, 0f, false);
+            player.AddComponent<PlayerInputReader>();
+            GameHud hud = player.AddComponent<GameHud>();
+            yield return null;
+
+            Assert.That(player.transform.Find("Lanternfall HUD"), Is.Not.Null);
+            hud.SetPaused(true);
+            Assert.That(Time.timeScale, Is.EqualTo(0f));
+            hud.SetPaused(false);
+            Assert.That(Time.timeScale, Is.EqualTo(1f));
+
+            Object.Destroy(player);
+            yield return null;
+        }
+
+        [UnityTest]
+        public IEnumerator AdaptiveScoreAcceptsRuntimeStateChanges()
+        {
+            GameObject audio = new GameObject("Adaptive Score Test");
+            DynamicAudioDirector director =
+                audio.AddComponent<DynamicAudioDirector>();
+            yield return null;
+
+            Assert.That(director.State, Is.EqualTo(MusicState.Exploration));
+            director.SetState(MusicState.Combat);
+            Assert.That(director.State, Is.EqualTo(MusicState.Combat));
+
+            Object.Destroy(audio);
+            yield return null;
         }
     }
 }
