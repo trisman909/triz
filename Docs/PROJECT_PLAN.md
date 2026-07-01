@@ -8,8 +8,8 @@ Updated: 2026-07-01
 | 1 | Unity/URP foundation, deterministic core, tests | Complete |
 | 2 | Player movement, dodge, input, isometric camera | Complete |
 | 3 | Damage, weapons, abilities, pooling | Complete |
-| 4 | Enemy state machines and encounter director | In progress |
-| 5 | Modular rooms and seeded run generation | Pending |
+| 4 | Enemy state machines and encounter director | Complete |
+| 5 | Modular rooms and seeded run generation | In progress |
 | 6 | Rewards, resonance builds, economy | Pending |
 | 7 | First-biome vertical slice and three bosses | Pending |
 | 8 | Hub, saves, meta progression, NPC quests | Pending |
@@ -68,3 +68,14 @@ commit before the next phase begins.
 - [x] EditMode tests: 6/6 passed.
 - [x] PlayMode integration tests: 2/2 passed.
 - [x] Windows x64 development smoke build succeeded (164,668,599 bytes).
+
+## Phase 4 verification
+
+- [x] Readable chase, telegraph, attack, recovery and death state lifecycle.
+- [x] Eight authored roles with role-specific spacing and movement behavior.
+- [x] Frenzied, Bulwark and Volatile elite modifier vocabulary.
+- [x] Summoner budget and encounter start/clear event tracking.
+- [x] Allocation-free projectile ownership filtering fixed for real encounters.
+- [x] EditMode tests: 6/6 passed.
+- [x] PlayMode integration tests: 3/3 passed.
+- [x] Windows x64 development smoke build succeeded (164,681,931 bytes).

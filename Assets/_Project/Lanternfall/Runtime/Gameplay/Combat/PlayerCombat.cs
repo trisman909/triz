@@ -45,7 +45,7 @@ namespace Lanternfall.Gameplay.Combat
             Vector3 direction = ResolveAimDirection();
             Vector3 origin = muzzle != null ? muzzle.position : transform.position + Vector3.up * 0.5f;
             projectile.Launch(
-                startingWeapon, origin, direction, gameObject.layer, _projectiles.Return);
+                startingWeapon, origin, direction, transform.root, _projectiles.Return);
             _attackCooldown = 1f / startingWeapon.AttacksPerSecond;
             return true;
         }

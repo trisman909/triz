@@ -1,6 +1,7 @@
 using System.IO;
 using Lanternfall.Gameplay.Camera;
 using Lanternfall.Gameplay.Combat;
+using Lanternfall.Gameplay.Enemies;
 using Lanternfall.Gameplay.Input;
 using Lanternfall.Gameplay.Player;
 using UnityEditor;
@@ -56,6 +57,8 @@ namespace Lanternfall.Editor
                 "ability.gloam_well", AbilityKind.GloamWell,
                 25f, 6.5f, 10f, DamageElement.Gloam);
             Projectile projectilePrefab = CreateProjectilePrefab(projectileMaterial);
+            EnemyDefinition[] enemies = CreateEnemyRoster();
+            EnemyBrain enemyPrefab = CreateEnemyPrefab(wallMaterial);
 
             CreateBlock("Floor", new Vector3(0f, -0.5f, 0f),
                 new Vector3(24f, 1f, 18f), floorMaterial);
@@ -89,6 +92,8 @@ namespace Lanternfall.Editor
             player.GetComponent<Renderer>().sharedMaterial = playerMaterial;
             player.AddComponent<PlayerInputReader>();
             player.AddComponent<PlayerMotor>();
+            Health playerHealth = player.AddComponent<Health>();
+            playerHealth.Configure(180f, 5f, false);
 
             GameObject lantern = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             lantern.name = "Lantern";
@@ -109,6 +114,9 @@ namespace Lanternfall.Editor
             CreateDummy("Ashen Target A", new Vector3(-5f, 1f, 2f), wallMaterial);
             CreateDummy("Ashen Target B", new Vector3(5f, 1f, 3f), wallMaterial);
             CreateDummy("Ashen Target C", new Vector3(0f, 1f, 6f), wallMaterial);
+            GameObject directorObject = new GameObject("Encounter Director");
+            EncounterDirector director = directorObject.AddComponent<EncounterDirector>();
+            director.Configure(enemyPrefab, enemies, player.transform, 6);
 
             GameObject cameraObject = new GameObject("Isometric Camera");
             cameraObject.tag = "MainCamera";
@@ -299,6 +307,67 @@ namespace Lanternfall.Editor
             dummy.GetComponent<Renderer>().sharedMaterial = material;
             Health health = dummy.AddComponent<Health>();
             health.Configure(100f, 15f, false);
+        }
+
+        private static EnemyDefinition[] CreateEnemyRoster()
+        {
+            return new[]
+            {
+                CreateEnemy("enemy.rubble_claw", EnemyArchetype.Melee, 45, 0, 3.8f, 12, 1.7f, .45f, .65f),
+                CreateEnemy("enemy.thorn_scribe", EnemyArchetype.Archer, 35, 0, 3.2f, 10, 6f, .75f, .9f),
+                CreateEnemy("enemy.bell_bastion", EnemyArchetype.Tank, 120, 25, 1.8f, 22, 2f, .9f, 1.1f),
+                CreateEnemy("enemy.mist_ray", EnemyArchetype.Flying, 32, 0, 4.5f, 9, 2.2f, .4f, .55f),
+                CreateEnemy("enemy.underling", EnemyArchetype.Burrowing, 55, 8, 3.1f, 16, 1.8f, .65f, .8f),
+                CreateEnemy("enemy.cinder_husk", EnemyArchetype.Explosive, 30, 0, 4.2f, 30, 2.4f, .8f, .2f),
+                CreateEnemy("enemy.choir_warden", EnemyArchetype.Summoner, 65, 5, 2.4f, 8, 5.5f, 1.1f, 1.4f),
+                CreateEnemy("enemy.gloam_needle", EnemyArchetype.Assassin, 38, 0, 5.3f, 18, 1.6f, .3f, .55f)
+            };
+        }
+
+        private static EnemyDefinition CreateEnemy(
+            string id,
+            EnemyArchetype archetype,
+            float health,
+            float armor,
+            float speed,
+            float damage,
+            float range,
+            float windup,
+            float recovery)
+        {
+            string path =
+                $"Assets/_Project/Lanternfall/Settings/{id.Replace('.', '_')}.asset";
+            EnemyDefinition definition =
+                AssetDatabase.LoadAssetAtPath<EnemyDefinition>(path);
+            if (definition == null)
+            {
+                definition = ScriptableObject.CreateInstance<EnemyDefinition>();
+                AssetDatabase.CreateAsset(definition, path);
+            }
+            definition.Configure(
+                id, archetype, health, armor, speed, damage, range, windup, recovery);
+            EditorUtility.SetDirty(definition);
+            return definition;
+        }
+
+        private static EnemyBrain CreateEnemyPrefab(Material material)
+        {
+            const string path = "Assets/_Project/Lanternfall/Art/EnemyBase.prefab";
+            GameObject existing = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+            if (existing != null) return existing.GetComponent<EnemyBrain>();
+
+            GameObject source = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+            source.name = "Enemy Base";
+            source.GetComponent<Renderer>().sharedMaterial = material;
+            Object.DestroyImmediate(source.GetComponent<CapsuleCollider>());
+            CharacterController controller = source.AddComponent<CharacterController>();
+            controller.height = 2f;
+            controller.radius = .5f;
+            source.AddComponent<Health>();
+            source.AddComponent<EnemyBrain>();
+            GameObject prefab = PrefabUtility.SaveAsPrefabAsset(source, path);
+            Object.DestroyImmediate(source);
+            return prefab.GetComponent<EnemyBrain>();
         }
 
         private static GameObject CreateBlock(

@@ -1,6 +1,7 @@
 using System.Collections;
 using Lanternfall.Gameplay.Player;
 using Lanternfall.Gameplay.Combat;
+using Lanternfall.Gameplay.Enemies;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -55,7 +56,7 @@ namespace Lanternfall.Tests
             Projectile projectile = projectileObject.AddComponent<Projectile>();
             bool returned = false;
             projectile.Launch(
-                weapon, new Vector3(0f, 1f, 0f), Vector3.forward, 8,
+                weapon, new Vector3(0f, 1f, 0f), Vector3.forward, projectileObject.transform,
                 item =>
                 {
                     returned = true;
@@ -74,6 +75,33 @@ namespace Lanternfall.Tests
             Object.Destroy(target);
             Object.Destroy(projectileObject);
             Object.Destroy(weapon);
+        }
+
+        [UnityTest]
+        public IEnumerator EnemyTelegraphsThenDamagesTarget()
+        {
+            GameObject target = new GameObject("Target");
+            Health targetHealth = target.AddComponent<Health>();
+            targetHealth.Configure(100f, 0f, false);
+
+            EnemyDefinition definition = ScriptableObject.CreateInstance<EnemyDefinition>();
+            definition.Configure(
+                "test.melee", EnemyArchetype.Melee, 30f, 0f, 2f,
+                10f, 2f, 0.05f, 0.1f);
+
+            GameObject enemy = new GameObject("Enemy");
+            enemy.transform.position = new Vector3(0f, 0f, 1f);
+            enemy.AddComponent<CharacterController>();
+            enemy.AddComponent<Health>();
+            EnemyBrain brain = enemy.AddComponent<EnemyBrain>();
+            brain.Configure(definition, target.transform, EliteModifier.None);
+
+            yield return new WaitForSeconds(0.15f);
+
+            Assert.That(targetHealth.Current, Is.LessThan(100f));
+            Object.Destroy(enemy);
+            Object.Destroy(target);
+            Object.Destroy(definition);
         }
     }
 }

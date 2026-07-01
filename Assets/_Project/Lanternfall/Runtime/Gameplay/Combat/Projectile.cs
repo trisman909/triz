@@ -11,18 +11,19 @@ namespace Lanternfall.Gameplay.Combat
         private WeaponDefinition _weapon;
         private Vector3 _direction;
         private float _remainingLifetime;
-        private int _ownerLayer;
+        private Transform _ownerRoot;
+        private readonly RaycastHit[] _hits = new RaycastHit[16];
 
         public void Launch(
             WeaponDefinition weapon,
             Vector3 position,
             Vector3 direction,
-            int ownerLayer,
+            Transform ownerRoot,
             Action<Projectile> release)
         {
             _weapon = weapon;
             _direction = direction.normalized;
-            _ownerLayer = ownerLayer;
+            _ownerRoot = ownerRoot;
             _release = release;
             _remainingLifetime = 3f;
             transform.SetPositionAndRotation(position, Quaternion.LookRotation(_direction));
@@ -32,24 +33,35 @@ namespace Lanternfall.Gameplay.Combat
         {
             if (_weapon == null) return;
             float distance = _weapon.ProjectileSpeed * Time.deltaTime;
-            if (Physics.SphereCast(
+            int hitCount = Physics.SphereCastNonAlloc(
                 transform.position,
                 0.15f,
                 _direction,
-                out RaycastHit hit,
+                _hits,
                 distance,
                 ~0,
-                QueryTriggerInteraction.Collide))
+                QueryTriggerInteraction.Collide);
+            int selected = -1;
+            float closest = float.MaxValue;
+            for (int index = 0; index < hitCount; index++)
             {
-                if (hit.collider.gameObject.layer != _ownerLayer &&
-                    hit.collider.GetComponentInParent<Health>() is Health target)
+                RaycastHit candidate = _hits[index];
+                if (candidate.collider.transform.root == _ownerRoot) continue;
+                if (candidate.distance < closest)
                 {
+                    selected = index;
+                    closest = candidate.distance;
+                }
+            }
+            if (selected >= 0)
+            {
+                RaycastHit hit = _hits[selected];
+                if (hit.collider.GetComponentInParent<Health>() is Health target)
                     target.ApplyDamage(new DamageRequest(
                         _weapon.Damage, 0f, _weapon.CriticalChance, 2f, 0f,
                         _weapon.Element, UnityEngine.Random.value));
-                    if (hit.rigidbody != null)
-                        hit.rigidbody.AddForce(_direction * _weapon.Knockback, ForceMode.Impulse);
-                }
+                if (hit.rigidbody != null)
+                    hit.rigidbody.AddForce(_direction * _weapon.Knockback, ForceMode.Impulse);
                 Release();
                 return;
             }
@@ -71,6 +83,7 @@ namespace Lanternfall.Gameplay.Combat
         {
             _weapon = null;
             _release = null;
+            _ownerRoot = null;
         }
     }
 }
