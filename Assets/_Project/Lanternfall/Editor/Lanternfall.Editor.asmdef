@@ -1,0 +1,12 @@
+{
+  "name": "Lanternfall.Editor",
+  "rootNamespace": "Lanternfall.Editor",
+  "references": [
+    "Lanternfall.Gameplay",
+    "Unity.RenderPipelines.Universal.Runtime"
+  ],
+  "includePlatforms": ["Editor"],
+  "autoReferenced": true,
+  "noEngineReferences": false
+}
+

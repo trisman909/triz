@@ -1,0 +1,213 @@
+using System.IO;
+using Lanternfall.Gameplay.Camera;
+using Lanternfall.Gameplay.Input;
+using Lanternfall.Gameplay.Player;
+using UnityEditor;
+using UnityEditor.Build;
+using UnityEditor.SceneManagement;
+using UnityEditor.Build.Reporting;
+using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
+using UnityEngine.SceneManagement;
+
+namespace Lanternfall.Editor
+{
+    public static class CombatSandboxBuilder
+    {
+        private const string ScenePath =
+            "Assets/_Project/Lanternfall/Scenes/CombatSandbox.unity";
+
+        [MenuItem("Lanternfall/Build Combat Sandbox")]
+        public static void Build()
+        {
+            EnsureFolders();
+            ConfigureUrp();
+
+            Scene scene = EditorSceneManager.NewScene(
+                NewSceneSetup.EmptyScene,
+                NewSceneMode.Single);
+
+            Material floorMaterial = CreateMaterial(
+                "ArenaStone", new Color(0.12f, 0.15f, 0.18f), 0.18f);
+            Material wallMaterial = CreateMaterial(
+                "ArenaEdge", new Color(0.22f, 0.17f, 0.13f), 0.08f);
+            Material playerMaterial = CreateMaterial(
+                "Bearer", new Color(0.18f, 0.72f, 0.82f), 0.55f);
+            Material emberMaterial = CreateMaterial(
+                "Ember", new Color(1f, 0.33f, 0.08f), 0.4f);
+
+            CreateBlock("Floor", new Vector3(0f, -0.5f, 0f),
+                new Vector3(24f, 1f, 18f), floorMaterial);
+            CreateBlock("Wall North", new Vector3(0f, 1f, 9f),
+                new Vector3(24f, 3f, 1f), wallMaterial);
+            CreateBlock("Wall South", new Vector3(0f, 1f, -9f),
+                new Vector3(24f, 3f, 1f), wallMaterial);
+            CreateBlock("Wall East", new Vector3(12f, 1f, 0f),
+                new Vector3(1f, 3f, 18f), wallMaterial);
+            CreateBlock("Wall West", new Vector3(-12f, 1f, 0f),
+                new Vector3(1f, 3f, 18f), wallMaterial);
+
+            for (int index = 0; index < 8; index++)
+            {
+                float angle = index * Mathf.PI * 0.25f;
+                CreateBlock(
+                    $"Pillar {index + 1}",
+                    new Vector3(Mathf.Cos(angle) * 7f, 1f, Mathf.Sin(angle) * 5f),
+                    new Vector3(1.1f, 3f, 1.1f),
+                    wallMaterial);
+            }
+
+            GameObject player = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+            player.name = "Bearer";
+            player.transform.position = Vector3.up;
+            Object.DestroyImmediate(player.GetComponent<CapsuleCollider>());
+            CharacterController controller = player.AddComponent<CharacterController>();
+            controller.height = 2f;
+            controller.radius = 0.48f;
+            controller.center = Vector3.zero;
+            player.GetComponent<Renderer>().sharedMaterial = playerMaterial;
+            player.AddComponent<PlayerInputReader>();
+            player.AddComponent<PlayerMotor>();
+
+            GameObject lantern = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            lantern.name = "Lantern";
+            lantern.transform.SetParent(player.transform);
+            lantern.transform.localPosition = new Vector3(0.45f, 0.55f, 0.15f);
+            lantern.transform.localScale = Vector3.one * 0.28f;
+            Object.DestroyImmediate(lantern.GetComponent<Collider>());
+            lantern.GetComponent<Renderer>().sharedMaterial = emberMaterial;
+            Light lanternLight = lantern.AddComponent<Light>();
+            lanternLight.type = LightType.Point;
+            lanternLight.color = new Color(1f, 0.36f, 0.12f);
+            lanternLight.range = 8f;
+            lanternLight.intensity = 5f;
+            lanternLight.shadows = LightShadows.Soft;
+
+            GameObject cameraObject = new GameObject("Isometric Camera");
+            cameraObject.tag = "MainCamera";
+            UnityEngine.Camera camera = cameraObject.AddComponent<UnityEngine.Camera>();
+            camera.clearFlags = CameraClearFlags.SolidColor;
+            camera.backgroundColor = new Color(0.025f, 0.035f, 0.055f);
+            camera.nearClipPlane = 0.1f;
+            camera.farClipPlane = 100f;
+            cameraObject.AddComponent<AudioListener>();
+            IsometricCameraRig rig = cameraObject.AddComponent<IsometricCameraRig>();
+            rig.SetTarget(player.transform);
+            cameraObject.transform.position = player.transform.position + new Vector3(0f, 12f, -10f);
+            cameraObject.transform.rotation = Quaternion.Euler(48f, 0f, 0f);
+
+            GameObject lightObject = new GameObject("Moon Key Light");
+            Light key = lightObject.AddComponent<Light>();
+            key.type = LightType.Directional;
+            key.color = new Color(0.48f, 0.58f, 0.82f);
+            key.intensity = 1.4f;
+            key.shadows = LightShadows.Soft;
+            lightObject.transform.rotation = Quaternion.Euler(48f, -35f, 0f);
+
+            RenderSettings.ambientMode = AmbientMode.Trilight;
+            RenderSettings.ambientSkyColor = new Color(0.08f, 0.1f, 0.16f);
+            RenderSettings.ambientEquatorColor = new Color(0.04f, 0.05f, 0.08f);
+            RenderSettings.ambientGroundColor = new Color(0.015f, 0.018f, 0.025f);
+
+            EditorSceneManager.SaveScene(scene, ScenePath);
+            EditorBuildSettings.scenes = new[]
+            {
+                new EditorBuildSettingsScene(ScenePath, true)
+            };
+            AssetDatabase.SaveAssets();
+            Debug.Log($"Lanternfall combat sandbox built at {ScenePath}");
+        }
+
+        public static void BuildFromCommandLine()
+        {
+            Build();
+        }
+
+        public static void BuildWindowsDevelopment()
+        {
+            BuildPlayerOptions options = new BuildPlayerOptions
+            {
+                scenes = new[] { ScenePath },
+                locationPathName = "Builds/Windows/Lanternfall.exe",
+                target = BuildTarget.StandaloneWindows64,
+                options = BuildOptions.Development
+            };
+            BuildReport report = BuildPipeline.BuildPlayer(options);
+            if (report.summary.result != BuildResult.Succeeded)
+            {
+                throw new BuildFailedException(
+                    $"Windows build failed: {report.summary.result}");
+            }
+            Debug.Log(
+                $"Lanternfall Windows smoke build succeeded: " +
+                $"{report.summary.totalSize} bytes");
+        }
+
+        private static void ConfigureUrp()
+        {
+            const string rendererPath =
+                "Assets/_Project/Lanternfall/Settings/LanternfallRenderer.asset";
+            const string pipelinePath =
+                "Assets/_Project/Lanternfall/Settings/LanternfallPipeline.asset";
+
+            UniversalRendererData renderer =
+                AssetDatabase.LoadAssetAtPath<UniversalRendererData>(rendererPath);
+            if (renderer == null)
+            {
+                renderer = ScriptableObject.CreateInstance<UniversalRendererData>();
+                AssetDatabase.CreateAsset(renderer, rendererPath);
+            }
+
+            UniversalRenderPipelineAsset pipeline =
+                AssetDatabase.LoadAssetAtPath<UniversalRenderPipelineAsset>(pipelinePath);
+            if (pipeline == null)
+            {
+                pipeline = UniversalRenderPipelineAsset.Create(renderer);
+                AssetDatabase.CreateAsset(pipeline, pipelinePath);
+            }
+
+            GraphicsSettings.defaultRenderPipeline = pipeline;
+            QualitySettings.renderPipeline = pipeline;
+            EditorUtility.SetDirty(pipeline);
+        }
+
+        private static void EnsureFolders()
+        {
+            Directory.CreateDirectory("Assets/_Project/Lanternfall/Scenes");
+            Directory.CreateDirectory("Assets/_Project/Lanternfall/Settings");
+            Directory.CreateDirectory("Assets/_Project/Lanternfall/Art/Materials");
+            AssetDatabase.Refresh();
+        }
+
+        private static Material CreateMaterial(string name, Color color, float smoothness)
+        {
+            string path = $"Assets/_Project/Lanternfall/Art/Materials/{name}.mat";
+            Material material = AssetDatabase.LoadAssetAtPath<Material>(path);
+            if (material == null)
+            {
+                Shader shader = Shader.Find("Universal Render Pipeline/Lit");
+                material = new Material(shader) { name = name };
+                AssetDatabase.CreateAsset(material, path);
+            }
+            material.SetColor("_BaseColor", color);
+            material.SetFloat("_Smoothness", smoothness);
+            EditorUtility.SetDirty(material);
+            return material;
+        }
+
+        private static GameObject CreateBlock(
+            string name,
+            Vector3 position,
+            Vector3 scale,
+            Material material)
+        {
+            GameObject block = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            block.name = name;
+            block.transform.SetPositionAndRotation(position, Quaternion.identity);
+            block.transform.localScale = scale;
+            block.GetComponent<Renderer>().sharedMaterial = material;
+            return block;
+        }
+    }
+}

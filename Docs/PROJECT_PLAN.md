@@ -6,8 +6,8 @@ Updated: 2026-07-01
 |---|---|---|
 | 0 | Original identity, scope, risks | Complete |
 | 1 | Unity/URP foundation, deterministic core, tests | Complete |
-| 2 | Player movement, dodge, input, isometric camera | Pending |
-| 3 | Damage, weapons, abilities, pooling | Pending |
+| 2 | Player movement, dodge, input, isometric camera | Complete |
+| 3 | Damage, weapons, abilities, pooling | In progress |
 | 4 | Enemy state machines and encounter director | Pending |
 | 5 | Modular rooms and seeded run generation | Pending |
 | 6 | Rewards, resonance builds, economy | Pending |
@@ -43,3 +43,15 @@ commit before the next phase begins.
 - [x] Pass compilation and all EditMode tests (4/4).
 - [x] Install Git for Windows.
 - [x] Commit Phase 1.
+
+## Phase 2 verification
+
+- [x] Device-neutral Input System action map with keyboard/mouse and gamepad
+  bindings.
+- [x] Accelerated CharacterController movement, sprint, facing and gravity.
+- [x] Directional dodge with bounded invulnerability and cooldown.
+- [x] Fixed isometric camera with damped follow, shake and boss-zoom hooks.
+- [x] Generated URP combat sandbox with lighting, collisions and build setup.
+- [x] EditMode tests: 5/5 passed.
+- [x] PlayMode integration tests: 1/1 passed.
+- [x] Windows x64 development smoke build succeeded (164,646,971 bytes).

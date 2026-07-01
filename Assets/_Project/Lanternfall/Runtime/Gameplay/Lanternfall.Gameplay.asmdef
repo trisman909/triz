@@ -1,0 +1,10 @@
+{
+  "name": "Lanternfall.Gameplay",
+  "rootNamespace": "Lanternfall.Gameplay",
+  "references": [
+    "Lanternfall.Core",
+    "Unity.InputSystem"
+  ],
+  "noEngineReferences": false
+}
+
