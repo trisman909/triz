@@ -1,5 +1,6 @@
 using System.IO;
 using Lanternfall.Gameplay.Camera;
+using Lanternfall.Gameplay.Combat;
 using Lanternfall.Gameplay.Input;
 using Lanternfall.Gameplay.Player;
 using UnityEditor;
@@ -36,6 +37,25 @@ namespace Lanternfall.Editor
                 "Bearer", new Color(0.18f, 0.72f, 0.82f), 0.55f);
             Material emberMaterial = CreateMaterial(
                 "Ember", new Color(1f, 0.33f, 0.08f), 0.4f);
+            Material projectileMaterial = CreateMaterial(
+                "Projectile", new Color(0.3f, 0.9f, 1f), 0.7f);
+
+            WeaponDefinition cinderStaff = CreateWeapon(
+                "weapon.cinder_staff", "Cinder Staff", 18f, 2.4f, 17f, 2.5f,
+                0.1f, DamageElement.Ember);
+            CreateWeapon(
+                "weapon.prism_bow", "Prism Bow", 30f, 1.25f, 24f, 4f,
+                0.18f, DamageElement.Storm);
+            CreateWeapon(
+                "weapon.echo_blades", "Echo Blades", 11f, 4.5f, 14f, 1.5f,
+                0.07f, DamageElement.Gloam);
+            AbilityDefinition radiantBurst = CreateAbility(
+                "ability.radiant_burst", AbilityKind.RadiantBurst,
+                38f, 5f, 7f, DamageElement.Ember);
+            CreateAbility(
+                "ability.gloam_well", AbilityKind.GloamWell,
+                25f, 6.5f, 10f, DamageElement.Gloam);
+            Projectile projectilePrefab = CreateProjectilePrefab(projectileMaterial);
 
             CreateBlock("Floor", new Vector3(0f, -0.5f, 0f),
                 new Vector3(24f, 1f, 18f), floorMaterial);
@@ -83,6 +103,12 @@ namespace Lanternfall.Editor
             lanternLight.range = 8f;
             lanternLight.intensity = 5f;
             lanternLight.shadows = LightShadows.Soft;
+            PlayerCombat combat = player.AddComponent<PlayerCombat>();
+            combat.Configure(cinderStaff, radiantBurst, projectilePrefab, lantern.transform);
+
+            CreateDummy("Ashen Target A", new Vector3(-5f, 1f, 2f), wallMaterial);
+            CreateDummy("Ashen Target B", new Vector3(5f, 1f, 3f), wallMaterial);
+            CreateDummy("Ashen Target C", new Vector3(0f, 1f, 6f), wallMaterial);
 
             GameObject cameraObject = new GameObject("Isometric Camera");
             cameraObject.tag = "MainCamera";
@@ -194,6 +220,85 @@ namespace Lanternfall.Editor
             material.SetFloat("_Smoothness", smoothness);
             EditorUtility.SetDirty(material);
             return material;
+        }
+
+        private static WeaponDefinition CreateWeapon(
+            string id,
+            string title,
+            float damage,
+            float rate,
+            float speed,
+            float knockback,
+            float crit,
+            DamageElement element)
+        {
+            string filename = id.Replace('.', '_');
+            string path = $"Assets/_Project/Lanternfall/Settings/{filename}.asset";
+            WeaponDefinition definition =
+                AssetDatabase.LoadAssetAtPath<WeaponDefinition>(path);
+            if (definition == null)
+            {
+                definition = ScriptableObject.CreateInstance<WeaponDefinition>();
+                AssetDatabase.CreateAsset(definition, path);
+            }
+            definition.Configure(id, title, damage, rate, speed, knockback, crit, element);
+            EditorUtility.SetDirty(definition);
+            return definition;
+        }
+
+        private static AbilityDefinition CreateAbility(
+            string id,
+            AbilityKind kind,
+            float damage,
+            float radius,
+            float cooldown,
+            DamageElement element)
+        {
+            string filename = id.Replace('.', '_');
+            string path = $"Assets/_Project/Lanternfall/Settings/{filename}.asset";
+            AbilityDefinition definition =
+                AssetDatabase.LoadAssetAtPath<AbilityDefinition>(path);
+            if (definition == null)
+            {
+                definition = ScriptableObject.CreateInstance<AbilityDefinition>();
+                AssetDatabase.CreateAsset(definition, path);
+            }
+            definition.Configure(id, kind, damage, radius, cooldown, element);
+            EditorUtility.SetDirty(definition);
+            return definition;
+        }
+
+        private static Projectile CreateProjectilePrefab(Material material)
+        {
+            const string path =
+                "Assets/_Project/Lanternfall/Art/LanternProjectile.prefab";
+            GameObject existing = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+            if (existing != null) return existing.GetComponent<Projectile>();
+
+            GameObject source = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            source.name = "Lantern Projectile";
+            source.transform.localScale = Vector3.one * 0.3f;
+            source.GetComponent<Renderer>().sharedMaterial = material;
+            SphereCollider collider = source.GetComponent<SphereCollider>();
+            collider.enabled = false;
+            source.AddComponent<Projectile>();
+            GameObject prefab = PrefabUtility.SaveAsPrefabAsset(source, path);
+            Object.DestroyImmediate(source);
+            return prefab.GetComponent<Projectile>();
+        }
+
+        private static void CreateDummy(
+            string name,
+            Vector3 position,
+            Material material)
+        {
+            GameObject dummy = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            dummy.name = name;
+            dummy.transform.position = position;
+            dummy.transform.localScale = new Vector3(0.8f, 1f, 0.8f);
+            dummy.GetComponent<Renderer>().sharedMaterial = material;
+            Health health = dummy.AddComponent<Health>();
+            health.Configure(100f, 15f, false);
         }
 
         private static GameObject CreateBlock(

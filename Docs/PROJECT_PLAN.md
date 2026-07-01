@@ -7,8 +7,8 @@ Updated: 2026-07-01
 | 0 | Original identity, scope, risks | Complete |
 | 1 | Unity/URP foundation, deterministic core, tests | Complete |
 | 2 | Player movement, dodge, input, isometric camera | Complete |
-| 3 | Damage, weapons, abilities, pooling | In progress |
-| 4 | Enemy state machines and encounter director | Pending |
+| 3 | Damage, weapons, abilities, pooling | Complete |
+| 4 | Enemy state machines and encounter director | In progress |
 | 5 | Modular rooms and seeded run generation | Pending |
 | 6 | Rewards, resonance builds, economy | Pending |
 | 7 | First-biome vertical slice and three bosses | Pending |
@@ -55,3 +55,16 @@ commit before the next phase begins.
 - [x] EditMode tests: 5/5 passed.
 - [x] PlayMode integration tests: 1/1 passed.
 - [x] Windows x64 development smoke build succeeded (164,646,971 bytes).
+
+## Phase 3 verification
+
+- [x] Deterministic damage pipeline with critical hits, elements and armor.
+- [x] Event-driven health/death component and damageable contract.
+- [x] Reusable component pool with 32 prewarmed projectiles.
+- [x] Three authored weapons: Cinder Staff, Prism Bow and Echo Blades.
+- [x] Two authored abilities: Radiant Burst and Gloam Well.
+- [x] Mouse/gamepad aiming, primary-fire and ability input bindings.
+- [x] Sandbox projectile combat and three armored target dummies.
+- [x] EditMode tests: 6/6 passed.
+- [x] PlayMode integration tests: 2/2 passed.
+- [x] Windows x64 development smoke build succeeded (164,668,599 bytes).

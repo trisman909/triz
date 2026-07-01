@@ -1,5 +1,6 @@
 using System.Collections;
 using Lanternfall.Gameplay.Player;
+using Lanternfall.Gameplay.Combat;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -35,6 +36,44 @@ namespace Lanternfall.Tests
             Object.Destroy(player);
             Object.Destroy(floor);
         }
+
+        [UnityTest]
+        public IEnumerator ProjectileDeliversResolvedDamageAndReturns()
+        {
+            GameObject target = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            target.transform.position = new Vector3(0f, 1f, 3f);
+            Health health = target.AddComponent<Health>();
+            health.Configure(100f, 0f, false);
+
+            WeaponDefinition weapon = ScriptableObject.CreateInstance<WeaponDefinition>();
+            weapon.Configure(
+                "test.weapon", "Test Weapon", 25f, 2f, 20f, 0f, 0f,
+                DamageElement.Ember);
+
+            GameObject projectileObject = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            projectileObject.GetComponent<SphereCollider>().enabled = false;
+            Projectile projectile = projectileObject.AddComponent<Projectile>();
+            bool returned = false;
+            projectile.Launch(
+                weapon, new Vector3(0f, 1f, 0f), Vector3.forward, 8,
+                item =>
+                {
+                    returned = true;
+                    item.gameObject.SetActive(false);
+                });
+
+            float timeout = 1f;
+            while (!returned && timeout > 0f)
+            {
+                timeout -= Time.deltaTime;
+                yield return null;
+            }
+
+            Assert.That(returned, Is.True);
+            Assert.That(health.Current, Is.EqualTo(75f).Within(0.01f));
+            Object.Destroy(target);
+            Object.Destroy(projectileObject);
+            Object.Destroy(weapon);
+        }
     }
 }
-

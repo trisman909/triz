@@ -13,10 +13,16 @@ namespace Lanternfall.Gameplay.Input
         private InputAction _move;
         private InputAction _sprint;
         private InputAction _dodge;
+        private InputAction _aim;
+        private InputAction _primaryFire;
+        private InputAction _ability;
 
         public Vector2 Move => _move?.ReadValue<Vector2>() ?? Vector2.zero;
         public bool SprintHeld => _sprint?.IsPressed() ?? false;
         public bool DodgePressedThisFrame => _dodge?.WasPressedThisFrame() ?? false;
+        public Vector2 Aim => _aim?.ReadValue<Vector2>() ?? Vector2.zero;
+        public bool PrimaryFireHeld => _primaryFire?.IsPressed() ?? false;
+        public bool AbilityPressedThisFrame => _ability?.WasPressedThisFrame() ?? false;
 
         private void Awake()
         {
@@ -30,6 +36,11 @@ namespace Lanternfall.Gameplay.Input
             _sprint.AddBinding("<Gamepad>/leftStickPress");
             _dodge = _map.AddAction("Dodge", InputActionType.Button, "<Keyboard>/space");
             _dodge.AddBinding("<Gamepad>/buttonEast");
+            _aim = _map.AddAction("Aim", InputActionType.Value, "<Gamepad>/rightStick");
+            _primaryFire = _map.AddAction("Primary Fire", InputActionType.Button, "<Mouse>/leftButton");
+            _primaryFire.AddBinding("<Gamepad>/rightTrigger");
+            _ability = _map.AddAction("Ability", InputActionType.Button, "<Keyboard>/q");
+            _ability.AddBinding("<Gamepad>/leftShoulder");
         }
 
         private void OnEnable() => _map?.Enable();
@@ -37,4 +48,3 @@ namespace Lanternfall.Gameplay.Input
         private void OnDestroy() => _map?.Dispose();
     }
 }
-
