@@ -54,7 +54,7 @@ save-backed tracking. Final evidence is 17/17 EditMode, 8/8 PlayMode, and a
 164,793,134-byte Windows development build. The user explicitly confirmed that
 `trisman909/triz` is the intended remote and authorized pushing `master`.
 
-Phase 11 is verified and ready to commit. It adds a fixed-memory 60 FPS
+Phase 11 is verified, committed and pushed as `3c9b474`. It adds a fixed-memory 60 FPS
 telemetry window, declared minimum-PC budgets, four-tier/five-biome centralized
 balance, English fallback and pseudo-locale QA, a 1,000-seed generation soak,
 and a unified release-readiness validator. Evidence: 21/21 EditMode, 9/9
@@ -63,10 +63,28 @@ PlayMode including the live vertical slice, validator pass, and a
 
 Next actions:
 
-1. Commit and push Phase 11.
-2. Build the Phase 12 Windows release candidate with production build settings,
-   version metadata, release manifest and checksums.
-3. Run the full final audit against every release requirement.
+Phase 12 is verified and ready to commit. The production builder sets version
+`1.0.0-rc.1`, strict non-development Windows x64 options, clean output,
+core-file SHA-256 checksums and a JSON release manifest. A packaged D3D12 smoke
+run on Intel UHD 620 traversed hub to first biome and exited 0 with
+`LANTERNFALL_SMOKE_PASS`; final build size is 99,582,628 bytes. The work also
+fixed real player corruption caused by secondary `LocalizationBootstrap` and
+`BiomeAtmosphere` MonoBehaviours embedded in scenes; each component now has its
+own matching source file, and no scene contains embedded MonoScripts.
+
+The final audit proved the packaging pipeline but found the game is not
+commercially complete: the route generator, classes and most content are
+catalog/sandbox-only; Radiance geometry and Vows are absent; achievements,
+accessibility and audio are incompletely wired; presentation remains greybox.
+`Docs/COMPLETION_AUDIT.md` is authoritative. The plan now continues through
+Phases 13–17 rather than making a false completion claim.
+
+Next actions:
+
+1. Commit and push the verified Phase 12 packaging/audit milestone.
+2. Integrate class selection and the deterministic graph into a real
+   multi-room, multi-biome 25–45 minute run lifecycle.
+3. Continue through every remediation phase in the completion audit.
 
 ## Architecture invariants
 

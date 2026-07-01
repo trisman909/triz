@@ -295,6 +295,7 @@ namespace Lanternfall.Editor
             GameObject systems = new GameObject("Experience Systems");
             systems.AddComponent<LocalizationBootstrap>().Configure(catalog, "en");
             systems.AddComponent<FrameBudgetMonitor>();
+            systems.AddComponent<ReleaseSmokeProbe>();
         }
 
         private static BalanceProfile CreateBalanceProfile()

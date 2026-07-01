@@ -109,20 +109,4 @@ namespace Lanternfall.Gameplay.Localization
             _table?.Get(key, fallback) ?? fallback;
     }
 
-    public sealed class LocalizationBootstrap : MonoBehaviour
-    {
-        [SerializeField] private LocalizationCatalog catalog;
-        [SerializeField] private string locale = "en";
-
-        public void Configure(LocalizationCatalog value, string language)
-        {
-            catalog = value;
-            locale = string.IsNullOrWhiteSpace(language) ? "en" : language;
-        }
-
-        private void Awake()
-        {
-            if (catalog != null) LocalizationRuntime.Initialize(catalog, locale);
-        }
-    }
 }

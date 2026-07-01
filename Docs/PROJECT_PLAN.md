@@ -16,7 +16,12 @@ Updated: 2026-07-01
 | 9 | Five-biome content production | Complete |
 | 10 | UI, audio, accessibility, 100 achievements | Complete |
 | 11 | Optimization, balance, QA, localization | Complete |
-| 12 | Windows release candidate | In progress |
+| 12 | Windows RC pipeline and completion audit | Complete |
+| 13 | Integrated 25–45 minute run and class selection | In progress |
+| 14 | Radiance geometry, Vows, full Echo reward cadence | Pending |
+| 15 | Five playable biomes and distinct release encounters | Pending |
+| 16 | Production presentation, audio, UI and achievement wiring | Pending |
+| 17 | Minimum-PC QA and final Windows release candidate | Pending |
 
 ## Phase rules
 
@@ -173,3 +178,22 @@ commit before the next phase begins.
 - [x] PlayMode integration/performance tests: 9/9 passed.
 - [x] Readiness-gated four-scene Windows x64 build succeeded
   (164,806,502 bytes).
+
+## Phase 12 verification
+
+- [x] Strict, non-development Windows x64 build path with version metadata.
+- [x] Clean output recreation prevents stale release files.
+- [x] JSON release manifest with five independently verified SHA-256 entries.
+- [x] Packaged-player smoke mode verifies camera, player, input, health and
+  telemetry services after hub startup.
+- [x] Fixed invalid embedded `LocalizationBootstrap` MonoScript serialization
+  by moving the component to its correctly named source file.
+- [x] `1.0.0-rc.1` packaged D3D12 player started and exited cleanly on Intel
+  UHD 620 with `LANTERNFALL_SMOKE_PASS`.
+- [x] EditMode tests: 21/21 passed.
+- [x] PlayMode integration/performance tests: 9/9 passed.
+- [x] Strict Windows build succeeded (99,582,628 bytes).
+- [x] Requirement-by-requirement commercial completion audit recorded in
+  `Docs/COMPLETION_AUDIT.md`.
+- [ ] Commercial completion: audit found runtime/content gaps, now scoped into
+  Phases 13–17.
