@@ -2,6 +2,7 @@ using Lanternfall.Gameplay.Player;
 using Lanternfall.Gameplay.Combat;
 using Lanternfall.Gameplay.Progression;
 using Lanternfall.Gameplay.Bosses;
+using Lanternfall.Gameplay.Save;
 using UnityEngine;
 using NUnit.Framework;
 
@@ -123,6 +124,54 @@ namespace Lanternfall.Tests
             Assert.That(phases.Phase, Is.EqualTo(3));
             phases.Update(.1f);
             Assert.That(phases.Enraged, Is.True);
+        }
+
+        [Test]
+        public void SaveRoundTripUsesBackupWhenPrimaryIsCorrupt()
+        {
+            var storage = new MemoryStorage();
+            var service = new SaveService(storage);
+            SaveData data = service.Load();
+            data.statistics.runsStarted = 3;
+            service.Save(data);
+            data.statistics.runsStarted = 4;
+            service.Save(data);
+            storage.CorruptPrimary();
+
+            SaveData recovered = service.Load();
+
+            Assert.That(recovered.statistics.runsStarted, Is.EqualTo(3));
+            Assert.That(recovered.version, Is.EqualTo(SaveData.CurrentVersion));
+        }
+
+        [Test]
+        public void MetaUnlocksAndQuestProgressAreIdempotent()
+        {
+            var data = new SaveData();
+            var progression = new MetaProgression(data);
+            Assert.That(progression.Unlock("class.wayfinder"), Is.True);
+            Assert.That(progression.Unlock("class.wayfinder"), Is.False);
+
+            var quests = new QuestJournal(data);
+            Assert.That(quests.Advance("quest.test", 2), Is.True);
+            Assert.That(quests.Advance("quest.test", 2), Is.True);
+            Assert.That(quests.Find("quest.test").completed, Is.True);
+            Assert.That(quests.Advance("quest.test", 2), Is.False);
+        }
+
+        private sealed class MemoryStorage : ISaveStorage
+        {
+            private string _primary;
+            private string _backup;
+            public bool Exists => _primary != null;
+            public string Read() => _primary;
+            public string ReadBackup() => _backup;
+            public void WriteAtomic(string contents)
+            {
+                _backup = _primary;
+                _primary = contents;
+            }
+            public void CorruptPrimary() => _primary = "{\"payload\":\"bad\"}";
         }
     }
 }

@@ -39,18 +39,21 @@ remain authoritative.
 | 5 Run generation | `df0328b` | 7/7 EditMode; 4/4 PlayMode; 250 seeds; Windows build |
 | 6 Rewards/economy | `feat: add Echo resonance rewards and economy` | 10/10 EditMode; 5/5 PlayMode; Windows build |
 | 7 Biome/guardians | `feat: add first biome guardian vertical slice` | 11/11 EditMode; 6/6 PlayMode; three-scene Windows build |
+| 8 Hub/persistence | `feat: add persistent hub saves and NPC quests` | 13/13 EditMode; 6/6 PlayMode; four-scene Windows build |
 
 ## Current state
 
-Phase 7 is verified and ready for its milestone commit. Phase 8 (hub, saves,
-meta progression and NPC quests) is next.
+Phase 8 is verified and ready for its milestone commit. Phase 9 is the large
+content-production phase: four more biome identities plus the remaining enemy,
+guardian and class catalog required for release scope.
 
 Next actions:
 
-1. Commit Phase 7.
-2. Implement versioned save DTOs, atomic storage, backup rotation and migration.
-3. Build the hub scene and run lifecycle transitions.
-4. Add horizontal unlocks and the first NPC questline state model.
+1. Commit and push Phase 8.
+2. Define data-driven class, biome, enemy and boss catalogs with validation.
+3. Author the four remaining biome profiles.
+4. Scale to five classes, 40 enemy definitions and 15 guardian definitions
+   while preserving unique stable IDs and role coverage.
 
 ## Architecture invariants
 

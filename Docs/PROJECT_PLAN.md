@@ -12,8 +12,8 @@ Updated: 2026-07-01
 | 5 | Modular rooms and seeded run generation | Complete |
 | 6 | Rewards, resonance builds, economy | Complete |
 | 7 | First-biome vertical slice and three bosses | Complete |
-| 8 | Hub, saves, meta progression, NPC quests | In progress |
-| 9 | Five-biome content production | Pending |
+| 8 | Hub, saves, meta progression, NPC quests | Complete |
+| 9 | Five-biome content production | In progress |
 | 10 | UI, audio, accessibility, 100 achievements | Pending |
 | 11 | Optimization, balance, QA, localization | Pending |
 | 12 | Windows release candidate | Pending |
@@ -115,3 +115,16 @@ commit before the next phase begins.
 - [x] EditMode tests: 11/11 passed.
 - [x] PlayMode integration tests: 6/6 passed.
 - [x] Three-scene Windows x64 smoke build succeeded (164,730,255 bytes).
+
+## Phase 8 verification
+
+- [x] Versioned save DTO covering unlocks, achievements, cosmetics, settings,
+  statistics, best-run seed and quests.
+- [x] SHA-256 envelope, atomic replacement, backup recovery and migration.
+- [x] Horizontal unlock model with duplicate-safe stable IDs.
+- [x] Persistent multi-step NPC quest journal and completion unlocks.
+- [x] Playable Lantern Court hub with three NPCs and a descent portal.
+- [x] Hub-first run lifecycle and run-start statistics persistence.
+- [x] EditMode tests: 13/13 passed.
+- [x] PlayMode regression tests: 6/6 passed.
+- [x] Four-scene Windows x64 smoke build succeeded (164,754,911 bytes).

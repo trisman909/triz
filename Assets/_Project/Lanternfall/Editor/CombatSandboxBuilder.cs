@@ -4,6 +4,7 @@ using Lanternfall.Gameplay.Bosses;
 using Lanternfall.Gameplay.Combat;
 using Lanternfall.Gameplay.Enemies;
 using Lanternfall.Gameplay.Input;
+using Lanternfall.Gameplay.Hub;
 using Lanternfall.Gameplay.Player;
 using Lanternfall.Gameplay.Progression;
 using Lanternfall.Gameplay.World;
@@ -26,6 +27,8 @@ namespace Lanternfall.Editor
             "Assets/_Project/Lanternfall/Scenes/RunGenerationSandbox.unity";
         private const string VerticalSliceScenePath =
             "Assets/_Project/Lanternfall/Scenes/FirstBiomeVerticalSlice.unity";
+        private const string HubScenePath =
+            "Assets/_Project/Lanternfall/Scenes/LanternfallHub.unity";
 
         [MenuItem("Lanternfall/Build Combat Sandbox")]
         public static void Build()
@@ -74,6 +77,7 @@ namespace Lanternfall.Editor
             BossDefinition[] bosses = CreateBossRoster();
             BossBrain bossPrefab = CreateBossPrefab(bossMaterial);
             BiomeDefinition firstBiome = CreateFirstBiome();
+            NpcDefinition[] npcs = CreateNpcRoster();
 
             CreateBlock("Floor", new Vector3(0f, -0.5f, 0f),
                 new Vector3(24f, 1f, 18f), floorMaterial);
@@ -172,8 +176,12 @@ namespace Lanternfall.Editor
                 floorMaterial, wallMaterial, playerMaterial, emberMaterial,
                 cinderStaff, radiantBurst, projectilePrefab,
                 enemies[0], enemyPrefab, bosses, bossPrefab, firstBiome);
+            BuildHub(
+                floorMaterial, wallMaterial, playerMaterial,
+                emberMaterial, relicMaterial, npcs);
             EditorBuildSettings.scenes = new[]
             {
+                new EditorBuildSettingsScene(HubScenePath, true),
                 new EditorBuildSettingsScene(ScenePath, true),
                 new EditorBuildSettingsScene(RunScenePath, true),
                 new EditorBuildSettingsScene(VerticalSliceScenePath, true)
@@ -191,7 +199,13 @@ namespace Lanternfall.Editor
         {
             BuildPlayerOptions options = new BuildPlayerOptions
             {
-                scenes = new[] { ScenePath, RunScenePath, VerticalSliceScenePath },
+                scenes = new[]
+                {
+                    HubScenePath,
+                    ScenePath,
+                    RunScenePath,
+                    VerticalSliceScenePath
+                },
                 locationPathName = "Builds/Windows/Lanternfall.exe",
                 target = BuildTarget.StandaloneWindows64,
                 options = BuildOptions.Development
@@ -679,6 +693,137 @@ namespace Lanternfall.Editor
                 minionPrefab, minionDefinition, 20260701UL);
 
             EditorSceneManager.SaveScene(scene, VerticalSliceScenePath);
+        }
+
+        private static NpcDefinition[] CreateNpcRoster()
+        {
+            return new[]
+            {
+                CreateNpc(
+                    "npc.ilyra", "Ilyra, Ember-Smith", "quest.forged_memory",
+                    "Bring me memories that still remember fire."),
+                CreateNpc(
+                    "npc.moth", "Moth, Ruin-Reader", "quest.inkless_map",
+                    "The corridors move, but their promises do not."),
+                CreateNpc(
+                    "npc.sable", "Sable, Glass Alchemist", "quest.bottled_dawn",
+                    "Even light leaves a residue. I can teach it to linger.")
+            };
+        }
+
+        private static NpcDefinition CreateNpc(
+            string id,
+            string title,
+            string quest,
+            string greeting)
+        {
+            string path =
+                $"Assets/_Project/Lanternfall/Settings/{id.Replace('.', '_')}.asset";
+            NpcDefinition definition =
+                AssetDatabase.LoadAssetAtPath<NpcDefinition>(path);
+            if (definition == null)
+            {
+                definition = ScriptableObject.CreateInstance<NpcDefinition>();
+                AssetDatabase.CreateAsset(definition, path);
+            }
+            definition.Configure(id, title, quest, greeting);
+            EditorUtility.SetDirty(definition);
+            return definition;
+        }
+
+        private static void BuildHub(
+            Material floorMaterial,
+            Material wallMaterial,
+            Material playerMaterial,
+            Material emberMaterial,
+            Material portalMaterial,
+            NpcDefinition[] npcs)
+        {
+            Scene scene = EditorSceneManager.NewScene(
+                NewSceneSetup.EmptyScene,
+                NewSceneMode.Single);
+            CreateBlock("Lantern Court", new Vector3(0f, -.5f, 0f),
+                new Vector3(28f, 1f, 22f), floorMaterial);
+            CreateBlock("North Arcade", new Vector3(0f, 2f, 11f),
+                new Vector3(28f, 5f, 1f), wallMaterial);
+            CreateBlock("East Arcade", new Vector3(14f, 2f, 0f),
+                new Vector3(1f, 5f, 22f), wallMaterial);
+            CreateBlock("West Arcade", new Vector3(-14f, 2f, 0f),
+                new Vector3(1f, 5f, 22f), wallMaterial);
+
+            GameObject systems = new GameObject("Hub Systems");
+            systems.AddComponent<HubController>();
+
+            GameObject player = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+            player.name = "Bearer";
+            player.transform.position = new Vector3(0f, 1f, -4f);
+            Object.DestroyImmediate(player.GetComponent<CapsuleCollider>());
+            player.AddComponent<CharacterController>();
+            player.GetComponent<Renderer>().sharedMaterial = playerMaterial;
+            player.AddComponent<PlayerInputReader>();
+            player.AddComponent<PlayerMotor>();
+            player.AddComponent<Health>().Configure(180f, 5f, false);
+
+            GameObject lantern = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            lantern.name = "Lantern";
+            lantern.transform.SetParent(player.transform);
+            lantern.transform.localPosition = new Vector3(.45f, .55f, .15f);
+            lantern.transform.localScale = Vector3.one * .28f;
+            Object.DestroyImmediate(lantern.GetComponent<Collider>());
+            lantern.GetComponent<Renderer>().sharedMaterial = emberMaterial;
+            Light lanternLight = lantern.AddComponent<Light>();
+            lanternLight.type = LightType.Point;
+            lanternLight.color = new Color(1f, .36f, .12f);
+            lanternLight.range = 10f;
+            lanternLight.intensity = 6f;
+
+            string[] unlocks =
+            {
+                "weapon.prism_bow",
+                "class.wayfinder",
+                "relic.dawn_lens"
+            };
+            for (int index = 0; index < npcs.Length; index++)
+            {
+                GameObject npc = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+                npc.name = npcs[index].DisplayName;
+                npc.transform.position = new Vector3((index - 1) * 5f, 1f, 3f);
+                npc.GetComponent<Renderer>().sharedMaterial = wallMaterial;
+                CapsuleCollider collider = npc.GetComponent<CapsuleCollider>();
+                collider.isTrigger = true;
+                HubNpc hubNpc = npc.AddComponent<HubNpc>();
+                hubNpc.Configure(npcs[index], 3, unlocks[index]);
+            }
+
+            GameObject portal = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            portal.name = "Descent Gate";
+            portal.transform.position = new Vector3(0f, .2f, 8f);
+            portal.transform.localScale = new Vector3(2.5f, .2f, 2.5f);
+            portal.GetComponent<Renderer>().sharedMaterial = portalMaterial;
+            portal.GetComponent<CapsuleCollider>().isTrigger = true;
+            portal.AddComponent<RunPortal>().Configure("FirstBiomeVerticalSlice");
+
+            GameObject cameraObject = new GameObject("Isometric Camera");
+            cameraObject.tag = "MainCamera";
+            UnityEngine.Camera camera =
+                cameraObject.AddComponent<UnityEngine.Camera>();
+            camera.backgroundColor = new Color(.025f, .035f, .055f);
+            cameraObject.AddComponent<AudioListener>();
+            IsometricCameraRig rig =
+                cameraObject.AddComponent<IsometricCameraRig>();
+            rig.SetTarget(player.transform);
+            cameraObject.transform.position =
+                player.transform.position + new Vector3(0f, 12f, -10f);
+
+            GameObject lightObject = new GameObject("Court Moonlight");
+            Light key = lightObject.AddComponent<Light>();
+            key.type = LightType.Directional;
+            key.color = new Color(.48f, .58f, .82f);
+            key.intensity = 1.5f;
+            key.shadows = LightShadows.Soft;
+            lightObject.transform.rotation = Quaternion.Euler(48f, -35f, 0f);
+
+            EditorSceneManager.SaveScene(scene, HubScenePath);
         }
 
         private static GameObject CreateBlock(
