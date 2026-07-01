@@ -13,3 +13,11 @@
 TestResults/
 CodeCoverage/
 
+# Secrets and local credentials
+.env
+.env.*
+*.pem
+*.pfx
+*.key
+credentials.json
+secrets.json

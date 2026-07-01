@@ -10,8 +10,8 @@ Updated: 2026-07-01
 | 3 | Damage, weapons, abilities, pooling | Complete |
 | 4 | Enemy state machines and encounter director | Complete |
 | 5 | Modular rooms and seeded run generation | Complete |
-| 6 | Rewards, resonance builds, economy | In progress |
-| 7 | First-biome vertical slice and three bosses | Pending |
+| 6 | Rewards, resonance builds, economy | Complete |
+| 7 | First-biome vertical slice and three bosses | In progress |
 | 8 | Hub, saves, meta progression, NPC quests | Pending |
 | 9 | Five-biome content production | Pending |
 | 10 | UI, audio, accessibility, 100 achievements | Pending |
@@ -91,3 +91,15 @@ commit before the next phase begins.
 - [x] EditMode tests: 7/7 passed.
 - [x] PlayMode integration tests: 4/4 passed.
 - [x] Two-scene Windows x64 smoke build succeeded (164,689,823 bytes).
+
+## Phase 6 verification
+
+- [x] Gold, Souls and Ancient Crystals with checked non-negative balances.
+- [x] Deterministic weighted rewards and six authored Echo relics.
+- [x] Three-slot harmony, clash and awakening resonance evaluation.
+- [x] Atomic shop purchase/refund behavior and duplicate protection.
+- [x] Keyboard/controller pickup interaction and three sandbox choices.
+- [x] Durable `AGENTS.md` startup rule and project memory handoff.
+- [x] EditMode tests: 10/10 passed.
+- [x] PlayMode integration tests: 5/5 passed.
+- [x] Two-scene Windows x64 smoke build succeeded (164,704,327 bytes).

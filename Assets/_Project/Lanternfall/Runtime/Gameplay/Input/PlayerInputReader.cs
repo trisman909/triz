@@ -16,6 +16,7 @@ namespace Lanternfall.Gameplay.Input
         private InputAction _aim;
         private InputAction _primaryFire;
         private InputAction _ability;
+        private InputAction _interact;
 
         public Vector2 Move => _move?.ReadValue<Vector2>() ?? Vector2.zero;
         public bool SprintHeld => _sprint?.IsPressed() ?? false;
@@ -23,6 +24,7 @@ namespace Lanternfall.Gameplay.Input
         public Vector2 Aim => _aim?.ReadValue<Vector2>() ?? Vector2.zero;
         public bool PrimaryFireHeld => _primaryFire?.IsPressed() ?? false;
         public bool AbilityPressedThisFrame => _ability?.WasPressedThisFrame() ?? false;
+        public bool InteractPressedThisFrame => _interact?.WasPressedThisFrame() ?? false;
 
         private void Awake()
         {
@@ -41,6 +43,8 @@ namespace Lanternfall.Gameplay.Input
             _primaryFire.AddBinding("<Gamepad>/rightTrigger");
             _ability = _map.AddAction("Ability", InputActionType.Button, "<Keyboard>/q");
             _ability.AddBinding("<Gamepad>/leftShoulder");
+            _interact = _map.AddAction("Interact", InputActionType.Button, "<Keyboard>/e");
+            _interact.AddBinding("<Gamepad>/buttonSouth");
         }
 
         private void OnEnable() => _map?.Enable();

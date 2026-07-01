@@ -3,6 +3,7 @@ using Lanternfall.Gameplay.Player;
 using Lanternfall.Gameplay.Combat;
 using Lanternfall.Gameplay.Enemies;
 using Lanternfall.Gameplay.World;
+using Lanternfall.Gameplay.Progression;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -128,6 +129,30 @@ namespace Lanternfall.Tests
             Assert.That(hasSecret, Is.True);
             Object.Destroy(root);
             Object.Destroy(template);
+        }
+
+        [UnityTest]
+        public IEnumerator RewardPedestalTransfersEchoOnlyOnce()
+        {
+            GameObject player = new GameObject("Collector");
+            RunInventory inventory = player.AddComponent<RunInventory>();
+            RelicDefinition relic = ScriptableObject.CreateInstance<RelicDefinition>();
+            relic.Configure(
+                "relic.test_pickup", "Test Pickup", MemoryAspect.Radiance,
+                RelicRarity.Rare, 1f, "test", .2f);
+
+            GameObject pedestalObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            RewardPedestal pedestal = pedestalObject.AddComponent<RewardPedestal>();
+            pedestal.Configure(relic);
+
+            Assert.That(pedestal.TryCollect(inventory), Is.True);
+            Assert.That(inventory.Contains("relic.test_pickup"), Is.True);
+            Assert.That(pedestal.TryCollect(inventory), Is.False);
+            yield return null;
+
+            Object.Destroy(player);
+            Object.Destroy(pedestalObject);
+            Object.Destroy(relic);
         }
     }
 }

@@ -4,6 +4,7 @@ using Lanternfall.Gameplay.Combat;
 using Lanternfall.Gameplay.Enemies;
 using Lanternfall.Gameplay.Input;
 using Lanternfall.Gameplay.Player;
+using Lanternfall.Gameplay.Progression;
 using Lanternfall.Gameplay.World;
 using UnityEditor;
 using UnityEditor.Build;
@@ -43,6 +44,8 @@ namespace Lanternfall.Editor
                 "Ember", new Color(1f, 0.33f, 0.08f), 0.4f);
             Material projectileMaterial = CreateMaterial(
                 "Projectile", new Color(0.3f, 0.9f, 1f), 0.7f);
+            Material relicMaterial = CreateMaterial(
+                "EchoRelic", new Color(0.75f, 0.32f, 0.95f), 0.8f);
 
             WeaponDefinition cinderStaff = CreateWeapon(
                 "weapon.cinder_staff", "Cinder Staff", 18f, 2.4f, 17f, 2.5f,
@@ -62,6 +65,7 @@ namespace Lanternfall.Editor
             Projectile projectilePrefab = CreateProjectilePrefab(projectileMaterial);
             EnemyDefinition[] enemies = CreateEnemyRoster();
             EnemyBrain enemyPrefab = CreateEnemyPrefab(wallMaterial);
+            RelicDefinition[] relics = CreateRelicCatalog();
 
             CreateBlock("Floor", new Vector3(0f, -0.5f, 0f),
                 new Vector3(24f, 1f, 18f), floorMaterial);
@@ -97,6 +101,7 @@ namespace Lanternfall.Editor
             player.AddComponent<PlayerMotor>();
             Health playerHealth = player.AddComponent<Health>();
             playerHealth.Configure(180f, 5f, false);
+            player.AddComponent<RunInventory>();
 
             GameObject lantern = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             lantern.name = "Lantern";
@@ -117,6 +122,12 @@ namespace Lanternfall.Editor
             CreateDummy("Ashen Target A", new Vector3(-5f, 1f, 2f), wallMaterial);
             CreateDummy("Ashen Target B", new Vector3(5f, 1f, 3f), wallMaterial);
             CreateDummy("Ashen Target C", new Vector3(0f, 1f, 6f), wallMaterial);
+            for (int index = 0; index < 3; index++)
+                CreateRewardPedestal(
+                    $"Echo Choice {index + 1}",
+                    new Vector3((index - 1) * 2.5f, 0.6f, -5.5f),
+                    relics[index],
+                    relicMaterial);
             GameObject directorObject = new GameObject("Encounter Director");
             EncounterDirector director = directorObject.AddComponent<EncounterDirector>();
             director.Configure(enemyPrefab, enemies, player.transform, 6);
@@ -420,6 +431,65 @@ namespace Lanternfall.Editor
             GameObject prefab = PrefabUtility.SaveAsPrefabAsset(source, path);
             Object.DestroyImmediate(source);
             return prefab;
+        }
+
+        private static RelicDefinition[] CreateRelicCatalog()
+        {
+            return new[]
+            {
+                CreateRelic("relic.ember_heart", "Ember Heart", MemoryAspect.Ember,
+                    RelicRarity.Common, 4f, "attack.third_explodes", .18f),
+                CreateRelic("relic.tidal_thread", "Tidal Thread", MemoryAspect.Tide,
+                    RelicRarity.Uncommon, 3f, "projectile.ricochet", .22f),
+                CreateRelic("relic.storm_choir", "Storm Choir", MemoryAspect.Storm,
+                    RelicRarity.Rare, 2f, "hit.chain_lightning", .3f),
+                CreateRelic("relic.stone_oath", "Stone Oath", MemoryAspect.Stone,
+                    RelicRarity.Common, 4f, "dodge.shield", .16f),
+                CreateRelic("relic.gloam_twin", "Gloam Twin", MemoryAspect.Gloam,
+                    RelicRarity.Uncommon, 3f, "projectile.shadow_copy", .2f),
+                CreateRelic("relic.dawn_lens", "Dawn Lens", MemoryAspect.Radiance,
+                    RelicRarity.Legendary, 1f, "radiance.overcharge", .45f)
+            };
+        }
+
+        private static RelicDefinition CreateRelic(
+            string id,
+            string title,
+            MemoryAspect aspect,
+            RelicRarity rarity,
+            float weight,
+            string effect,
+            float potency)
+        {
+            string path =
+                $"Assets/_Project/Lanternfall/Settings/{id.Replace('.', '_')}.asset";
+            RelicDefinition relic =
+                AssetDatabase.LoadAssetAtPath<RelicDefinition>(path);
+            if (relic == null)
+            {
+                relic = ScriptableObject.CreateInstance<RelicDefinition>();
+                AssetDatabase.CreateAsset(relic, path);
+            }
+            relic.Configure(id, title, aspect, rarity, weight, effect, potency);
+            EditorUtility.SetDirty(relic);
+            return relic;
+        }
+
+        private static void CreateRewardPedestal(
+            string name,
+            Vector3 position,
+            RelicDefinition relic,
+            Material material)
+        {
+            GameObject pedestal = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            pedestal.name = name;
+            pedestal.transform.position = position;
+            pedestal.transform.localScale = new Vector3(1.2f, 1.2f, 1.2f);
+            pedestal.GetComponent<Renderer>().sharedMaterial = material;
+            BoxCollider collider = pedestal.GetComponent<BoxCollider>();
+            collider.isTrigger = true;
+            RewardPedestal reward = pedestal.AddComponent<RewardPedestal>();
+            reward.Configure(relic);
         }
 
         private static GameObject CreateBlock(
