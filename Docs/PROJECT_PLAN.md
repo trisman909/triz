@@ -11,8 +11,8 @@ Updated: 2026-07-01
 | 4 | Enemy state machines and encounter director | Complete |
 | 5 | Modular rooms and seeded run generation | Complete |
 | 6 | Rewards, resonance builds, economy | Complete |
-| 7 | First-biome vertical slice and three bosses | In progress |
-| 8 | Hub, saves, meta progression, NPC quests | Pending |
+| 7 | First-biome vertical slice and three bosses | Complete |
+| 8 | Hub, saves, meta progression, NPC quests | In progress |
 | 9 | Five-biome content production | Pending |
 | 10 | UI, audio, accessibility, 100 achievements | Pending |
 | 11 | Optimization, balance, QA, localization | Pending |
@@ -103,3 +103,15 @@ commit before the next phase begins.
 - [x] EditMode tests: 10/10 passed.
 - [x] PlayMode integration tests: 5/5 passed.
 - [x] Two-scene Windows x64 smoke build succeeded (164,704,327 bytes).
+
+## Phase 7 verification
+
+- [x] Drowned Narthex biome atmosphere and playable guardian arena.
+- [x] Health-driven three-phase boss model with enrage threshold.
+- [x] Intro, telegraph, recovery, phase and cinematic death hooks.
+- [x] Boss health/phase/defeat signals and dynamic camera zoom.
+- [x] The Ashen Bell, Prism Stag and Root Choir guardian definitions.
+- [x] Shockwave, charge and bounded-summoning attack identities.
+- [x] EditMode tests: 11/11 passed.
+- [x] PlayMode integration tests: 6/6 passed.
+- [x] Three-scene Windows x64 smoke build succeeded (164,730,255 bytes).

@@ -38,18 +38,19 @@ remain authoritative.
 | 4 Enemy AI | `dc7a038` | 6/6 EditMode; 3/3 PlayMode; Windows build |
 | 5 Run generation | `df0328b` | 7/7 EditMode; 4/4 PlayMode; 250 seeds; Windows build |
 | 6 Rewards/economy | `feat: add Echo resonance rewards and economy` | 10/10 EditMode; 5/5 PlayMode; Windows build |
+| 7 Biome/guardians | `feat: add first biome guardian vertical slice` | 11/11 EditMode; 6/6 PlayMode; three-scene Windows build |
 
 ## Current state
 
-Phase 6 is verified and ready for its milestone commit. Phase 7 (first-biome
-vertical slice and boss framework) is next.
+Phase 7 is verified and ready for its milestone commit. Phase 8 (hub, saves,
+meta progression and NPC quests) is next.
 
 Next actions:
 
-1. Commit Phase 6.
-2. Implement the boss phase machine, boss HUD events and cinematic hooks.
-3. Author the first biome mood/encounter profile and three distinct guardians.
-4. Build a cohesive vertical-slice run instead of isolated system sandboxes.
+1. Commit Phase 7.
+2. Implement versioned save DTOs, atomic storage, backup rotation and migration.
+3. Build the hub scene and run lifecycle transitions.
+4. Add horizontal unlocks and the first NPC questline state model.
 
 ## Architecture invariants
 

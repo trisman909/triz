@@ -11,4 +11,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/_Project/Lanternfall/Scenes/RunGenerationSandbox.unity
     guid: a4808aecd60009a46aab5f1f51b02f3c
+  - enabled: 1
+    path: Assets/_Project/Lanternfall/Scenes/FirstBiomeVerticalSlice.unity
+    guid: b56d35c837a1f3a459cdbaf5997ecada
   m_configObjects: {}

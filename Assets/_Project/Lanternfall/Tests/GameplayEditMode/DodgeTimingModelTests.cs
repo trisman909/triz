@@ -1,6 +1,7 @@
 using Lanternfall.Gameplay.Player;
 using Lanternfall.Gameplay.Combat;
 using Lanternfall.Gameplay.Progression;
+using Lanternfall.Gameplay.Bosses;
 using UnityEngine;
 using NUnit.Framework;
 
@@ -108,6 +109,20 @@ namespace Lanternfall.Tests
             relic.Configure(
                 id, id, aspect, RelicRarity.Common, weight, "test", 0.1f);
             return relic;
+        }
+
+        [Test]
+        public void BossPhaseModelTransitionsAndEnragesAtThresholds()
+        {
+            var phases = new BossPhaseModel();
+            Assert.That(phases.Update(.8f), Is.False);
+            Assert.That(phases.Phase, Is.EqualTo(1));
+            Assert.That(phases.Update(.6f), Is.True);
+            Assert.That(phases.Phase, Is.EqualTo(2));
+            Assert.That(phases.Update(.3f), Is.True);
+            Assert.That(phases.Phase, Is.EqualTo(3));
+            phases.Update(.1f);
+            Assert.That(phases.Enraged, Is.True);
         }
     }
 }

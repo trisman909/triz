@@ -4,6 +4,7 @@ using Lanternfall.Gameplay.Combat;
 using Lanternfall.Gameplay.Enemies;
 using Lanternfall.Gameplay.World;
 using Lanternfall.Gameplay.Progression;
+using Lanternfall.Gameplay.Bosses;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -153,6 +154,31 @@ namespace Lanternfall.Tests
             Object.Destroy(player);
             Object.Destroy(pedestalObject);
             Object.Destroy(relic);
+        }
+
+        [UnityTest]
+        public IEnumerator GuardianAdvancesPhaseFromAuthoritativeHealth()
+        {
+            GameObject target = new GameObject("Bearer");
+            target.AddComponent<Health>().Configure(200f, 0f, false);
+            BossDefinition definition = ScriptableObject.CreateInstance<BossDefinition>();
+            definition.Configure(
+                "boss.test", "Test Guardian", BossAttackPattern.BellShockwave,
+                300f, 0f, 2f, 10f, .05f, .1f, .01f);
+
+            GameObject guardian = new GameObject("Guardian");
+            guardian.AddComponent<CharacterController>();
+            Health bossHealth = guardian.AddComponent<Health>();
+            BossBrain brain = guardian.AddComponent<BossBrain>();
+            brain.Configure(definition, target.transform);
+            bossHealth.ApplyDamage(new DamageRequest(
+                150f, 0f, 0f, 1f, 0f, DamageElement.Physical, 1f));
+            yield return null;
+
+            Assert.That(brain.Phase, Is.EqualTo(2));
+            Object.Destroy(guardian);
+            Object.Destroy(target);
+            Object.Destroy(definition);
         }
     }
 }

@@ -8,7 +8,8 @@ namespace Lanternfall.Gameplay.Combat
         Ember,
         Storm,
         Frost,
-        Gloam
+        Gloam,
+        Radiance
     }
 
     public readonly struct DamageRequest
@@ -68,4 +69,3 @@ namespace Lanternfall.Gameplay.Combat
         }
     }
 }
-

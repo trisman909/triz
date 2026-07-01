@@ -1,5 +1,6 @@
 using System.IO;
 using Lanternfall.Gameplay.Camera;
+using Lanternfall.Gameplay.Bosses;
 using Lanternfall.Gameplay.Combat;
 using Lanternfall.Gameplay.Enemies;
 using Lanternfall.Gameplay.Input;
@@ -23,6 +24,8 @@ namespace Lanternfall.Editor
             "Assets/_Project/Lanternfall/Scenes/CombatSandbox.unity";
         private const string RunScenePath =
             "Assets/_Project/Lanternfall/Scenes/RunGenerationSandbox.unity";
+        private const string VerticalSliceScenePath =
+            "Assets/_Project/Lanternfall/Scenes/FirstBiomeVerticalSlice.unity";
 
         [MenuItem("Lanternfall/Build Combat Sandbox")]
         public static void Build()
@@ -46,6 +49,8 @@ namespace Lanternfall.Editor
                 "Projectile", new Color(0.3f, 0.9f, 1f), 0.7f);
             Material relicMaterial = CreateMaterial(
                 "EchoRelic", new Color(0.75f, 0.32f, 0.95f), 0.8f);
+            Material bossMaterial = CreateMaterial(
+                "Guardian", new Color(0.48f, 0.08f, 0.62f), 0.5f);
 
             WeaponDefinition cinderStaff = CreateWeapon(
                 "weapon.cinder_staff", "Cinder Staff", 18f, 2.4f, 17f, 2.5f,
@@ -66,6 +71,9 @@ namespace Lanternfall.Editor
             EnemyDefinition[] enemies = CreateEnemyRoster();
             EnemyBrain enemyPrefab = CreateEnemyPrefab(wallMaterial);
             RelicDefinition[] relics = CreateRelicCatalog();
+            BossDefinition[] bosses = CreateBossRoster();
+            BossBrain bossPrefab = CreateBossPrefab(bossMaterial);
+            BiomeDefinition firstBiome = CreateFirstBiome();
 
             CreateBlock("Floor", new Vector3(0f, -0.5f, 0f),
                 new Vector3(24f, 1f, 18f), floorMaterial);
@@ -160,10 +168,15 @@ namespace Lanternfall.Editor
 
             EditorSceneManager.SaveScene(scene, ScenePath);
             BuildRunGenerationSandbox(floorMaterial);
+            BuildFirstBiomeVerticalSlice(
+                floorMaterial, wallMaterial, playerMaterial, emberMaterial,
+                cinderStaff, radiantBurst, projectilePrefab,
+                enemies[0], enemyPrefab, bosses, bossPrefab, firstBiome);
             EditorBuildSettings.scenes = new[]
             {
                 new EditorBuildSettingsScene(ScenePath, true),
-                new EditorBuildSettingsScene(RunScenePath, true)
+                new EditorBuildSettingsScene(RunScenePath, true),
+                new EditorBuildSettingsScene(VerticalSliceScenePath, true)
             };
             AssetDatabase.SaveAssets();
             Debug.Log($"Lanternfall combat sandbox built at {ScenePath}");
@@ -178,7 +191,7 @@ namespace Lanternfall.Editor
         {
             BuildPlayerOptions options = new BuildPlayerOptions
             {
-                scenes = new[] { ScenePath, RunScenePath },
+                scenes = new[] { ScenePath, RunScenePath, VerticalSliceScenePath },
                 locationPathName = "Builds/Windows/Lanternfall.exe",
                 target = BuildTarget.StandaloneWindows64,
                 options = BuildOptions.Development
@@ -490,6 +503,182 @@ namespace Lanternfall.Editor
             collider.isTrigger = true;
             RewardPedestal reward = pedestal.AddComponent<RewardPedestal>();
             reward.Configure(relic);
+        }
+
+        private static BossDefinition[] CreateBossRoster()
+        {
+            return new[]
+            {
+                CreateBoss(
+                    "boss.ashen_bell", "The Ashen Bell",
+                    BossAttackPattern.BellShockwave, 720f, 20f, 2.2f,
+                    24f, .9f, 1.1f, 1.4f),
+                CreateBoss(
+                    "boss.prism_stag", "The Prism Stag",
+                    BossAttackPattern.PrismCharge, 620f, 12f, 3.4f,
+                    28f, .7f, .8f, 1.2f),
+                CreateBoss(
+                    "boss.root_choir", "The Root Choir",
+                    BossAttackPattern.RootSummon, 820f, 28f, 1.8f,
+                    20f, 1.1f, 1.2f, 1.6f)
+            };
+        }
+
+        private static BossDefinition CreateBoss(
+            string id,
+            string title,
+            BossAttackPattern pattern,
+            float health,
+            float armor,
+            float speed,
+            float damage,
+            float telegraph,
+            float recovery,
+            float intro)
+        {
+            string path =
+                $"Assets/_Project/Lanternfall/Settings/{id.Replace('.', '_')}.asset";
+            BossDefinition definition =
+                AssetDatabase.LoadAssetAtPath<BossDefinition>(path);
+            if (definition == null)
+            {
+                definition = ScriptableObject.CreateInstance<BossDefinition>();
+                AssetDatabase.CreateAsset(definition, path);
+            }
+            definition.Configure(
+                id, title, pattern, health, armor, speed, damage,
+                telegraph, recovery, intro);
+            EditorUtility.SetDirty(definition);
+            return definition;
+        }
+
+        private static BossBrain CreateBossPrefab(Material material)
+        {
+            const string path = "Assets/_Project/Lanternfall/Art/GuardianBase.prefab";
+            GameObject existing = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+            if (existing != null) return existing.GetComponent<BossBrain>();
+            GameObject source = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+            source.name = "Guardian Base";
+            source.GetComponent<Renderer>().sharedMaterial = material;
+            Object.DestroyImmediate(source.GetComponent<CapsuleCollider>());
+            CharacterController controller = source.AddComponent<CharacterController>();
+            controller.height = 2.4f;
+            controller.radius = .7f;
+            source.AddComponent<Health>();
+            source.AddComponent<BossBrain>();
+            GameObject prefab = PrefabUtility.SaveAsPrefabAsset(source, path);
+            Object.DestroyImmediate(source);
+            return prefab.GetComponent<BossBrain>();
+        }
+
+        private static BiomeDefinition CreateFirstBiome()
+        {
+            const string path =
+                "Assets/_Project/Lanternfall/Settings/biome_drowned_narthex.asset";
+            BiomeDefinition biome =
+                AssetDatabase.LoadAssetAtPath<BiomeDefinition>(path);
+            if (biome == null)
+            {
+                biome = ScriptableObject.CreateInstance<BiomeDefinition>();
+                AssetDatabase.CreateAsset(biome, path);
+            }
+            biome.Configure(
+                "biome.drowned_narthex",
+                "The Drowned Narthex",
+                new Color(.035f, .065f, .09f),
+                new Color(.08f, .11f, .16f),
+                .018f);
+            EditorUtility.SetDirty(biome);
+            return biome;
+        }
+
+        private static void BuildFirstBiomeVerticalSlice(
+            Material floorMaterial,
+            Material wallMaterial,
+            Material playerMaterial,
+            Material emberMaterial,
+            WeaponDefinition weapon,
+            AbilityDefinition ability,
+            Projectile projectilePrefab,
+            EnemyDefinition minionDefinition,
+            EnemyBrain minionPrefab,
+            BossDefinition[] bosses,
+            BossBrain bossPrefab,
+            BiomeDefinition biome)
+        {
+            Scene scene = EditorSceneManager.NewScene(
+                NewSceneSetup.EmptyScene,
+                NewSceneMode.Single);
+            CreateBlock("Narthex Floor", new Vector3(0f, -.5f, 0f),
+                new Vector3(32f, 1f, 24f), floorMaterial);
+            CreateBlock("North Ruin", new Vector3(0f, 1.5f, 12f),
+                new Vector3(32f, 4f, 1f), wallMaterial);
+            CreateBlock("South Ruin", new Vector3(0f, 1.5f, -12f),
+                new Vector3(32f, 4f, 1f), wallMaterial);
+            CreateBlock("East Ruin", new Vector3(16f, 1.5f, 0f),
+                new Vector3(1f, 4f, 24f), wallMaterial);
+            CreateBlock("West Ruin", new Vector3(-16f, 1.5f, 0f),
+                new Vector3(1f, 4f, 24f), wallMaterial);
+
+            GameObject player = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+            player.name = "Bearer";
+            player.transform.position = new Vector3(0f, 1f, -6f);
+            Object.DestroyImmediate(player.GetComponent<CapsuleCollider>());
+            player.AddComponent<CharacterController>();
+            player.GetComponent<Renderer>().sharedMaterial = playerMaterial;
+            player.AddComponent<PlayerInputReader>();
+            player.AddComponent<PlayerMotor>();
+            Health playerHealth = player.AddComponent<Health>();
+            playerHealth.Configure(180f, 5f, false);
+            player.AddComponent<RunInventory>();
+
+            GameObject lantern = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            lantern.name = "Lantern";
+            lantern.transform.SetParent(player.transform);
+            lantern.transform.localPosition = new Vector3(.45f, .55f, .15f);
+            lantern.transform.localScale = Vector3.one * .28f;
+            Object.DestroyImmediate(lantern.GetComponent<Collider>());
+            lantern.GetComponent<Renderer>().sharedMaterial = emberMaterial;
+            Light lanternLight = lantern.AddComponent<Light>();
+            lanternLight.type = LightType.Point;
+            lanternLight.color = new Color(1f, .34f, .12f);
+            lanternLight.range = 10f;
+            lanternLight.intensity = 6f;
+            lanternLight.shadows = LightShadows.Soft;
+            PlayerCombat combat = player.AddComponent<PlayerCombat>();
+            combat.Configure(weapon, ability, projectilePrefab, lantern.transform);
+
+            GameObject cameraObject = new GameObject("Isometric Camera");
+            cameraObject.tag = "MainCamera";
+            UnityEngine.Camera camera =
+                cameraObject.AddComponent<UnityEngine.Camera>();
+            camera.backgroundColor = new Color(.015f, .025f, .045f);
+            cameraObject.AddComponent<AudioListener>();
+            IsometricCameraRig cameraRig =
+                cameraObject.AddComponent<IsometricCameraRig>();
+            cameraRig.SetTarget(player.transform);
+            cameraRig.SetBossZoom(true);
+            cameraObject.transform.position =
+                player.transform.position + new Vector3(0f, 12f, -10f);
+
+            GameObject atmosphere = new GameObject("Drowned Narthex Atmosphere");
+            atmosphere.AddComponent<BiomeAtmosphere>().Configure(biome);
+            GameObject lightObject = new GameObject("Submerged Moonlight");
+            Light key = lightObject.AddComponent<Light>();
+            key.type = LightType.Directional;
+            key.color = new Color(.38f, .55f, .78f);
+            key.intensity = 1.5f;
+            key.shadows = LightShadows.Soft;
+            lightObject.transform.rotation = Quaternion.Euler(50f, -25f, 0f);
+
+            GameObject directorObject = new GameObject("Guardian Encounter");
+            BossEncounterDirector director =
+                directorObject.AddComponent<BossEncounterDirector>();
+            director.Configure(
+                bossPrefab, bosses, player.transform,
+                minionPrefab, minionDefinition, 20260701UL);
+
+            EditorSceneManager.SaveScene(scene, VerticalSliceScenePath);
         }
 
         private static GameObject CreateBlock(
