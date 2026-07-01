@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: enemy_thorn_scribe
   m_EditorClassIdentifier: Lanternfall.Gameplay::Lanternfall.Gameplay.Enemies.EnemyDefinition
   stableId: enemy.thorn_scribe
+  displayName: Thorn Scribe
   archetype: 1
   health: 35
   armor: 0

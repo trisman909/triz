@@ -58,26 +58,41 @@ namespace Lanternfall.Editor
             WeaponDefinition cinderStaff = CreateWeapon(
                 "weapon.cinder_staff", "Cinder Staff", 18f, 2.4f, 17f, 2.5f,
                 0.1f, DamageElement.Ember);
-            CreateWeapon(
+            WeaponDefinition prismBow = CreateWeapon(
                 "weapon.prism_bow", "Prism Bow", 30f, 1.25f, 24f, 4f,
                 0.18f, DamageElement.Storm);
-            CreateWeapon(
+            WeaponDefinition echoBlades = CreateWeapon(
                 "weapon.echo_blades", "Echo Blades", 11f, 4.5f, 14f, 1.5f,
                 0.07f, DamageElement.Gloam);
+            WeaponDefinition sunSpear = CreateWeapon(
+                "weapon.sun_spear", "Sun Spear", 24f, 1.7f, 20f, 5f,
+                .12f, DamageElement.Radiance);
+            WeaponDefinition lenscaster = CreateWeapon(
+                "weapon.lenscaster", "Lenscaster", 14f, 3.2f, 19f, 2f,
+                .09f, DamageElement.Storm);
+            WeaponDefinition[] weapons =
+            {
+                cinderStaff, prismBow, echoBlades, sunSpear, lenscaster
+            };
             AbilityDefinition radiantBurst = CreateAbility(
                 "ability.radiant_burst", AbilityKind.RadiantBurst,
                 38f, 5f, 7f, DamageElement.Ember);
-            CreateAbility(
+            AbilityDefinition gloamWell = CreateAbility(
                 "ability.gloam_well", AbilityKind.GloamWell,
                 25f, 6.5f, 10f, DamageElement.Gloam);
+            AbilityDefinition[] abilities = { radiantBurst, gloamWell };
             Projectile projectilePrefab = CreateProjectilePrefab(projectileMaterial);
             EnemyDefinition[] enemies = CreateEnemyRoster();
             EnemyBrain enemyPrefab = CreateEnemyPrefab(wallMaterial);
             RelicDefinition[] relics = CreateRelicCatalog();
             BossDefinition[] bosses = CreateBossRoster();
             BossBrain bossPrefab = CreateBossPrefab(bossMaterial);
-            BiomeDefinition firstBiome = CreateFirstBiome();
+            BiomeDefinition[] biomes = CreateBiomeRoster();
+            BiomeDefinition firstBiome = biomes[0];
             NpcDefinition[] npcs = CreateNpcRoster();
+            CharacterClassDefinition[] classes =
+                CreateClassRoster(weapons, abilities);
+            CreateContentCatalog(classes, biomes, enemies, bosses);
 
             CreateBlock("Floor", new Vector3(0f, -0.5f, 0f),
                 new Vector3(24f, 1f, 18f), floorMaterial);
@@ -354,21 +369,50 @@ namespace Lanternfall.Editor
 
         private static EnemyDefinition[] CreateEnemyRoster()
         {
-            return new[]
+            string[,] names =
             {
-                CreateEnemy("enemy.rubble_claw", EnemyArchetype.Melee, 45, 0, 3.8f, 12, 1.7f, .45f, .65f),
-                CreateEnemy("enemy.thorn_scribe", EnemyArchetype.Archer, 35, 0, 3.2f, 10, 6f, .75f, .9f),
-                CreateEnemy("enemy.bell_bastion", EnemyArchetype.Tank, 120, 25, 1.8f, 22, 2f, .9f, 1.1f),
-                CreateEnemy("enemy.mist_ray", EnemyArchetype.Flying, 32, 0, 4.5f, 9, 2.2f, .4f, .55f),
-                CreateEnemy("enemy.underling", EnemyArchetype.Burrowing, 55, 8, 3.1f, 16, 1.8f, .65f, .8f),
-                CreateEnemy("enemy.cinder_husk", EnemyArchetype.Explosive, 30, 0, 4.2f, 30, 2.4f, .8f, .2f),
-                CreateEnemy("enemy.choir_warden", EnemyArchetype.Summoner, 65, 5, 2.4f, 8, 5.5f, 1.1f, 1.4f),
-                CreateEnemy("enemy.gloam_needle", EnemyArchetype.Assassin, 38, 0, 5.3f, 18, 1.6f, .3f, .55f)
+                { "Rubble Claw", "Saltbound Pilgrim", "Cinder Loper", "Orchard Husk", "Rivet Hound" },
+                { "Thorn Scribe", "Glass Cantor", "Ash Needle", "Spore Flutist", "Coil Marksman" },
+                { "Bell Bastion", "Silt Colossus", "Ossuary Ram", "Bark Reliquary", "Dynamo Ward" },
+                { "Mist Ray", "Prism Moth", "Ember Kite", "Gloam Wisp", "Volt Gull" },
+                { "Underling", "Sand Auger", "Bone Mole", "Root Diver", "Cable Wyrm" },
+                { "Cinder Husk", "Glass Blister", "Marrow Keg", "Bloom Pod", "Arc Capacitor" },
+                { "Choir Warden", "Lens Deacon", "Ash Midwife", "Seed Shepherd", "Relay Priest" },
+                { "Gloam Needle", "Refraction Jackal", "Soot Veil", "Thorn Shade", "Static Knife" }
             };
+            float[] health = { 45, 35, 120, 32, 55, 30, 65, 38 };
+            float[] armor = { 0, 0, 25, 0, 8, 0, 5, 0 };
+            float[] speed = { 3.8f, 3.2f, 1.8f, 4.5f, 3.1f, 4.2f, 2.4f, 5.3f };
+            float[] damage = { 12, 10, 22, 9, 16, 30, 8, 18 };
+            float[] range = { 1.7f, 6f, 2f, 2.2f, 1.8f, 2.4f, 5.5f, 1.6f };
+            float[] windup = { .45f, .75f, .9f, .4f, .65f, .8f, 1.1f, .3f };
+            float[] recovery = { .65f, .9f, 1.1f, .55f, .8f, .2f, 1.4f, .55f };
+            var definitions = new EnemyDefinition[40];
+            int output = 0;
+            for (int biome = 0; biome < 5; biome++)
+            {
+                float scale = 1f + biome * .22f;
+                for (int role = 0; role < 8; role++)
+                {
+                    string title = names[role, biome];
+                    string id = "enemy." + title.ToLowerInvariant().Replace(" ", "_");
+                    definitions[output++] = CreateEnemy(
+                        id, title, (EnemyArchetype)role,
+                        health[role] * scale,
+                        armor[role] + biome * 3f,
+                        speed[role] * (1f + biome * .03f),
+                        damage[role] * scale,
+                        range[role],
+                        windup[role] / (1f + biome * .04f),
+                        recovery[role]);
+                }
+            }
+            return definitions;
         }
 
         private static EnemyDefinition CreateEnemy(
             string id,
+            string title,
             EnemyArchetype archetype,
             float health,
             float armor,
@@ -388,7 +432,8 @@ namespace Lanternfall.Editor
                 AssetDatabase.CreateAsset(definition, path);
             }
             definition.Configure(
-                id, archetype, health, armor, speed, damage, range, windup, recovery);
+                id, title, archetype, health, armor, speed, damage,
+                range, windup, recovery);
             EditorUtility.SetDirty(definition);
             return definition;
         }
@@ -534,7 +579,55 @@ namespace Lanternfall.Editor
                 CreateBoss(
                     "boss.root_choir", "The Root Choir",
                     BossAttackPattern.RootSummon, 820f, 28f, 1.8f,
-                    20f, 1.1f, 1.2f, 1.6f)
+                    20f, 1.1f, 1.2f, 1.6f),
+                CreateBoss(
+                    "boss.orrery_widow", "The Orrery Widow",
+                    BossAttackPattern.MirrorVolley, 760f, 16f, 2.7f,
+                    26f, .75f, .9f, 1.3f),
+                CreateBoss(
+                    "boss.hourglass_leviathan", "The Hourglass Leviathan",
+                    BossAttackPattern.TimeFracture, 940f, 24f, 1.9f,
+                    30f, 1f, 1.2f, 1.5f),
+                CreateBoss(
+                    "boss.facet_king", "The Facet King",
+                    BossAttackPattern.PrismCharge, 800f, 20f, 3.1f,
+                    32f, .65f, .85f, 1.2f),
+                CreateBoss(
+                    "boss.marrow_furnace", "The Marrow Furnace",
+                    BossAttackPattern.LanternRain, 980f, 30f, 1.7f,
+                    34f, 1f, 1.1f, 1.6f),
+                CreateBoss(
+                    "boss.censer_tyrant", "The Censer Tyrant",
+                    BossAttackPattern.BellShockwave, 900f, 26f, 2.2f,
+                    36f, .85f, 1f, 1.4f),
+                CreateBoss(
+                    "boss.white_ash_saint", "The White Ash Saint",
+                    BossAttackPattern.TidalSweep, 840f, 18f, 2.8f,
+                    31f, .7f, .8f, 1.3f),
+                CreateBoss(
+                    "boss.orchard_moon", "The Orchard Moon",
+                    BossAttackPattern.RootSummon, 1020f, 32f, 1.6f,
+                    28f, 1.1f, 1.3f, 1.7f),
+                CreateBoss(
+                    "boss.hollow_huntsman", "The Hollow Huntsman",
+                    BossAttackPattern.PrismCharge, 860f, 14f, 3.7f,
+                    38f, .55f, .75f, 1.2f),
+                CreateBoss(
+                    "boss.widow_bloom", "The Widow Bloom",
+                    BossAttackPattern.StonePillars, 920f, 22f, 2f,
+                    35f, .9f, 1f, 1.5f),
+                CreateBoss(
+                    "boss.coil_regent", "The Coil Regent",
+                    BossAttackPattern.MirrorVolley, 900f, 20f, 3f,
+                    40f, .6f, .75f, 1.2f),
+                CreateBoss(
+                    "boss.thunder_anvil", "The Thunder Anvil",
+                    BossAttackPattern.StonePillars, 1120f, 38f, 1.5f,
+                    42f, 1f, 1.15f, 1.7f),
+                CreateBoss(
+                    "boss.last_dynamo", "The Last Dynamo",
+                    BossAttackPattern.TimeFracture, 1040f, 28f, 2.5f,
+                    44f, .7f, .85f, 1.5f)
             };
         }
 
@@ -585,10 +678,42 @@ namespace Lanternfall.Editor
             return prefab.GetComponent<BossBrain>();
         }
 
-        private static BiomeDefinition CreateFirstBiome()
+        private static BiomeDefinition[] CreateBiomeRoster()
         {
-            const string path =
-                "Assets/_Project/Lanternfall/Settings/biome_drowned_narthex.asset";
+            return new[]
+            {
+                CreateBiome(
+                    "biome.drowned_narthex", "The Drowned Narthex",
+                    new Color(.035f, .065f, .09f),
+                    new Color(.08f, .11f, .16f), .018f),
+                CreateBiome(
+                    "biome.siltglass_observatory", "Siltglass Observatory",
+                    new Color(.12f, .1f, .16f),
+                    new Color(.16f, .13f, .23f), .012f),
+                CreateBiome(
+                    "biome.ember_ossuary", "The Ember Ossuary",
+                    new Color(.16f, .045f, .025f),
+                    new Color(.22f, .07f, .035f), .02f),
+                CreateBiome(
+                    "biome.gloam_orchard", "The Gloam Orchard",
+                    new Color(.035f, .09f, .06f),
+                    new Color(.06f, .14f, .09f), .026f),
+                CreateBiome(
+                    "biome.stormvault_foundry", "Stormvault Foundry",
+                    new Color(.055f, .07f, .13f),
+                    new Color(.08f, .12f, .2f), .015f)
+            };
+        }
+
+        private static BiomeDefinition CreateBiome(
+            string id,
+            string title,
+            Color fog,
+            Color ambient,
+            float density)
+        {
+            string path =
+                $"Assets/_Project/Lanternfall/Settings/{id.Replace('.', '_')}.asset";
             BiomeDefinition biome =
                 AssetDatabase.LoadAssetAtPath<BiomeDefinition>(path);
             if (biome == null)
@@ -596,14 +721,82 @@ namespace Lanternfall.Editor
                 biome = ScriptableObject.CreateInstance<BiomeDefinition>();
                 AssetDatabase.CreateAsset(biome, path);
             }
-            biome.Configure(
-                "biome.drowned_narthex",
-                "The Drowned Narthex",
-                new Color(.035f, .065f, .09f),
-                new Color(.08f, .11f, .16f),
-                .018f);
+            biome.Configure(id, title, fog, ambient, density);
             EditorUtility.SetDirty(biome);
             return biome;
+        }
+
+        private static CharacterClassDefinition[] CreateClassRoster(
+            WeaponDefinition[] weapons,
+            AbilityDefinition[] abilities)
+        {
+            return new[]
+            {
+                CreateClass(
+                    "class.vanguard", "Vanguard", "guard.radiance",
+                    weapons[3], abilities[0], 220f, 5.8f),
+                CreateClass(
+                    "class.wayfinder", "Wayfinder", "mote.pin",
+                    weapons[1], abilities[1], 150f, 6.8f),
+                CreateClass(
+                    "class.cantor", "Cantor", "verse.sequence",
+                    weapons[0], abilities[0], 135f, 6.2f),
+                CreateClass(
+                    "class.gloamstep", "Gloamstep", "boundary.crossing",
+                    weapons[2], abilities[1], 125f, 7.4f),
+                CreateClass(
+                    "class.artificer", "Artificer", "lens.refraction",
+                    weapons[4], abilities[0], 170f, 6f)
+            };
+        }
+
+        private static CharacterClassDefinition CreateClass(
+            string id,
+            string title,
+            string passive,
+            WeaponDefinition weapon,
+            AbilityDefinition ability,
+            float health,
+            float speed)
+        {
+            string path =
+                $"Assets/_Project/Lanternfall/Settings/{id.Replace('.', '_')}.asset";
+            CharacterClassDefinition definition =
+                AssetDatabase.LoadAssetAtPath<CharacterClassDefinition>(path);
+            if (definition == null)
+            {
+                definition =
+                    ScriptableObject.CreateInstance<CharacterClassDefinition>();
+                AssetDatabase.CreateAsset(definition, path);
+            }
+            definition.Configure(
+                id, title, passive, weapon, ability, health, speed);
+            EditorUtility.SetDirty(definition);
+            return definition;
+        }
+
+        private static ContentCatalog CreateContentCatalog(
+            CharacterClassDefinition[] classes,
+            BiomeDefinition[] biomes,
+            EnemyDefinition[] enemies,
+            BossDefinition[] bosses)
+        {
+            const string path =
+                "Assets/_Project/Lanternfall/Settings/LanternfallContentCatalog.asset";
+            ContentCatalog catalog =
+                AssetDatabase.LoadAssetAtPath<ContentCatalog>(path);
+            if (catalog == null)
+            {
+                catalog = ScriptableObject.CreateInstance<ContentCatalog>();
+                AssetDatabase.CreateAsset(catalog, path);
+            }
+            catalog.Configure(classes, biomes, enemies, bosses);
+            EditorUtility.SetDirty(catalog);
+            System.Collections.Generic.List<string> errors =
+                catalog.ValidateReleaseCounts();
+            if (errors.Count > 0)
+                throw new BuildFailedException(string.Join("\n", errors));
+            return catalog;
         }
 
         private static void BuildFirstBiomeVerticalSlice(

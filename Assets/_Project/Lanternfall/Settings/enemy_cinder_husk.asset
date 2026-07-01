@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: enemy_cinder_husk
   m_EditorClassIdentifier: Lanternfall.Gameplay::Lanternfall.Gameplay.Enemies.EnemyDefinition
   stableId: enemy.cinder_husk
+  displayName: Cinder Husk
   archetype: 5
   health: 30
   armor: 0

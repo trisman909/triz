@@ -140,6 +140,27 @@ namespace Lanternfall.Gameplay.Bosses
                         SummonRequested?.Invoke(this, transform.position - transform.right * 2f);
                     if (distance <= 4f) DamageTarget(damage, DamageElement.Gloam);
                     break;
+                case BossAttackPattern.LanternRain:
+                    if (distance <= 12f)
+                        DamageTarget(damage * (Phase >= 3 ? 1.35f : 1f), DamageElement.Ember);
+                    break;
+                case BossAttackPattern.TidalSweep:
+                    if (distance <= 7f) DamageTarget(damage, DamageElement.Frost);
+                    _controller.Move(-transform.forward * 2f);
+                    break;
+                case BossAttackPattern.MirrorVolley:
+                    if (distance <= 14f)
+                        DamageTarget(damage * .75f * Phase, DamageElement.Radiance);
+                    break;
+                case BossAttackPattern.TimeFracture:
+                    if (distance <= 10f)
+                        DamageTarget(damage, DamageElement.Gloam);
+                    ChangeState(State.Telegraph, Adjusted(definition.Telegraph) * .5f);
+                    break;
+                case BossAttackPattern.StonePillars:
+                    if (distance <= 6f + Phase)
+                        DamageTarget(damage * 1.2f, DamageElement.Physical);
+                    break;
             }
         }
 
@@ -205,4 +226,3 @@ namespace Lanternfall.Gameplay.Bosses
         }
     }
 }
-

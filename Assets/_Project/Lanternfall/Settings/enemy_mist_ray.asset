@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: enemy_mist_ray
   m_EditorClassIdentifier: Lanternfall.Gameplay::Lanternfall.Gameplay.Enemies.EnemyDefinition
   stableId: enemy.mist_ray
+  displayName: Mist Ray
   archetype: 3
   health: 32
   armor: 0

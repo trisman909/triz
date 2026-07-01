@@ -13,8 +13,8 @@ Updated: 2026-07-01
 | 6 | Rewards, resonance builds, economy | Complete |
 | 7 | First-biome vertical slice and three bosses | Complete |
 | 8 | Hub, saves, meta progression, NPC quests | Complete |
-| 9 | Five-biome content production | In progress |
-| 10 | UI, audio, accessibility, 100 achievements | Pending |
+| 9 | Five-biome content production | Complete |
+| 10 | UI, audio, accessibility, 100 achievements | In progress |
 | 11 | Optimization, balance, QA, localization | Pending |
 | 12 | Windows release candidate | Pending |
 
@@ -128,3 +128,15 @@ commit before the next phase begins.
 - [x] EditMode tests: 13/13 passed.
 - [x] PlayMode regression tests: 6/6 passed.
 - [x] Four-scene Windows x64 smoke build succeeded (164,754,911 bytes).
+
+## Phase 9 verification
+
+- [x] Validated release catalog with unique, non-empty stable IDs.
+- [x] Five distinct Bearer classes with passives, starting weapons and stats.
+- [x] Five atmospheric biome definitions.
+- [x] Forty uniquely named enemies across eight behavioral archetypes.
+- [x] Fifteen multi-phase guardians across eight attack-pattern families.
+- [x] Five authored starting weapons and two active abilities.
+- [x] EditMode tests: 14/14 passed.
+- [x] PlayMode regression tests: 6/6 passed.
+- [x] Four-scene Windows x64 smoke build succeeded (164,767,000 bytes).

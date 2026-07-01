@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45fc3613a6145f643bdecbce009a1ab8, type: 3}
+  m_Name: class_vanguard
+  m_EditorClassIdentifier: Lanternfall.Gameplay::Lanternfall.Gameplay.Progression.CharacterClassDefinition
+  stableId: class.vanguard
+  displayName: Vanguard
+  passiveTag: guard.radiance
+  startingWeapon: {fileID: 11400000, guid: 1dfcef8fa735f8b4a9c604dc5c4474a3, type: 2}
+  startingAbility: {fileID: 11400000, guid: 2a64ca72882935f4aafea1b70d0b3c13, type: 2}
+  maximumHealth: 220
+  movementSpeed: 5.8

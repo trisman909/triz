@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: enemy_bell_bastion
   m_EditorClassIdentifier: Lanternfall.Gameplay::Lanternfall.Gameplay.Enemies.EnemyDefinition
   stableId: enemy.bell_bastion
+  displayName: Bell Bastion
   archetype: 2
   health: 120
   armor: 25

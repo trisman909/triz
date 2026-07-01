@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: enemy_rubble_claw
   m_EditorClassIdentifier: Lanternfall.Gameplay::Lanternfall.Gameplay.Enemies.EnemyDefinition
   stableId: enemy.rubble_claw
+  displayName: Rubble Claw
   archetype: 0
   health: 45
   armor: 0

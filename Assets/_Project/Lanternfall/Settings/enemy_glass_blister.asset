@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 63fcd94c8c58c354eaa42c15e306727b, type: 3}
+  m_Name: enemy_glass_blister
+  m_EditorClassIdentifier: Lanternfall.Gameplay::Lanternfall.Gameplay.Enemies.EnemyDefinition
+  stableId: enemy.glass_blister
+  displayName: Glass Blister
+  archetype: 5
+  health: 36.600002
+  armor: 3
+  moveSpeed: 4.3259997
+  attackDamage: 36.600002
+  attackRange: 2.4
+  windup: 0.7692308
+  recovery: 0.2

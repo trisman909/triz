@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45fc3613a6145f643bdecbce009a1ab8, type: 3}
+  m_Name: class_wayfinder
+  m_EditorClassIdentifier: Lanternfall.Gameplay::Lanternfall.Gameplay.Progression.CharacterClassDefinition
+  stableId: class.wayfinder
+  displayName: Wayfinder
+  passiveTag: mote.pin
+  startingWeapon: {fileID: 11400000, guid: 8bff50b56c2d7984f91fa2ad49f286d9, type: 2}
+  startingAbility: {fileID: 11400000, guid: f625893102bfae1469870346089db61e, type: 2}
+  maximumHealth: 150
+  movementSpeed: 6.8

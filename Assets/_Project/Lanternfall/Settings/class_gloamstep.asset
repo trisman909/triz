@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45fc3613a6145f643bdecbce009a1ab8, type: 3}
+  m_Name: class_gloamstep
+  m_EditorClassIdentifier: Lanternfall.Gameplay::Lanternfall.Gameplay.Progression.CharacterClassDefinition
+  stableId: class.gloamstep
+  displayName: Gloamstep
+  passiveTag: boundary.crossing
+  startingWeapon: {fileID: 11400000, guid: 5baee7f202e5d2a448b3a186ba1101cd, type: 2}
+  startingAbility: {fileID: 11400000, guid: f625893102bfae1469870346089db61e, type: 2}
+  maximumHealth: 125
+  movementSpeed: 7.4

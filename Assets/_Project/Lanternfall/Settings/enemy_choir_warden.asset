@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: enemy_choir_warden
   m_EditorClassIdentifier: Lanternfall.Gameplay::Lanternfall.Gameplay.Enemies.EnemyDefinition
   stableId: enemy.choir_warden
+  displayName: Choir Warden
   archetype: 6
   health: 65
   armor: 5

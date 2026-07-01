@@ -4,6 +4,8 @@ using Lanternfall.Gameplay.Progression;
 using Lanternfall.Gameplay.Bosses;
 using Lanternfall.Gameplay.Save;
 using UnityEngine;
+using UnityEditor;
+using Lanternfall.Gameplay.World;
 using NUnit.Framework;
 
 namespace Lanternfall.Tests
@@ -172,6 +174,19 @@ namespace Lanternfall.Tests
                 _primary = contents;
             }
             public void CorruptPrimary() => _primary = "{\"payload\":\"bad\"}";
+        }
+
+        [Test]
+        public void ReleaseContentCatalogMeetsCountsAndStableIdRules()
+        {
+            ContentCatalog catalog = AssetDatabase.LoadAssetAtPath<ContentCatalog>(
+                "Assets/_Project/Lanternfall/Settings/LanternfallContentCatalog.asset");
+            Assert.That(catalog, Is.Not.Null);
+            Assert.That(catalog.ValidateReleaseCounts(), Is.Empty);
+            Assert.That(catalog.Classes.Count, Is.EqualTo(5));
+            Assert.That(catalog.Biomes.Count, Is.EqualTo(5));
+            Assert.That(catalog.Enemies.Count, Is.EqualTo(40));
+            Assert.That(catalog.Bosses.Count, Is.EqualTo(15));
         }
     }
 }

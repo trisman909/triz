@@ -37,23 +37,24 @@ remain authoritative.
 | 3 Combat | `6b3260b` | 6/6 EditMode; 2/2 PlayMode; Windows build |
 | 4 Enemy AI | `dc7a038` | 6/6 EditMode; 3/3 PlayMode; Windows build |
 | 5 Run generation | `df0328b` | 7/7 EditMode; 4/4 PlayMode; 250 seeds; Windows build |
-| 6 Rewards/economy | `feat: add Echo resonance rewards and economy` | 10/10 EditMode; 5/5 PlayMode; Windows build |
-| 7 Biome/guardians | `feat: add first biome guardian vertical slice` | 11/11 EditMode; 6/6 PlayMode; three-scene Windows build |
-| 8 Hub/persistence | `feat: add persistent hub saves and NPC quests` | 13/13 EditMode; 6/6 PlayMode; four-scene Windows build |
+| 6 Rewards/economy | `bc81283` | 10/10 EditMode; 5/5 PlayMode; Windows build |
+| 7 Biome/guardians | `04b8b36` | 11/11 EditMode; 6/6 PlayMode; three-scene Windows build |
+| 8 Hub/persistence | `0baf064` | 13/13 EditMode; 6/6 PlayMode; four-scene Windows build |
+| 9 Content catalog | `feat: scale validated release content catalog` | 14/14 EditMode; 6/6 PlayMode; four-scene Windows build |
 
 ## Current state
 
-Phase 8 is verified and ready for its milestone commit. Phase 9 is the large
-content-production phase: four more biome identities plus the remaining enemy,
-guardian and class catalog required for release scope.
+Phase 9 is verified and ready for its milestone commit. Its catalog contains
+five classes, five biomes, 40 enemies and 15 guardians with build-enforced
+stable-ID/count validation. Phase 10 (UI, audio, accessibility, settings and
+100 achievements) is next.
 
 Next actions:
 
-1. Commit and push Phase 8.
-2. Define data-driven class, biome, enemy and boss catalogs with validation.
-3. Author the four remaining biome profiles.
-4. Scale to five classes, 40 enemy definitions and 15 guardian definitions
-   while preserving unique stable IDs and role coverage.
+1. Commit and push Phase 9.
+2. Build the runtime HUD, boss bar, pause/settings and run-summary flows.
+3. Add dynamic music-state and pooled audio-event infrastructure.
+4. Implement accessibility settings and a validated 100-achievement catalog.
 
 ## Architecture invariants
 

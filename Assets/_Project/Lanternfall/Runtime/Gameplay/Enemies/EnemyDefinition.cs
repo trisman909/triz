@@ -26,6 +26,7 @@ namespace Lanternfall.Gameplay.Enemies
     public sealed class EnemyDefinition : ScriptableObject
     {
         [SerializeField] private string stableId = "enemy.unset";
+        [SerializeField] private string displayName = "Unnamed Enemy";
         [SerializeField] private EnemyArchetype archetype;
         [SerializeField, Min(1f)] private float health = 50f;
         [SerializeField, Min(0f)] private float armor;
@@ -36,6 +37,7 @@ namespace Lanternfall.Gameplay.Enemies
         [SerializeField, Min(0.05f)] private float recovery = 0.7f;
 
         public string StableId => stableId;
+        public string DisplayName => displayName;
         public EnemyArchetype Archetype => archetype;
         public float Health => health;
         public float Armor => armor;
@@ -57,7 +59,25 @@ namespace Lanternfall.Gameplay.Enemies
             float telegraph,
             float recoverySeconds)
         {
+            Configure(
+                id, id, role, maximumHealth, armorValue, speed, damage,
+                range, telegraph, recoverySeconds);
+        }
+
+        public void Configure(
+            string id,
+            string title,
+            EnemyArchetype role,
+            float maximumHealth,
+            float armorValue,
+            float speed,
+            float damage,
+            float range,
+            float telegraph,
+            float recoverySeconds)
+        {
             stableId = id;
+            displayName = title;
             archetype = role;
             health = maximumHealth;
             armor = armorValue;
@@ -70,4 +90,3 @@ namespace Lanternfall.Gameplay.Enemies
 #endif
     }
 }
-

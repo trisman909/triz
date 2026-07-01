@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: enemy_underling
   m_EditorClassIdentifier: Lanternfall.Gameplay::Lanternfall.Gameplay.Enemies.EnemyDefinition
   stableId: enemy.underling
+  displayName: Underling
   archetype: 4
   health: 55
   armor: 8

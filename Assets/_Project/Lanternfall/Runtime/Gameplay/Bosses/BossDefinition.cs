@@ -6,7 +6,12 @@ namespace Lanternfall.Gameplay.Bosses
     {
         BellShockwave,
         PrismCharge,
-        RootSummon
+        RootSummon,
+        LanternRain,
+        TidalSweep,
+        MirrorVolley,
+        TimeFracture,
+        StonePillars
     }
 
     [CreateAssetMenu(menuName = "Lanternfall/Bosses/Guardian")]
@@ -61,4 +66,3 @@ namespace Lanternfall.Gameplay.Bosses
 #endif
     }
 }
-

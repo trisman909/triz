@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: enemy_gloam_needle
   m_EditorClassIdentifier: Lanternfall.Gameplay::Lanternfall.Gameplay.Enemies.EnemyDefinition
   stableId: enemy.gloam_needle
+  displayName: Gloam Needle
   archetype: 7
   health: 38
   armor: 0

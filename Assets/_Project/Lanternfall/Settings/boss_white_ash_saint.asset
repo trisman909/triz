@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f5de37567a7d26a408af7a9b466d47d2, type: 3}
+  m_Name: boss_white_ash_saint
+  m_EditorClassIdentifier: Lanternfall.Gameplay::Lanternfall.Gameplay.Bosses.BossDefinition
+  stableId: boss.white_ash_saint
+  displayName: The White Ash Saint
+  pattern: 4
+  health: 840
+  armor: 18
+  moveSpeed: 2.8
+  attackDamage: 31
+  telegraph: 0.7
+  recovery: 0.8
+  introDuration: 1.3
