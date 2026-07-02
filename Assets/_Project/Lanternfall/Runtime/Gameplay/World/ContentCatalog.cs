@@ -29,6 +29,24 @@ namespace Lanternfall.Gameplay.World
             Validate(enemies, 40, "enemies", item => item.StableId, errors);
             Validate(bosses, 15, "bosses", item => item.StableId, errors);
             Validate(relics, 6, "relics", item => item.StableId, errors);
+            ValidateNames(
+                biomes, "biomes", item => item.DisplayName, errors);
+            ValidateNames(
+                enemies, "enemies", item => item.DisplayName, errors);
+            ValidateNames(
+                bosses, "bosses", item => item.DisplayName, errors);
+            ValidateCoverage(
+                enemies,
+                System.Enum.GetValues(typeof(EnemyArchetype)).Length,
+                "enemy archetypes",
+                item => (int)item.Archetype,
+                errors);
+            ValidateCoverage(
+                bosses,
+                System.Enum.GetValues(typeof(BossAttackPattern)).Length,
+                "guardian patterns",
+                item => (int)item.Pattern,
+                errors);
             return errors;
         }
 
@@ -70,6 +88,42 @@ namespace Lanternfall.Gameplay.World
                     !ids.Add(id(items[index])))
                     errors.Add($"{label}[{index}] has a missing or duplicate stable ID.");
             }
+        }
+
+        private static void ValidateNames<T>(
+            T[] items,
+            string label,
+            System.Func<T, string> displayName,
+            List<string> errors)
+            where T : Object
+        {
+            if (items == null) return;
+            var names = new HashSet<string>();
+            for (int index = 0; index < items.Length; index++)
+            {
+                if (items[index] == null) continue;
+                string name = displayName(items[index]);
+                if (string.IsNullOrWhiteSpace(name) || !names.Add(name))
+                    errors.Add(
+                        $"{label}[{index}] has a missing or duplicate display name.");
+            }
+        }
+
+        private static void ValidateCoverage<T>(
+            T[] items,
+            int expected,
+            string label,
+            System.Func<T, int> selector,
+            List<string> errors)
+            where T : Object
+        {
+            if (items == null) return;
+            var values = new HashSet<int>();
+            foreach (T item in items)
+                if (item != null) values.Add(selector(item));
+            if (values.Count != expected)
+                errors.Add(
+                    $"Catalog needs all {expected} {label}; found {values.Count}.");
         }
     }
 }

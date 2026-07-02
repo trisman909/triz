@@ -1,6 +1,6 @@
 # Lanternfall commercial-completion audit
 
-Audited: 2026-07-01
+Audited: 2026-07-02
 
 This audit treats runtime wiring and packaged-player behavior as authoritative.
 Catalog counts and passing unit tests do not prove a feature is playable.
@@ -13,9 +13,9 @@ Catalog counts and passing unit tests do not prove a feature is playable.
 | Light as battlefield geometry | Carried planar field changes speed/windup/armor/aggression by archetype; beyond-light combat increases danger and reward | Proven | Regression gate |
 | Route Vows with later consequences | Three visible conditions measure combat and alter reward plus following encounter size | Proven | Regression gate |
 | Echo resonance builds | Deterministic post-encounter choices, three-slot persistence and resonance evaluation are integrated across rooms | Proven | Regression gate |
-| Five playable biomes | Five definitions exist; build contains one guardian arena using the first biome | Not achieved | Phase 15 |
-| 40 readable enemy families | Forty definitions exist; they share a small prefab/brain vocabulary and are not all encountered in a run | Not achieved | Phase 15 |
-| 15 distinctive multi-phase guardians | Fifteen definitions and eight patterns exist; all share one greybox presentation and one arena | Partial | Phase 15 |
+| Five playable biomes | Every authoritative room instantiates one of five seeded architecture vocabularies, authored atmosphere and biome-element hazards; five-biome route and all presenter variants are automated gates | Proven | Regression gate |
+| 40 readable enemy families | Five eight-enemy biome rosters are reachable in-run; each definition has a stable unique palette/body identity and ornament layered over eight role behaviors and Radiance responses | Proven at encounter-system level | Production art polish remains Phase 16 |
+| 15 distinctive multi-phase guardians | Three reachable guardians per biome have stable crown/body identities, authoritative phase transitions, eight attack patterns and eight matching arena languages | Proven at encounter-system level | Production art/VFX polish remains Phase 16 |
 | 100 achievements | Catalog and idempotent tracker exist; tracker has no gameplay-event integration | Not achieved | Phase 16 |
 | Full remapping/accessibility | Override API and settings exist; no interactive rebinding screen, subtitle content, or telegraph color application | Partial | Phase 16 |
 | Professional HUD/settings/run summary | Core HUD and pause settings exist; minimap/statuses are placeholders and there is no complete run-summary/statistics flow | Partial | Phase 16 |
@@ -27,7 +27,7 @@ Catalog counts and passing unit tests do not prove a feature is playable.
 
 ## Audit conclusion
 
-The build pipeline is release-candidate capable, but the game itself is not yet
-commercially complete. Phases 13–17 are required. Phase 12 therefore closes as
-a verified packaging and audit milestone, not as a claim that development is
-finished.
+The build pipeline and Phase 15 encounter systems are verified, but the game
+itself is not yet commercially complete. Phase 16 presentation/integration and
+Phase 17 minimum-PC/final-candidate proof remain required. This audit therefore
+does not claim that development is finished.

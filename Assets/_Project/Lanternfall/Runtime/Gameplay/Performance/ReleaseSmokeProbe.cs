@@ -43,11 +43,16 @@ namespace Lanternfall.Gameplay.Performance
             HubController.Instance.PrepareRun(20260701UL, "class.vanguard");
             SceneManager.LoadScene("RunChamber");
             for (int frame = 0; frame < 10; frame++) yield return null;
+            BiomeChamberPresenter biome =
+                FindFirstObjectByType<BiomeChamberPresenter>();
             bool runValid =
                 UnityEngine.Camera.main != null &&
                 FindFirstObjectByType<PlayerInputReader>() != null &&
                 FindFirstObjectByType<Health>() != null &&
                 FindFirstObjectByType<BiomeAtmosphere>() != null &&
+                biome != null &&
+                biome.BiomeIndex == 0 &&
+                biome.GeneratedPropCount == 14 &&
                 FindFirstObjectByType<RunChamberController>() != null &&
                 FindFirstObjectByType<RunExitGate>() != null;
             if (!runValid)

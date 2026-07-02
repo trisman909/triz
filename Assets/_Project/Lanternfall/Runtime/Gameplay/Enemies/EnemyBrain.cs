@@ -17,6 +17,7 @@ namespace Lanternfall.Gameplay.Enemies
         private CharacterController _controller;
         private Health _health;
         private Renderer _renderer;
+        private EnemyVisualIdentity _identity;
         private MaterialPropertyBlock _properties;
         private BrainState _state;
         private float _stateTimer;
@@ -34,6 +35,8 @@ namespace Lanternfall.Gameplay.Enemies
             _controller = GetComponent<CharacterController>();
             _health = GetComponent<Health>();
             _renderer = GetComponentInChildren<Renderer>();
+            _identity = GetComponent<EnemyVisualIdentity>() ??
+                gameObject.AddComponent<EnemyVisualIdentity>();
             _properties = new MaterialPropertyBlock();
             if (definition != null) ApplyDefinition();
             _health.Died += OnDied;
@@ -97,6 +100,7 @@ namespace Lanternfall.Gameplay.Enemies
 
         private void ApplyDefinition()
         {
+            _identity.Configure(definition);
             float healthMultiplier = eliteModifier == EliteModifier.Bulwark ? 1.8f : 1f;
             float armorBonus = eliteModifier == EliteModifier.Bulwark ? 30f : 0f;
             _health.Configure(
@@ -205,7 +209,10 @@ namespace Lanternfall.Gameplay.Enemies
             _renderer.GetPropertyBlock(_properties);
             Color color = next == BrainState.Telegraph
                 ? new Color(1f, 0.08f, 0.03f)
-                : ArchetypeColor(definition.Archetype);
+                : Color.Lerp(
+                    _identity.BaseColor,
+                    ArchetypeColor(definition.Archetype),
+                    .35f);
             _properties.SetColor(BaseColor, color);
             _renderer.SetPropertyBlock(_properties);
         }

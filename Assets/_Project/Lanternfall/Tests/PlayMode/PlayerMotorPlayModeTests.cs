@@ -281,6 +281,15 @@ namespace Lanternfall.Tests
             Assert.That(
                 Object.FindFirstObjectByType<RadianceField>(),
                 Is.Not.Null);
+            BiomeChamberPresenter biome =
+                Object.FindFirstObjectByType<BiomeChamberPresenter>();
+            Assert.That(biome, Is.Not.Null);
+            Assert.That(biome.BiomeIndex, Is.EqualTo(0));
+            Assert.That(biome.GeneratedPropCount, Is.EqualTo(14));
+            Assert.That(
+                Object.FindObjectsByType<BiomeHazard>(
+                    FindObjectsSortMode.None).Length,
+                Is.EqualTo(2));
         }
     }
 }

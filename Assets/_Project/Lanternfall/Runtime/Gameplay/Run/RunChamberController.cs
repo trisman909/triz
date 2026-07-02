@@ -52,6 +52,13 @@ namespace Lanternfall.Gameplay.Run
             session.BeginRoom();
             atmosphere?.Configure(contentCatalog.Biomes[room.BiomeIndex]);
             ApplyAtmosphereNow(contentCatalog.Biomes[room.BiomeIndex]);
+            BiomeChamberPresenter biomePresenter =
+                GetComponent<BiomeChamberPresenter>() ??
+                gameObject.AddComponent<BiomeChamberPresenter>();
+            biomePresenter.Build(
+                room.BiomeIndex,
+                room.EncounterSeed,
+                contentCatalog.Biomes[room.BiomeIndex]);
             exitGate?.SetUnlocked(false);
 
             switch (room.Kind)
@@ -108,6 +115,10 @@ namespace Lanternfall.Gameplay.Run
                 choices[index] = contentCatalog.Bosses[start + index];
             var random = new DeterministicRandom(room.EncounterSeed);
             BossDefinition selected = choices[random.NextInt(choices.Length)];
+            GuardianArenaSignature arenaSignature =
+                GetComponent<GuardianArenaSignature>() ??
+                gameObject.AddComponent<GuardianArenaSignature>();
+            arenaSignature.Build(selected, room.EncounterSeed);
             BossBrain boss = Instantiate(
                 bossPrefab, Vector3.forward * 7f + Vector3.up,
                 Quaternion.identity, transform);

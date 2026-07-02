@@ -15,6 +15,7 @@ namespace Lanternfall.Gameplay.Bosses
         private CharacterController _controller;
         private Health _health;
         private Renderer _renderer;
+        private BossVisualIdentity _identity;
         private MaterialPropertyBlock _properties;
         private BossPhaseModel _phases;
         private State _state;
@@ -32,6 +33,8 @@ namespace Lanternfall.Gameplay.Bosses
             _controller = GetComponent<CharacterController>();
             _health = GetComponent<Health>();
             _renderer = GetComponentInChildren<Renderer>();
+            _identity = GetComponent<BossVisualIdentity>() ??
+                gameObject.AddComponent<BossVisualIdentity>();
             _properties = new MaterialPropertyBlock();
             _phases = new BossPhaseModel();
             _health.Changed += OnHealthChanged;
@@ -53,14 +56,17 @@ namespace Lanternfall.Gameplay.Bosses
             {
                 _timer -= Time.deltaTime;
                 float t = 1f - Mathf.Clamp01(_timer / Mathf.Max(.01f, definition.IntroDuration));
-                transform.localScale = Vector3.one * Mathf.Lerp(.2f, 1.6f, t);
+                transform.localScale = Vector3.one *
+                    (_identity.ScaleMultiplier * Mathf.Lerp(.2f, 1.6f, t));
                 if (_timer <= 0f) ChangeState(State.Chase, 0f);
                 return;
             }
             if (_state == State.Dying)
             {
                 _deathProgress += Time.deltaTime;
-                transform.localScale = Vector3.one * Mathf.Lerp(1.6f, 0f, _deathProgress);
+                transform.localScale = Vector3.one *
+                    (_identity.ScaleMultiplier *
+                     Mathf.Lerp(1.6f, 0f, _deathProgress));
                 transform.Rotate(Vector3.up, 360f * Time.deltaTime);
                 if (_deathProgress >= 1f) Destroy(gameObject);
                 return;
@@ -100,8 +106,10 @@ namespace Lanternfall.Gameplay.Bosses
 
         private void ApplyDefinition()
         {
+            _identity.Configure(definition);
             _health.Configure(definition.Health, definition.Armor, false);
-            transform.localScale = Vector3.one * .2f;
+            transform.localScale =
+                Vector3.one * (_identity.ScaleMultiplier * .2f);
             BossEncounterSignals.RaiseIntro(definition.DisplayName);
             ChangeState(State.Intro, definition.IntroDuration);
         }
@@ -212,7 +220,10 @@ namespace Lanternfall.Gameplay.Bosses
             _renderer.GetPropertyBlock(_properties);
             Color color = state == State.Telegraph
                 ? new Color(1f, .05f, .02f)
-                : new Color(.4f + Phase * .12f, .12f, .5f + Phase * .08f);
+                : Color.Lerp(
+                    _identity.BaseColor,
+                    Color.white,
+                    .08f * Phase);
             _properties.SetColor(BaseColor, color);
             _renderer.SetPropertyBlock(_properties);
         }

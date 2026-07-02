@@ -50,3 +50,10 @@ The content catalog now owns Echo definitions alongside classes, biomes,
 enemies and guardians. `RunPlayerInitializer` rehydrates gold and the
 three-slot Echo chain on each chamber load, while deterministic room rewards
 write stable IDs back into the session.
+
+`BiomeChamberPresenter` is a deterministic presentation adapter: it consumes
+the authoritative biome index and encounter seed without mutating run state.
+`EnemyVisualIdentity` and `BossVisualIdentity` derive stable silhouettes and
+palettes from authored IDs. `GuardianArenaSignature` maps the eight boss attack
+patterns to readable arena vocabularies; boss selection remains in
+`RunChamberController` and its named deterministic stream.

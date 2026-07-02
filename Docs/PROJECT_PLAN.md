@@ -1,6 +1,6 @@
 # Lanternfall production plan
 
-Updated: 2026-07-01
+Updated: 2026-07-02
 
 | Phase | Deliverable | Status |
 |---|---|---|
@@ -19,7 +19,7 @@ Updated: 2026-07-01
 | 12 | Windows RC pipeline and completion audit | Complete |
 | 13 | Integrated 25–45 minute run and class selection | Complete |
 | 14 | Radiance geometry, Vows, full Echo reward cadence | Complete |
-| 15 | Five playable biomes and distinct release encounters | In progress |
+| 15 | Five playable biomes and distinct release encounters | Complete |
 | 16 | Production presentation, audio, UI and achievement wiring | Pending |
 | 17 | Minimum-PC QA and final Windows release candidate | Pending |
 
@@ -238,3 +238,27 @@ commit before the next phase begins.
 - [x] PlayMode integration tests: 10/10 passed.
 - [x] Five-scene Windows x64 development build succeeded (164,855,989 bytes).
 - [x] Packaged hub-to-pillar-chamber smoke passed with exit code 0.
+
+## Phase 15 verification
+
+- [x] Every integrated room builds deterministic architecture for Drowned
+  Narthex, Siltglass Orrery, Ember Ossuary, Gloam Orchard or Stormvault
+  Foundry.
+- [x] Every biome combines authored atmosphere with two elemental floor
+  hazards and twelve seeded traversal props.
+- [x] All 40 biome-roster enemies receive stable unique palettes, body
+  proportions and archetype ornaments.
+- [x] Eight enemy roles retain distinct behavior and role-specific Radiance
+  responses.
+- [x] All 15 guardians receive stable body/crown identities, multi-phase
+  behavior and one of eight pattern-specific arena languages.
+- [x] Release validation rejects duplicate biome/enemy/guardian display names
+  and incomplete role or guardian-pattern coverage.
+- [x] Regenerated all five scenes with no missing or embedded scripts.
+- [x] EditMode tests: 29/29 passed.
+- [x] PlayMode integration/performance tests: 10/10 passed.
+- [x] Five-scene Windows x64 development build succeeded (164,871,537 bytes).
+- [x] Packaged biome-aware D3D12 smoke passed on Intel UHD 620 with exit code
+  0.
+- [ ] Commercial completion: production presentation/audio/UI/accessibility
+  wiring and minimum-PC release QA remain in Phases 16–17.

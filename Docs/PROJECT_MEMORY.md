@@ -1,6 +1,6 @@
 # Lanternfall durable project memory
 
-Last updated: 2026-07-01
+Last updated: 2026-07-02
 
 This is the concise cross-session handoff. `AGENTS.md` requires every future
 agent to read and maintain it. The worktree, Unity results, and Git history
@@ -45,7 +45,8 @@ remain authoritative.
 | 11 Optimization/QA | `feat: add measurable release quality gates` | 21/21 EditMode; 9/9 PlayMode; readiness-gated Windows build |
 | 12 Packaging/audit | `04fc84d` | 21/21 EditMode; 9/9 PlayMode; strict build; packaged hub-to-biome smoke |
 | 13 Integrated run | `d0fe3f5` | 22/22 EditMode; 10/10 PlayMode; five-scene build; packaged hub-to-run smoke |
-| 14 Pillar mechanics | pending commit | 26/26 EditMode; 10/10 PlayMode; five-scene build; packaged pillar smoke |
+| 14 Pillar mechanics | `c553093` | 26/26 EditMode; 10/10 PlayMode; five-scene build; packaged pillar smoke |
+| 15 Biomes/encounters | this milestone | 29/29 EditMode; 10/10 PlayMode; five-scene build; packaged biome smoke |
 
 ## Current state
 
@@ -76,9 +77,9 @@ fixed real player corruption caused by secondary `LocalizationBootstrap` and
 own matching source file, and no scene contains embedded MonoScripts.
 
 The final audit proved the packaging pipeline but found the game is not
-commercially complete. Integrated runs, classes, Radiance, Vows and Echo
-cadence are now implemented through Phase 14, while encounter presentation,
-achievements, accessibility and audio still need their remediation phases.
+commercially complete. Integrated runs, core pillars and systemic biome/
+encounter identities are now implemented through Phase 15, while production
+presentation, achievements, accessibility, audio and minimum-PC proof remain.
 `Docs/COMPLETION_AUDIT.md` is authoritative. The plan now continues through
 Phases 13–17 rather than making a false completion claim.
 
@@ -94,16 +95,32 @@ Evidence is 22/22 EditMode, 10/10 PlayMode, a 164,843,603-byte Windows
 development build, and a packaged hub-to-`RunChamber` smoke exit 0. Next:
 Phase 13 was committed and pushed as `d0fe3f5`.
 
-## Phase 14 active work
+## Phase 14 verified work
 
-Phase 13 is committed and pushed. Phase 14 is verified and ready to commit. It adds a movable
+Phase 14 is committed and pushed as `c553093`. It adds a movable
 `RadianceField`, archetype-specific light responses, danger/reward beyond the
 lantern, five stable-tag class passives, three selectable Vows with fulfillment
 or break consequences, persistent Echo/gold state and deterministic
 post-encounter reward choices. Evidence: 26/26 EditMode, 10/10 PlayMode,
 readiness validation, a 164,855,989-byte Windows development build and packaged
-smoke exit 0. Next: commit/push Phase 14, then deliver biome-specific playable
-spaces and distinct release encounters in Phase 15.
+smoke exit 0.
+
+## Phase 15 verified work
+
+Every room now receives one of five deterministic biome architecture
+vocabularies, two distinct elemental hazards and its authored atmosphere. All
+40 enemies receive stable ID-derived body proportions, palettes and archetype
+ornaments while retaining eight role behaviors and Radiance responses. All 15
+guardians receive stable body/crown identities, phase behavior and one of eight
+pattern-specific arena languages.
+
+The release catalog rejects duplicate display names or incomplete enemy-role
+and guardian-pattern coverage. The packaged smoke probe verifies that
+`RunChamber` creates its biome presenter and 14 generated pieces. Evidence:
+release-readiness pass, 29/29 EditMode, 10/10 PlayMode, a 164,871,537-byte
+Windows development build, and packaged D3D12 smoke exit 0 on Intel UHD 620.
+Next: Phase 16 production presentation, audio, UI, accessibility and
+achievement wiring. The project is not yet commercially complete.
 
 ## Architecture invariants
 
@@ -116,6 +133,8 @@ spaces and distinct release encounters in Phase 15.
   allocated at runtime.
 - Hot combat paths avoid managed allocations; frequent objects are pooled.
 - Saves will use versioned DTOs, atomic replacement, backups, and migrations.
+- Biome and encounter visuals derive from authoritative biome/encounter data
+  and never mutate deterministic run state.
 
 ## Known operational notes
 

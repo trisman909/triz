@@ -11,6 +11,7 @@ using Lanternfall.Editor;
 using Lanternfall.Gameplay.Run;
 using Lanternfall.Core.Run;
 using Lanternfall.Gameplay.Radiance;
+using Lanternfall.Gameplay.Enemies;
 using UnityEngine;
 using UnityEditor;
 using Lanternfall.Gameplay.World;
@@ -421,6 +422,119 @@ namespace Lanternfall.Tests
             Object.DestroyImmediate(cantor);
             Object.DestroyImmediate(relic);
             Object.DestroyImmediate(bearer);
+        }
+
+        [Test]
+        public void FiveBiomesBuildDistinctDeterministicPlayableChambers()
+        {
+            ContentCatalog catalog =
+                AssetDatabase.LoadAssetAtPath<ContentCatalog>(
+                    "Assets/_Project/Lanternfall/Settings/" +
+                    "LanternfallContentCatalog.asset");
+            var architectureNames =
+                new System.Collections.Generic.HashSet<string>();
+            GameObject owner = new GameObject("Biome Test");
+            BiomeChamberPresenter presenter =
+                owner.AddComponent<BiomeChamberPresenter>();
+
+            for (int biome = 0; biome < catalog.Biomes.Count; biome++)
+            {
+                presenter.Build(biome, 101UL, catalog.Biomes[biome]);
+                Assert.That(presenter.BiomeIndex, Is.EqualTo(biome));
+                Assert.That(presenter.GeneratedPropCount, Is.EqualTo(14));
+                Assert.That(
+                    architectureNames.Add(presenter.ArchitectureName),
+                    Is.True);
+                Assert.That(
+                    owner.GetComponentsInChildren<BiomeHazard>().Length,
+                    Is.EqualTo(2));
+            }
+
+            Assert.That(architectureNames.Count, Is.EqualTo(5));
+            Object.DestroyImmediate(owner);
+        }
+
+        [Test]
+        public void FortyEnemiesHaveStableDistinctVisualIdentities()
+        {
+            ContentCatalog catalog =
+                AssetDatabase.LoadAssetAtPath<ContentCatalog>(
+                    "Assets/_Project/Lanternfall/Settings/" +
+                    "LanternfallContentCatalog.asset");
+            var identities =
+                new System.Collections.Generic.HashSet<string>();
+            var visualSignatures =
+                new System.Collections.Generic.HashSet<string>();
+
+            foreach (EnemyDefinition definition in catalog.Enemies)
+            {
+                GameObject actor =
+                    GameObject.CreatePrimitive(PrimitiveType.Capsule);
+                EnemyVisualIdentity identity =
+                    actor.AddComponent<EnemyVisualIdentity>();
+                identity.Configure(definition);
+                string signature =
+                    $"{identity.VisualVariant}:" +
+                    $"{identity.BaseColor.r:F4}:{identity.BaseColor.g:F4}:" +
+                    $"{identity.BaseColor.b:F4}:{actor.transform.localScale.x:F3}:" +
+                    $"{actor.transform.localScale.y:F3}";
+                Assert.That(identities.Add(identity.IdentityKey), Is.True);
+                Assert.That(visualSignatures.Add(signature), Is.True);
+                Assert.That(actor.transform.Find("Identity Ornament"), Is.Not.Null);
+                Object.DestroyImmediate(actor);
+            }
+
+            Assert.That(identities.Count, Is.EqualTo(40));
+            Assert.That(visualSignatures.Count, Is.EqualTo(40));
+        }
+
+        [Test]
+        public void FifteenGuardiansHaveDistinctBodiesAndEightArenaLanguages()
+        {
+            ContentCatalog catalog =
+                AssetDatabase.LoadAssetAtPath<ContentCatalog>(
+                    "Assets/_Project/Lanternfall/Settings/" +
+                    "LanternfallContentCatalog.asset");
+            var guardianIdentities =
+                new System.Collections.Generic.HashSet<string>();
+            var guardianVisuals =
+                new System.Collections.Generic.HashSet<string>();
+            var arenaLanguages =
+                new System.Collections.Generic.HashSet<string>();
+
+            foreach (BossDefinition definition in catalog.Bosses)
+            {
+                GameObject guardian =
+                    GameObject.CreatePrimitive(PrimitiveType.Capsule);
+                BossVisualIdentity identity =
+                    guardian.AddComponent<BossVisualIdentity>();
+                identity.Configure(definition);
+                string signature =
+                    $"{identity.CrownCount}:" +
+                    $"{identity.BaseColor.r:F4}:{identity.BaseColor.g:F4}:" +
+                    $"{identity.BaseColor.b:F4}:{identity.ScaleMultiplier:F3}";
+                Assert.That(
+                    guardianIdentities.Add(identity.IdentityKey),
+                    Is.True);
+                Assert.That(
+                    guardianVisuals.Add(signature),
+                    Is.True,
+                    $"Duplicate guardian presentation: {definition.DisplayName} " +
+                    $"uses {signature}.");
+
+                GameObject arena = new GameObject("Arena");
+                GuardianArenaSignature presentation =
+                    arena.AddComponent<GuardianArenaSignature>();
+                presentation.Build(definition, 909UL);
+                Assert.That(presentation.GeneratedPropCount, Is.InRange(6, 8));
+                arenaLanguages.Add(presentation.SignatureName);
+                Object.DestroyImmediate(arena);
+                Object.DestroyImmediate(guardian);
+            }
+
+            Assert.That(guardianIdentities.Count, Is.EqualTo(15));
+            Assert.That(guardianVisuals.Count, Is.EqualTo(15));
+            Assert.That(arenaLanguages.Count, Is.EqualTo(8));
         }
 
         private static CharacterClassDefinition CreateClass(string passive)
