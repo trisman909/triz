@@ -1,4 +1,5 @@
 using Lanternfall.Core.Random;
+using Lanternfall.Gameplay.Presentation;
 using UnityEngine;
 
 namespace Lanternfall.Gameplay.Bosses
@@ -119,6 +120,7 @@ namespace Lanternfall.Gameplay.Bosses
         {
             Renderer renderer = item.GetComponent<Renderer>();
             if (renderer == null) return;
+            renderer.sharedMaterial = UrpPresentationMaterials.Emissive;
             var properties = new MaterialPropertyBlock();
             renderer.GetPropertyBlock(properties);
             properties.SetColor("_BaseColor", color);

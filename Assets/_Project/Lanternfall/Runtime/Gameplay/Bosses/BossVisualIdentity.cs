@@ -1,4 +1,5 @@
 using UnityEngine;
+using Lanternfall.Gameplay.Presentation;
 
 namespace Lanternfall.Gameplay.Bosses
 {
@@ -30,6 +31,9 @@ namespace Lanternfall.Gameplay.Bosses
             var properties = new MaterialPropertyBlock();
             foreach (Renderer renderer in GetComponentsInChildren<Renderer>())
             {
+                renderer.sharedMaterial =
+                    UrpPresentationMaterials.PreferCompatible(
+                        renderer.sharedMaterial);
                 renderer.GetPropertyBlock(properties);
                 properties.SetColor("_BaseColor", BaseColor);
                 properties.SetColor("_Color", BaseColor);

@@ -20,4 +20,19 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/_Project/Lanternfall/Scenes/FirstBiomeVerticalSlice.unity
     guid: b56d35c837a1f3a459cdbaf5997ecada
+  - enabled: 1
+    path: Assets/_Project/Lanternfall/Scenes/ArtReview_DrownedNarthex.unity
+    guid: abd28bb10c30dcd4982e89a42d3e615b
+  - enabled: 1
+    path: Assets/_Project/Lanternfall/Scenes/ArtReview_SiltglassObservatory.unity
+    guid: b833bf74b18f790469a38f3fe48a4fa5
+  - enabled: 1
+    path: Assets/_Project/Lanternfall/Scenes/ArtReview_EmberOssuary.unity
+    guid: e63565aae7b356f4e8b77b56f101d6f1
+  - enabled: 1
+    path: Assets/_Project/Lanternfall/Scenes/ArtReview_GloamOrchard.unity
+    guid: 6d1b82de0ce96f241b94e0be31d455ca
+  - enabled: 1
+    path: Assets/_Project/Lanternfall/Scenes/ArtReview_StormvaultFoundry.unity
+    guid: 09c3e38cbaa08ef4c94b7a84bdf173ff
   m_configObjects: {}

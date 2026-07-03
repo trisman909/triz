@@ -1,5 +1,7 @@
 using Lanternfall.Gameplay.Hub;
 using Lanternfall.Gameplay.Input;
+using Lanternfall.Gameplay.Progression;
+using Lanternfall.Gameplay.Presentation;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -26,8 +28,19 @@ namespace Lanternfall.Gameplay.Run
                 !_visitor.InteractPressedThisFrame) return;
             HubController hub = HubController.Instance;
             if (hub?.ActiveRun == null) return;
+            RunRoomPlan completed = hub.ActiveRun.Current;
+            hub.ReportRoomCompleted(completed);
+            GameplayPresentationSignals.RaiseCue(
+                PresentationCue.UiConfirm,
+                transform.position);
             bool hasNext = hub.ActiveRun.Advance();
-            if (hasNext) SceneManager.LoadScene("RunChamber");
+            if (hasNext)
+            {
+                if (hub.ActiveRun.Current.BiomeIndex != completed.BiomeIndex)
+                    hub.ReportAchievement(
+                        AchievementMetric.BiomesReached);
+                SceneManager.LoadScene("RunChamber");
+            }
             else hub.CompleteRun();
         }
 

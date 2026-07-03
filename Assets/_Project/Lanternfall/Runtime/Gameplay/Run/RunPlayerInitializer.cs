@@ -74,7 +74,15 @@ namespace Lanternfall.Gameplay.Run
         private void OnDied() => _hub?.FailRun();
 
         private void OnDamaged(DamageResult result) =>
-            _hub?.ActiveRun?.RecordDamage(result.Amount);
+            RecordDamage(result.Amount);
+
+        private void RecordDamage(float amount)
+        {
+            _hub?.ActiveRun?.RecordDamage(amount);
+            _hub?.ReportAchievement(
+                AchievementMetric.DamageTaken,
+                Mathf.Max(1, Mathf.RoundToInt(amount)));
+        }
 
         private void OnWalletChanged(CurrencyKind currency, int balance)
         {

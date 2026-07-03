@@ -1,6 +1,7 @@
 using System;
 using Lanternfall.Gameplay.Combat;
 using Lanternfall.Gameplay.Radiance;
+using Lanternfall.Gameplay.Presentation;
 using UnityEngine;
 
 namespace Lanternfall.Gameplay.Enemies
@@ -18,6 +19,8 @@ namespace Lanternfall.Gameplay.Enemies
         private Health _health;
         private Renderer _renderer;
         private EnemyVisualIdentity _identity;
+        private ActorPresentation _presentation;
+        private CombatTelegraph _telegraph;
         private MaterialPropertyBlock _properties;
         private BrainState _state;
         private float _stateTimer;
@@ -37,6 +40,10 @@ namespace Lanternfall.Gameplay.Enemies
             _renderer = GetComponentInChildren<Renderer>();
             _identity = GetComponent<EnemyVisualIdentity>() ??
                 gameObject.AddComponent<EnemyVisualIdentity>();
+            _presentation = GetComponent<ActorPresentation>() ??
+                gameObject.AddComponent<ActorPresentation>();
+            _telegraph = GetComponent<CombatTelegraph>() ??
+                gameObject.AddComponent<CombatTelegraph>();
             _properties = new MaterialPropertyBlock();
             if (definition != null) ApplyDefinition();
             _health.Died += OnDied;
@@ -101,6 +108,10 @@ namespace Lanternfall.Gameplay.Enemies
         private void ApplyDefinition()
         {
             _identity.Configure(definition);
+            _presentation.Configure(
+                _identity.BaseColor,
+                .8f + _identity.VisualVariant * .06f,
+                false);
             float healthMultiplier = eliteModifier == EliteModifier.Bulwark ? 1.8f : 1f;
             float armorBonus = eliteModifier == EliteModifier.Bulwark ? 30f : 0f;
             _health.Configure(
@@ -205,6 +216,17 @@ namespace Lanternfall.Gameplay.Enemies
         {
             _state = next;
             _stateTimer = duration;
+            if (next == BrainState.Telegraph)
+            {
+                _telegraph.Show(definition.AttackRange, duration);
+                GameplayPresentationSignals.RaiseCue(
+                    PresentationCue.EnemyTelegraph,
+                    transform.position);
+            }
+            else
+            {
+                _telegraph.Hide();
+            }
             if (_renderer == null) return;
             _renderer.GetPropertyBlock(_properties);
             Color color = next == BrainState.Telegraph
@@ -228,6 +250,9 @@ namespace Lanternfall.Gameplay.Enemies
         private void OnDied()
         {
             Died?.Invoke(this);
+            GameplayPresentationSignals.RaiseCue(
+                PresentationCue.EnemyDeath,
+                transform.position);
             _state = BrainState.Dead;
             enabled = false;
             _controller.enabled = false;

@@ -1,6 +1,6 @@
 # Lanternfall production plan
 
-Updated: 2026-07-02
+Updated: 2026-07-03
 
 | Phase | Deliverable | Status |
 |---|---|---|
@@ -20,8 +20,8 @@ Updated: 2026-07-02
 | 13 | Integrated 25–45 minute run and class selection | Complete |
 | 14 | Radiance geometry, Vows, full Echo reward cadence | Complete |
 | 15 | Five playable biomes and distinct release encounters | Complete |
-| 16 | Production presentation, audio, UI and achievement wiring | Pending |
-| 17 | Minimum-PC QA and final Windows release candidate | Pending |
+| 16 | Production presentation, audio, UI and achievement wiring | Verified checkpoint |
+| 17 | Five-chamber production-art direction and player review build | Awaiting approval |
 
 ## Phase rules
 
@@ -262,3 +262,55 @@ commit before the next phase begins.
   0.
 - [ ] Commercial completion: production presentation/audio/UI/accessibility
   wiring and minimum-PC release QA remain in Phases 16–17.
+
+## Phase 16 playtest checkpoint
+
+- [x] All 100 achievements have persistent schema-v3 metric progress and live
+  gameplay event sources.
+- [x] Victory/defeat captures time, seed, rooms, enemies, guardians, currency,
+  Echoes and Vow outcomes for a hub run-summary panel.
+- [x] HUD route, Vow and resonance status are authoritative rather than
+  placeholders.
+- [x] Pause UI can select, listen for, persist and reset keyboard, mouse and
+  controller bindings.
+- [x] Gameplay-driven subtitles and high-contrast attack telegraphs honor the
+  active accessibility profile.
+- [x] Original fixed-bank movement, combat, enemy, guardian, reward, ambience
+  and UI audio cues are integrated.
+- [x] Fixed-pool combat VFX and procedural actor motion ornaments are
+  integrated without changing deterministic combat state.
+- [x] EditMode tests: 31/31 passed.
+- [x] PlayMode integration tests: 13/13 passed.
+- [x] Five-scene Windows x64 development build succeeded (164,915,721 bytes).
+- [x] Expanded packaged smoke passed with exit code 0.
+- [x] Strict `1.0.0-rc.2` Windows player built and packaged smoke-tested.
+- [ ] Full-game replacement of primitive scene/actor geometry is deliberately
+  deferred until the Phase 17 representative chambers receive approval.
+
+## Phase 17 representative art review checkpoint
+
+- [x] Five independent original texture seeds produce five distinct surface
+  families; the shared stone seed is not used as a recolor shortcut.
+- [x] Five gameplay-camera chambers use different spatial grammars: drowned
+  processional nave, radial observatory, split furnace trench, irregular root
+  clearing and broad foundry grid.
+- [x] Each chamber has biome-specific silhouettes, modular props, material
+  response, environmental story, landmark framing, particles, fog and light.
+- [x] Fresh clean-load captures confirm Drowned Narthex is cyan/blue-green and
+  the other four retain their intended palettes under ACES profiles.
+- [x] Production materials, runtime telegraphs, pooled VFX, actor ornaments and
+  guardian spectacle use build-preserved URP shaders; no Built-in/magenta
+  renderer material remains in the representative scenes.
+- [x] Authored actor materials bypass runtime `MaterialPropertyBlock` tinting;
+  procedural fallback geometry alone receives color overrides.
+- [x] Reduced motion, flash limiting, camera-shake suppression, subtitles and
+  high-contrast telegraphs remain wired and PlayMode-verified.
+- [x] EditMode: 35/35; PlayMode: 14/14; release-readiness validation passed.
+- [x] Strict Windows x64 `1.0.0-rc.2` build succeeded (109,136,226 reported
+  bytes) and its D3D12 packaged smoke traversed hub, run chamber and all five
+  review chambers with exit code 0.
+- [ ] Obtain player approval of the five representative chambers.
+- [ ] Do not begin full-game art integration until that approval is received.
+- [ ] Commercial completion remains blocked by the open audit items, including
+  human run-timing, manual device/audio/usability review and minimum-PC 60 FPS
+  capture.

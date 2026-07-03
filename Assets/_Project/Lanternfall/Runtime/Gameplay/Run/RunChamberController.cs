@@ -6,6 +6,7 @@ using Lanternfall.Gameplay.Enemies;
 using Lanternfall.Gameplay.Hub;
 using Lanternfall.Gameplay.Progression;
 using Lanternfall.Gameplay.World;
+using Lanternfall.Gameplay.Audio;
 using UnityEngine;
 
 namespace Lanternfall.Gameplay.Run
@@ -20,6 +21,7 @@ namespace Lanternfall.Gameplay.Run
         [SerializeField] private BiomeAtmosphere atmosphere;
 
         private EncounterDirector _encounter;
+        private DynamicAudioDirector _audio;
 
         public void Configure(
             ContentCatalog catalog,
@@ -43,6 +45,7 @@ namespace Lanternfall.Gameplay.Run
         private void Start()
         {
             RunSession session = HubController.Instance?.ActiveRun;
+            _audio = FindAnyObjectByType<DynamicAudioDirector>();
             if (session == null || contentCatalog == null)
             {
                 exitGate?.SetUnlocked(true);
@@ -102,6 +105,7 @@ namespace Lanternfall.Gameplay.Run
             count = Mathf.Max(3, count +
                 (HubController.Instance?.ActiveRun?.ConsumeEncounterConsequence() ?? 0));
             _encounter = gameObject.AddComponent<EncounterDirector>();
+            _audio?.SetState(MusicState.Combat);
             _encounter.Configure(enemyPrefab, roster, playerTarget, count);
             _encounter.EnemyDefeated += OnEnemyDefeated;
             _encounter.EncounterCleared += OnEncounterCleared;
@@ -132,6 +136,16 @@ namespace Lanternfall.Gameplay.Run
             {
                 session.EnemiesDefeated++;
                 session.RecordKill(enemy != null && enemy.InRadiance);
+                HubController.Instance.ReportAchievement(
+                    AchievementMetric.EnemiesDefeated);
+                if (enemy?.Definition != null)
+                    HubController.Instance.ReportAchievement(
+                        AchievementMetric.UniqueEnemies,
+                        1,
+                        enemy.Definition.StableId);
+                if (enemy != null && !enemy.InRadiance)
+                    HubController.Instance.ReportAchievement(
+                        AchievementMetric.OutsideRadianceKills);
                 int gold = enemy != null && !enemy.InRadiance
                     ? Mathf.RoundToInt(2f * session.OutsideRewardMultiplier)
                     : 1;
@@ -142,13 +156,18 @@ namespace Lanternfall.Gameplay.Run
         private void OnEncounterCleared()
         {
             RunSession session = HubController.Instance?.ActiveRun;
-            session?.ResolveVowForCombatRoom();
+            VowOutcome outcome =
+                session?.ResolveVowForCombatRoom() ?? VowOutcome.None;
+            if (outcome == VowOutcome.Fulfilled)
+                HubController.Instance?.ReportAchievement(
+                    AchievementMetric.VowsFulfilled);
             if (session != null)
             {
                 AddGold(Mathf.RoundToInt(10f * session.CurrentRewardMultiplier));
                 SpawnEchoChoices(session.Current.EncounterSeed);
             }
             exitGate?.SetUnlocked(true);
+            _audio?.SetState(MusicState.Exploration);
         }
 
         private void OnBossDefeated(string _)
@@ -156,7 +175,14 @@ namespace Lanternfall.Gameplay.Run
             if (HubController.Instance?.ActiveRun is RunSession session)
             {
                 session.BossesDefeated++;
-                session.ResolveVowForCombatRoom();
+                HubController.Instance.ReportAchievement(
+                    AchievementMetric.GuardiansDefeated);
+                HubController.Instance.ReportAchievement(
+                    AchievementMetric.UniqueGuardians, 1, _);
+                VowOutcome outcome = session.ResolveVowForCombatRoom();
+                if (outcome == VowOutcome.Fulfilled)
+                    HubController.Instance.ReportAchievement(
+                        AchievementMetric.VowsFulfilled);
                 AddGold(Mathf.RoundToInt(25f * session.CurrentRewardMultiplier));
                 SpawnEchoChoices(session.Current.EncounterSeed);
             }
@@ -169,6 +195,8 @@ namespace Lanternfall.Gameplay.Run
             RunInventory inventory =
                 playerTarget?.GetComponentInParent<RunInventory>();
             inventory?.Wallet.Add(CurrencyKind.Gold, amount);
+            HubController.Instance?.ReportAchievement(
+                AchievementMetric.GoldEarned, amount);
         }
 
         private void SpawnVowChoices()

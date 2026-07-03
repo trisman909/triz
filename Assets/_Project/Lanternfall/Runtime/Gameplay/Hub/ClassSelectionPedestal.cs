@@ -1,4 +1,5 @@
 using Lanternfall.Gameplay.Input;
+using Lanternfall.Gameplay.Presentation;
 using UnityEngine;
 
 namespace Lanternfall.Gameplay.Hub
@@ -31,8 +32,14 @@ namespace Lanternfall.Gameplay.Hub
 
         private void Update()
         {
-            if (_visitor != null && _visitor.InteractPressedThisFrame)
-                HubController.Instance?.SelectClass(classId);
+            if (_visitor == null || !_visitor.InteractPressedThisFrame) return;
+            if (HubController.Instance?.SelectClass(classId) != true) return;
+            GameplayPresentationSignals.RaiseCue(
+                PresentationCue.UiConfirm,
+                transform.position);
+            GameplayPresentationSignals.RaiseSubtitle(
+                "LANTERN",
+                $"{HubController.Instance.SelectedClassName} calling selected.");
         }
 
         private void OnTriggerEnter(Collider other) =>

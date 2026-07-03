@@ -18,7 +18,21 @@ namespace Lanternfall.Gameplay.Camera
         private float _shakeAmplitude;
 
         public void SetTarget(Transform value) => target = value;
-        public void SetBossZoom(bool active) => _targetZoom = active ? 11.5f : _baseZoom;
+        public void SetBossZoom(bool active) =>
+            _targetZoom = active ? _baseZoom + 3f : _baseZoom;
+
+        /// <summary>
+        /// Applies a scene-specific framing profile without changing the
+        /// camera's deterministic follow behavior.
+        /// </summary>
+        public void ConfigureView(Vector3 cameraOffset, float zoom)
+        {
+            offset = cameraOffset;
+            _baseZoom = Mathf.Clamp(zoom, 4f, 14f);
+            _targetZoom = _baseZoom;
+            if (TryGetComponent(out UnityEngine.Camera camera))
+                camera.orthographicSize = _baseZoom;
+        }
 
         public void Shake(float amplitude, float duration)
         {

@@ -1,4 +1,5 @@
 using Lanternfall.Gameplay.Combat;
+using Lanternfall.Gameplay.Presentation;
 using UnityEngine;
 
 namespace Lanternfall.Gameplay.World
@@ -26,6 +27,9 @@ namespace Lanternfall.Gameplay.World
             _nextDamage = Time.time + interval;
             health.ApplyDamage(new DamageRequest(
                 damage, 0f, 0f, 1f, 0f, element, 1f));
+            GameplayPresentationSignals.RaiseCue(
+                PresentationCue.Hazard,
+                other.transform.position);
         }
     }
 }

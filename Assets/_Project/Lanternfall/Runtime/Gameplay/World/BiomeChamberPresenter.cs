@@ -1,5 +1,6 @@
 using Lanternfall.Core.Random;
 using Lanternfall.Gameplay.Combat;
+using Lanternfall.Gameplay.Presentation;
 using UnityEngine;
 
 namespace Lanternfall.Gameplay.World
@@ -91,6 +92,7 @@ namespace Lanternfall.Gameplay.World
         {
             Renderer renderer = item.GetComponent<Renderer>();
             if (renderer == null) return;
+            renderer.sharedMaterial = UrpPresentationMaterials.Lit;
             var properties = new MaterialPropertyBlock();
             renderer.GetPropertyBlock(properties);
             properties.SetColor("_BaseColor", color);

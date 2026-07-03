@@ -1,5 +1,8 @@
 using Lanternfall.Gameplay.Input;
 using Lanternfall.Gameplay.Pooling;
+using Lanternfall.Gameplay.Hub;
+using Lanternfall.Gameplay.Progression;
+using Lanternfall.Gameplay.Presentation;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -56,6 +59,11 @@ namespace Lanternfall.Gameplay.Combat
             projectile.Launch(
                 startingWeapon, origin, direction, transform.root, _projectiles.Return);
             _attackCooldown = 1f / startingWeapon.AttacksPerSecond;
+            HubController.Instance?.ReportAchievement(
+                AchievementMetric.ShotsFired);
+            GameplayPresentationSignals.RaiseCue(
+                PresentationCue.WeaponFire,
+                origin);
             return true;
         }
 
@@ -77,6 +85,14 @@ namespace Lanternfall.Gameplay.Combat
                         startingAbility.Element, 1f));
             }
             _abilityCooldown = startingAbility.Cooldown * _abilityCooldownMultiplier;
+            HubController.Instance?.ReportAchievement(
+                AchievementMetric.AbilitiesUsed);
+            GameplayPresentationSignals.RaiseCue(
+                PresentationCue.Ability,
+                transform.position);
+            GameplayPresentationSignals.RaiseSubtitle(
+                "BEARER",
+                $"{AbilityName} released.");
             return true;
         }
 

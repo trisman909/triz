@@ -11,7 +11,7 @@ namespace Lanternfall.Editor
 {
     public static class ReleaseCandidateBuilder
     {
-        public const string Version = "1.0.0-rc.1";
+        public const string Version = "1.0.0-rc.2";
         private const string OutputRoot = "Builds/WindowsRC";
         private const string ExecutablePath = OutputRoot + "/Lanternfall.exe";
 

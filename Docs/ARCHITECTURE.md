@@ -57,3 +57,37 @@ the authoritative biome index and encounter seed without mutating run state.
 palettes from authored IDs. `GuardianArenaSignature` maps the eight boss attack
 patterns to readable arena vocabularies; boss selection remains in
 `RunChamberController` and its named deterministic stream.
+
+`GameplayPresentationSignals` is the semantic fan-out for procedural SFX,
+fixed-pool VFX and subtitles. Combat publishers never call presentation
+implementations directly. `CombatTelegraph` reads `AccessibilityRuntime` for
+color-safe, flash-limited warnings, while `ActorPresentation` only animates
+decorative children and cannot move gameplay collision.
+
+Achievement catalog entries own a typed gameplay metric. `AchievementTracker`
+persists progress in save schema v3, and `HubController` is the integration
+boundary for runtime metrics and unique discovery contexts. `RunSummaryData`
+captures immutable results before `RunSession` is released so the next hub
+scene can present the completed or failed run safely.
+
+`ProductionArtBuilder` is the reproducible editor boundary for the five
+representative chambers. It generates independent biome texture families,
+materials, meshes, modular prefabs, actors, Volume profiles and scenes, then
+preserves the five core gameplay scenes when extending build settings.
+`ProductionArtCatalog.Validate` rejects missing environmental stories,
+non-URP shaders, shared source textures, indistinguishable material responses
+and reused role meshes.
+
+Clean visual evidence is captured by reopening each scene in a separate Unity
+process, avoiding transient editor render state. Every profile owns persisted
+ACES components. Drowned Narthex currently disables camera post-processing
+after an isolated Intel/D3D12 color-folding fault; neutral reflection and its
+ACES profile remain authored, allowing the workaround to be removed when
+platform verification proves safe.
+
+`UrpPresentationMaterials` loads build-preserved Resources materials for
+runtime Lit, emissive, transparent and particle geometry. This prevents shader
+stripping from breaking combat telegraphs, pooled effects or guardian glyphs
+in a release player. `ActorPresentation` inherits compatible authored
+materials without property blocks and only applies tint blocks to procedural
+fallbacks.

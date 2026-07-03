@@ -79,6 +79,16 @@ namespace Lanternfall.Gameplay.Save
                     data.cosmetics ?? new System.Collections.Generic.List<string>();
                 data.version = 2;
             }
+            if (data.version < 3)
+            {
+                data.achievementProgress =
+                    data.achievementProgress ??
+                    new System.Collections.Generic.List<AchievementProgressRecord>();
+                data.achievementContexts =
+                    data.achievementContexts ??
+                    new System.Collections.Generic.List<string>();
+                data.version = 3;
+            }
             if (data.version > SaveData.CurrentVersion)
                 throw new InvalidDataException("Save comes from a newer game version.");
             return data;

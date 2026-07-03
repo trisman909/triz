@@ -1,5 +1,6 @@
 using System;
 using Lanternfall.Gameplay.Pooling;
+using Lanternfall.Gameplay.Presentation;
 using UnityEngine;
 
 namespace Lanternfall.Gameplay.Combat
@@ -60,9 +61,14 @@ namespace Lanternfall.Gameplay.Combat
             {
                 RaycastHit hit = _hits[selected];
                 if (hit.collider.GetComponentInParent<Health>() is Health target)
+                {
                     target.ApplyDamage(new DamageRequest(
                         _weapon.Damage, 0f, _weapon.CriticalChance, 2f, 0f,
                         _weapon.Element, UnityEngine.Random.value));
+                    GameplayPresentationSignals.RaiseCue(
+                        PresentationCue.Impact,
+                        hit.point);
+                }
                 if (hit.rigidbody != null)
                     hit.rigidbody.AddForce(_direction * _weapon.Knockback, ForceMode.Impulse);
                 Release();

@@ -14,6 +14,9 @@ using Lanternfall.Gameplay.Hub;
 using Lanternfall.Gameplay.Run;
 using Lanternfall.Gameplay.Progression;
 using Lanternfall.Gameplay.Radiance;
+using Lanternfall.Gameplay.Presentation;
+using Lanternfall.Gameplay.Accessibility;
+using Lanternfall.Gameplay.Save;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -204,8 +207,161 @@ namespace Lanternfall.Tests
             Assert.That(Time.timeScale, Is.EqualTo(0f));
             hud.SetPaused(false);
             Assert.That(Time.timeScale, Is.EqualTo(1f));
+            GameplayPresentationSignals.RaiseSubtitle(
+                "TEST", "Readable subtitle content.", 1f);
+            yield return null;
+            Assert.That(hud.SubtitleVisible, Is.True);
+            hud.DisplayRunSummary(new RunSummaryData(
+                true, 7UL, "class.test", 120f,
+                40, 50, 5, 100, 3, 1, 0));
+            Assert.That(hud.SummaryVisible, Is.True);
 
             Object.Destroy(player);
+            yield return null;
+        }
+
+        [UnityTest]
+        public IEnumerator PresentationDirectorsUseFixedProceduralBanks()
+        {
+            GameObject systems = new GameObject("Presentation Test");
+            GameplayAudioDirector audio =
+                systems.AddComponent<GameplayAudioDirector>();
+            CombatVfxDirector vfx =
+                systems.AddComponent<CombatVfxDirector>();
+            yield return null;
+
+            Assert.That(audio.GeneratedClipCount, Is.EqualTo(12));
+            Assert.That(vfx.PoolSize, Is.EqualTo(32));
+            foreach (Renderer renderer in
+                     systems.GetComponentsInChildren<Renderer>(true))
+                Assert.That(
+                    renderer.sharedMaterial.shader.name,
+                    Does.StartWith("Universal Render Pipeline/"));
+            GameplayPresentationSignals.RaiseCue(
+                PresentationCue.Ability, Vector3.zero);
+            yield return null;
+            Assert.That(audio.CueCount, Is.EqualTo(1));
+            Assert.That(vfx.ActivePulseCount, Is.EqualTo(1));
+
+            Object.Destroy(systems);
+            yield return null;
+        }
+
+        [UnityTest]
+        public IEnumerator TelegraphAppliesHighContrastAccessibilityColor()
+        {
+            var settings = new SettingsData
+            {
+                highContrastTelegraphs = true,
+                flashIntensity = .5f
+            };
+            AccessibilityRuntime.Apply(settings);
+            GameObject actor = new GameObject("Telegraph Test");
+            CombatTelegraph telegraph =
+                actor.AddComponent<CombatTelegraph>();
+            yield return null;
+            telegraph.Show(3f, 1f);
+            yield return null;
+
+            Assert.That(telegraph.Visible, Is.True);
+            Assert.That(telegraph.CurrentColor.r, Is.GreaterThan(.9f));
+            Assert.That(telegraph.CurrentColor.g, Is.GreaterThan(.8f));
+            Renderer telegraphRenderer =
+                actor.GetComponentInChildren<Renderer>(true);
+            Assert.That(
+                telegraphRenderer.sharedMaterial.shader.name,
+                Does.StartWith("Universal Render Pipeline/"));
+
+            AccessibilityRuntime.Apply(new SettingsData());
+            Object.Destroy(actor);
+            yield return null;
+        }
+
+        [UnityTest]
+        public IEnumerator FiveReviewChambersLoadWithUrpAccessiblePresentation()
+        {
+            string[] scenes =
+            {
+                "ArtReview_DrownedNarthex",
+                "ArtReview_SiltglassObservatory",
+                "ArtReview_EmberOssuary",
+                "ArtReview_GloamOrchard",
+                "ArtReview_StormvaultFoundry"
+            };
+            var accessibilitySettings = new SettingsData
+            {
+                subtitles = true,
+                reducedMotion = true,
+                highContrastTelegraphs = true,
+                flashIntensity = .35f,
+                cameraShake = 0f
+            };
+            foreach (string scene in scenes)
+            {
+                SceneManager.LoadScene(scene);
+                yield return null;
+                yield return null;
+                AccessibilityRuntime.Apply(accessibilitySettings);
+
+                Assert.That(
+                    Object.FindObjectsByType<ProductionAssetMarker>(
+                        FindObjectsSortMode.None).Length,
+                    Is.GreaterThanOrEqualTo(11),
+                    scene);
+                BiomeAmbientAudio ambience =
+                    Object.FindFirstObjectByType<BiomeAmbientAudio>();
+                Assert.That(ambience, Is.Not.Null, scene);
+                Assert.That(ambience.GeneratedClipCount, Is.EqualTo(2), scene);
+                ActorPresentation[] actors =
+                    Object.FindObjectsByType<ActorPresentation>(
+                        FindObjectsSortMode.None);
+                Assert.That(actors.Length, Is.GreaterThanOrEqualTo(2), scene);
+                foreach (ActorPresentation actor in actors)
+                    Assert.That(
+                        actor.OrnamentCount,
+                        Is.GreaterThan(0),
+                        scene);
+                foreach (Renderer renderer in
+                         Object.FindObjectsByType<Renderer>(
+                             FindObjectsSortMode.None))
+                {
+                    if (renderer.GetComponent<TextMesh>() != null) continue;
+                    foreach (Material material in renderer.sharedMaterials)
+                    {
+                        Assert.That(material, Is.Not.Null, scene);
+                        Assert.That(
+                            material.shader.name,
+                            Does.StartWith("Universal Render Pipeline/"),
+                            $"{scene}/{renderer.name}");
+                    }
+                }
+            }
+            Assert.That(AccessibilityRuntime.ReducedMotion, Is.True);
+            Assert.That(
+                AccessibilityRuntime.HighContrastTelegraphs,
+                Is.True);
+            Assert.That(AccessibilityRuntime.CameraShake, Is.Zero);
+            AccessibilityRuntime.Apply(new SettingsData());
+        }
+
+        [UnityTest]
+        public IEnumerator InputReaderExposesFullInteractiveRebindingSurface()
+        {
+            GameObject owner = new GameObject("Rebind Test");
+            PlayerInputReader input =
+                owner.AddComponent<PlayerInputReader>();
+            yield return null;
+
+            Assert.That(input.RebindSlotCount, Is.GreaterThanOrEqualTo(18));
+            Assert.That(
+                input.ApplyBindingOverride(
+                    "Dodge", 0, "<Keyboard>/k"),
+                Is.True);
+            Assert.That(input.SaveBindingOverrides(), Is.Not.Empty);
+            Assert.That(input.BindingDisplay(0), Is.Not.Empty);
+            input.ResetBindingOverrides();
+
+            Object.Destroy(owner);
             yield return null;
         }
 
@@ -290,6 +446,18 @@ namespace Lanternfall.Tests
                 Object.FindObjectsByType<BiomeHazard>(
                     FindObjectsSortMode.None).Length,
                 Is.EqualTo(2));
+            Assert.That(
+                Object.FindFirstObjectByType<GameplayAudioDirector>(),
+                Is.Not.Null);
+            Assert.That(
+                Object.FindFirstObjectByType<CombatVfxDirector>(),
+                Is.Not.Null);
+            Assert.That(
+                Object.FindFirstObjectByType<ActorPresentation>(),
+                Is.Not.Null);
+            Assert.That(
+                Object.FindFirstObjectByType<GameHud>().RouteText,
+                Does.Contain("ROOM 1/8"));
         }
     }
 }

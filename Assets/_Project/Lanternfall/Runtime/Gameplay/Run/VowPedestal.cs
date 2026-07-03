@@ -1,5 +1,6 @@
 using Lanternfall.Gameplay.Input;
 using Lanternfall.Gameplay.Hub;
+using Lanternfall.Gameplay.Presentation;
 using UnityEngine;
 
 namespace Lanternfall.Gameplay.Run
@@ -22,7 +23,15 @@ namespace Lanternfall.Gameplay.Run
             RunSession session =
                 HubController.Instance?.ActiveRun;
             if (session != null && session.ActivateVow(vow))
+            {
+                GameplayPresentationSignals.RaiseCue(
+                    PresentationCue.UiConfirm,
+                    transform.position);
+                GameplayPresentationSignals.RaiseSubtitle(
+                    "LANTERN",
+                    $"Vow accepted: {Title(vow)}.");
                 gameObject.SetActive(false);
+            }
         }
 
         private void OnTriggerEnter(Collider other) =>

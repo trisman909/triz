@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -23,6 +25,24 @@ namespace Lanternfall.Gameplay.Input
         private InputAction _reducedMotion;
         private InputAction _subtitles;
         private InputAction _highContrast;
+        private InputAction _selectBinding;
+        private InputAction _startRebind;
+        private InputAction _resetBindings;
+        private readonly List<RebindSlot> _rebindSlots =
+            new List<RebindSlot>(24);
+        private InputActionRebindingExtensions.RebindingOperation _operation;
+
+        private readonly struct RebindSlot
+        {
+            public RebindSlot(InputAction action, int bindingIndex)
+            {
+                Action = action;
+                BindingIndex = bindingIndex;
+            }
+
+            public InputAction Action { get; }
+            public int BindingIndex { get; }
+        }
 
         public Vector2 Move => _move?.ReadValue<Vector2>() ?? Vector2.zero;
         public bool SprintHeld => _sprint?.IsPressed() ?? false;
@@ -42,6 +62,14 @@ namespace Lanternfall.Gameplay.Input
             _subtitles?.WasPressedThisFrame() ?? false;
         public bool HighContrastPressedThisFrame =>
             _highContrast?.WasPressedThisFrame() ?? false;
+        public bool SelectBindingPressedThisFrame =>
+            _selectBinding?.WasPressedThisFrame() ?? false;
+        public bool StartRebindPressedThisFrame =>
+            _startRebind?.WasPressedThisFrame() ?? false;
+        public bool ResetBindingsPressedThisFrame =>
+            _resetBindings?.WasPressedThisFrame() ?? false;
+        public bool IsRebinding => _operation != null;
+        public int RebindSlotCount => _rebindSlots.Count;
 
         private void Awake()
         {
@@ -79,6 +107,16 @@ namespace Lanternfall.Gameplay.Input
             _highContrast = _map.AddAction(
                 "High Contrast", InputActionType.Button, "<Keyboard>/h");
             _highContrast.AddBinding("<Gamepad>/leftStickPress");
+            _selectBinding = _map.AddAction(
+                "Select Binding", InputActionType.Button, "<Keyboard>/tab");
+            _selectBinding.AddBinding("<Gamepad>/dpad/down");
+            _startRebind = _map.AddAction(
+                "Start Rebind", InputActionType.Button, "<Keyboard>/f2");
+            _startRebind.AddBinding("<Gamepad>/select");
+            _resetBindings = _map.AddAction(
+                "Reset Bindings", InputActionType.Button, "<Keyboard>/f3");
+            _resetBindings.AddBinding("<Gamepad>/dpad/up");
+            BuildRebindSlots();
         }
 
         public string SaveBindingOverrides() =>
@@ -101,8 +139,91 @@ namespace Lanternfall.Gameplay.Input
             return true;
         }
 
+        public string BindingDisplay(int slot)
+        {
+            if (slot < 0 || slot >= _rebindSlots.Count) return "NO BINDING";
+            RebindSlot selected = _rebindSlots[slot];
+            InputBinding binding = selected.Action.bindings[selected.BindingIndex];
+            string part = string.IsNullOrWhiteSpace(binding.name)
+                ? string.Empty
+                : $" {binding.name.ToUpperInvariant()}";
+            return $"{selected.Action.name.ToUpperInvariant()}{part}: " +
+                selected.Action.GetBindingDisplayString(
+                    selected.BindingIndex,
+                    InputBinding.DisplayStringOptions.DontOmitDevice);
+        }
+
+        public bool BeginInteractiveRebind(
+            int slot,
+            Action<bool, string> completed)
+        {
+            if (_operation != null || slot < 0 || slot >= _rebindSlots.Count)
+                return false;
+            RebindSlot selected = _rebindSlots[slot];
+            selected.Action.Disable();
+            _operation = selected.Action
+                .PerformInteractiveRebinding(selected.BindingIndex)
+                .WithCancelingThrough("<Keyboard>/escape")
+                .OnCancel(operation =>
+                    FinishRebind(selected.Action, operation, false, completed))
+                .OnComplete(operation =>
+                    FinishRebind(selected.Action, operation, true, completed));
+            _operation.Start();
+            return true;
+        }
+
+        public void ResetBindingOverrides()
+        {
+            if (_operation != null) _operation.Cancel();
+            _map?.RemoveAllBindingOverrides();
+        }
+
+        private void BuildRebindSlots()
+        {
+            string[] gameplayActions =
+            {
+                "Move", "Sprint", "Dodge", "Aim",
+                "Primary Fire", "Ability", "Interact", "Pause"
+            };
+            foreach (string actionName in gameplayActions)
+            {
+                InputAction action = _map.FindAction(actionName);
+                if (action == null) continue;
+                for (int index = 0; index < action.bindings.Count; index++)
+                {
+                    InputBinding binding = action.bindings[index];
+                    if (!binding.isComposite)
+                        _rebindSlots.Add(new RebindSlot(action, index));
+                }
+            }
+        }
+
+        private void FinishRebind(
+            InputAction action,
+            InputActionRebindingExtensions.RebindingOperation operation,
+            bool success,
+            Action<bool, string> completed)
+        {
+            operation.Dispose();
+            _operation = null;
+            action.Enable();
+            completed?.Invoke(success, success
+                ? "BINDING SAVED"
+                : "REBIND CANCELED");
+        }
+
         private void OnEnable() => _map?.Enable();
-        private void OnDisable() => _map?.Disable();
-        private void OnDestroy() => _map?.Dispose();
+        private void OnDisable()
+        {
+            if (_operation != null) _operation.Cancel();
+            _map?.Disable();
+        }
+
+        private void OnDestroy()
+        {
+            _operation?.Dispose();
+            _operation = null;
+            _map?.Dispose();
+        }
     }
 }

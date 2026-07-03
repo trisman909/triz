@@ -1,0 +1,145 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dabab56edd36661428da8943bed00969, type: 3}
+  m_Name: LanternfallProductionArt
+  m_EditorClassIdentifier: Lanternfall.Gameplay::Lanternfall.Gameplay.Presentation.ProductionArtCatalog
+  biomes:
+  - stableId: biome.drowned_narthex
+    displayName: The Drowned Narthex
+    environmentalStory: A drowned procession left its bells above the tide.
+    surfaceMaterial: {fileID: 2100000, guid: 9a9b4be9d91d9dc48a3ed79314eb0d3e, type: 2}
+    structuralMaterial: {fileID: 2100000, guid: 27d0f0929081c12489725981c7fb284a, type: 2}
+    accentMaterial: {fileID: 2100000, guid: 80d326f1a4477d24c962606acacc7051, type: 2}
+    emissiveMaterial: {fileID: 2100000, guid: 4471e1100f26f7e408a5d226f6da7a2e, type: 2}
+    hazardMaterial: {fileID: 2100000, guid: 1451b3b3446bb5b45861c1aff4f25e8d, type: 2}
+    modularPrefabs:
+    - {fileID: 6631644864997428661, guid: a997b29e38b5017489101f2f86cb1ce9, type: 3}
+    - {fileID: 1304384240667601755, guid: 54d183b4bea51c542b32cc2c527b17d3, type: 3}
+    - {fileID: 2216672010658895072, guid: 3cfc38fb530e8e745a8787f7318b23a8, type: 3}
+    - {fileID: 2930987998659575466, guid: 1c542764238cac1488b4237f3033c2bb, type: 3}
+    - {fileID: 4817558792703835748, guid: 98a9d41bc5ef26a4dbff2a4ce00ded6a, type: 3}
+    - {fileID: 2638816953420598641, guid: 946caefc97c2999409caee8e0a1f4f55, type: 3}
+    - {fileID: 1117460050591097060, guid: 5cfedc3206bece644b8d8e4a13451e20, type: 3}
+    - {fileID: 2976192657481075983, guid: c7cecd67b24c4c94288be74974a8df75, type: 3}
+    - {fileID: 8050976713113568543, guid: 4b1f1df7e2fea5e4eb8bcfef90b976a7, type: 3}
+    - {fileID: 5565692531832630297, guid: 31ff635b663e83e409750c0d25ceb05e, type: 3}
+    - {fileID: 824122141446213821, guid: b3e615bec05db6846aee74ff18da3cea, type: 3}
+    fogColor: {r: 0.035, g: 0.12, b: 0.14, a: 1}
+    ambientColor: {r: 0.13800001, g: 0.28599998, b: 0.292, a: 1}
+    keyLightColor: {r: 0.7975, g: 0.9775, b: 0.955, a: 1}
+    particleColor: {r: 0.55, g: 0.95, b: 0.9, a: 1}
+    fogDensity: 0.018
+    keyLightIntensity: 1.25
+  - stableId: biome.siltglass_observatory
+    displayName: Siltglass Observatory
+    environmentalStory: A broken orrery still maps stars beneath the silt.
+    surfaceMaterial: {fileID: 2100000, guid: 61761b3a77c8c28479e015aaf1042556, type: 2}
+    structuralMaterial: {fileID: 2100000, guid: 73c15c197d909dd42a5b5a9530c2162d, type: 2}
+    accentMaterial: {fileID: 2100000, guid: c74b656a5fbc4b74fa47dc1b6e90b3bc, type: 2}
+    emissiveMaterial: {fileID: 2100000, guid: 67c1a36f71381a74c8c23a835dd67187, type: 2}
+    hazardMaterial: {fileID: 2100000, guid: 574165cf9c89ad34b8176db736a93f4b, type: 2}
+    modularPrefabs:
+    - {fileID: 7199049675849498702, guid: 79d7af5aea8f0e442a04fa8cc0e364d7, type: 3}
+    - {fileID: 4034170323896879434, guid: 5faccfa2934a7024cb4b43d8c7132b36, type: 3}
+    - {fileID: 688387490764232896, guid: d37df49eaa91e8a428f2d3bc7c815d03, type: 3}
+    - {fileID: 7909404045815061842, guid: 925a2f5c5235931468aa85cc94af7558, type: 3}
+    - {fileID: 4200801058145586692, guid: 05ac3452cd40ed846801a276a5d36a54, type: 3}
+    - {fileID: 2065252016740243281, guid: 7c4544993f29e4046a79ea28ab4c6814, type: 3}
+    - {fileID: 1624243445350084203, guid: d4fb3cdeb441c6141959d1779f557cb9, type: 3}
+    - {fileID: 9181256419622225331, guid: 1902b12d4dc20e9449d480f7f393ba55, type: 3}
+    - {fileID: 7868393552432655859, guid: b6af0b7f8327c4a41b16c0bae4d0b09f, type: 3}
+    - {fileID: 7449874946978533544, guid: 3afc3bfa9e939bb48b65f9236260d874, type: 3}
+    - {fileID: 4360818522369152759, guid: a4633200425a6bd41806c2abd622fe05, type: 3}
+    fogColor: {r: 0.08, g: 0.055, b: 0.16, a: 1}
+    ambientColor: {r: 0.228, g: 0.12799999, b: 0.328, a: 1}
+    keyLightColor: {r: 0.91899997, g: 0.739, b: 1, a: 1}
+    particleColor: {r: 0.82, g: 0.42, b: 1, a: 1}
+    fogDensity: 0.019499999
+    keyLightIntensity: 1.33
+  - stableId: biome.ember_ossuary
+    displayName: The Ember Ossuary
+    environmentalStory: The keepers fed names and bones into the final furnace.
+    surfaceMaterial: {fileID: 2100000, guid: e3dde7e7e34e2694991ec3b6f5a9e285, type: 2}
+    structuralMaterial: {fileID: 2100000, guid: 36901697baf6b66458fe91d55a070e4e, type: 2}
+    accentMaterial: {fileID: 2100000, guid: 72b9c9ee9a9a5d84fb57d8928a1cd2bd, type: 2}
+    emissiveMaterial: {fileID: 2100000, guid: e82e09d9b5a5bd64ab42209883a00da5, type: 2}
+    hazardMaterial: {fileID: 2100000, guid: 4f7c2662be9b50f499c17fa8698bbb60, type: 2}
+    modularPrefabs:
+    - {fileID: 3617086098633158997, guid: 9e2ebce4b7518eb4ba50ca9a8b0a5e39, type: 3}
+    - {fileID: 8900736495492502113, guid: c92c2fac4729d004282f5ff340c744a2, type: 3}
+    - {fileID: 5571600402841151495, guid: 3c6d9f9564660934fa577f7f902bc1cf, type: 3}
+    - {fileID: 8204677568071838323, guid: 6abb0fb214a05e44a9323e7ab53ca9be, type: 3}
+    - {fileID: 6243993537928807386, guid: e92607d334b80e1478d7b6ddfeb81b32, type: 3}
+    - {fileID: 2911354393648361070, guid: 3eb15a39777917c4e9ef448390246eeb, type: 3}
+    - {fileID: 788050316233952634, guid: 89123bbfcd4ee6b4b95634acb2f4eec3, type: 3}
+    - {fileID: 5575544979103360162, guid: 7448785e34c75c14bb3083bae3215e47, type: 3}
+    - {fileID: 2196582594767378167, guid: 5eed93dfdd1f8ad49b962033d7e780ec, type: 3}
+    - {fileID: 6416343618044733271, guid: 199653dc38c106949b3eda2ac4d11926, type: 3}
+    - {fileID: 6301123279036722954, guid: 3e7177d47b4316e4ba05540d62ec7ff4, type: 3}
+    fogColor: {r: 0.16, g: 0.045, b: 0.018, a: 1}
+    ambientColor: {r: 0.328, g: 0.092, b: 0.0234, a: 1}
+    keyLightColor: {r: 1, g: 0.676, b: 0.57025003, a: 1}
+    particleColor: {r: 1, g: 0.28, b: 0.045, a: 1}
+    fogDensity: 0.021
+    keyLightIntensity: 1.41
+  - stableId: biome.gloam_orchard
+    displayName: The Gloam Orchard
+    environmentalStory: Roots learned the shape of every pilgrim who vanished here.
+    surfaceMaterial: {fileID: 2100000, guid: 73cf13bd2278e05479ea6bed6b16d4b5, type: 2}
+    structuralMaterial: {fileID: 2100000, guid: 4c70232320675364d8ee2914668b18e8, type: 2}
+    accentMaterial: {fileID: 2100000, guid: 0de85203fcbecf340b7ee1ebb73df793, type: 2}
+    emissiveMaterial: {fileID: 2100000, guid: 3582c55552002d4418f5b68326764584, type: 2}
+    hazardMaterial: {fileID: 2100000, guid: 56751ca739aefbd4db2ec463ed2818e4, type: 2}
+    modularPrefabs:
+    - {fileID: 1918678157290051930, guid: a3dca93f5c15cfe4e996f056ee1bab7c, type: 3}
+    - {fileID: 8099489386691837726, guid: 4b145a82c316a0143aa7a0c24d468e35, type: 3}
+    - {fileID: 4373542604098495904, guid: ae9c0fc966ee77445a0d56d9b6fc102e, type: 3}
+    - {fileID: 1359495777170557233, guid: 31736f22d76b8824aa8bb3c464035d25, type: 3}
+    - {fileID: 6239249709137505091, guid: 199cc5be0a6668a478dcb9180fd2fb9c, type: 3}
+    - {fileID: 124767003742363782, guid: 6f6c16f5787ac984c88176fefe2a07c3, type: 3}
+    - {fileID: 8326044486488110474, guid: a1b029e8c349ac943a906689ff523f08, type: 3}
+    - {fileID: 3228862575809248048, guid: 9588bdc386c3eb349a1a20365fc44eff, type: 3}
+    - {fileID: 988014386531710722, guid: c0e1d2dc6254007458d643e09c7af653, type: 3}
+    - {fileID: 1192488102262026261, guid: 512343fa3c0c16749848106d3c57b017, type: 3}
+    - {fileID: 2069263323210132424, guid: a99c8eea878d2d9419d6ddadad813f40, type: 3}
+    fogColor: {r: 0.035, g: 0.1, b: 0.055, a: 1}
+    ambientColor: {r: 0.104, g: 0.28, b: 0.14, a: 1}
+    keyLightColor: {r: 0.721, g: 1, b: 0.766, a: 1}
+    particleColor: {r: 0.38, g: 1, b: 0.48, a: 1}
+    fogDensity: 0.022499999
+    keyLightIntensity: 1.49
+  - stableId: biome.stormvault_foundry
+    displayName: Stormvault Foundry
+    environmentalStory: A sealed dynamo keeps working for masters long gone.
+    surfaceMaterial: {fileID: 2100000, guid: 67ff69859750f884fbf00e8540f9827c, type: 2}
+    structuralMaterial: {fileID: 2100000, guid: c0717600050ff2b45ad98af388dd9c01, type: 2}
+    accentMaterial: {fileID: 2100000, guid: 7ebc28a16a719e848b6f38dcaa367c56, type: 2}
+    emissiveMaterial: {fileID: 2100000, guid: 0d272ebfe1a2461438ae0cfa2e6e0997, type: 2}
+    hazardMaterial: {fileID: 2100000, guid: 59fb05766715b074bab1ca16d5f315f5, type: 2}
+    modularPrefabs:
+    - {fileID: 8950537442891147412, guid: fa26637bf50fff04cb2efd705736bc74, type: 3}
+    - {fileID: 694592508484737306, guid: 465553b6eb136ef49b4932699689996c, type: 3}
+    - {fileID: 1276487607456023232, guid: dc94b8a4a16401b4aaac5eea0e7decb1, type: 3}
+    - {fileID: 6778107000687398769, guid: c830b9d33cead7f4385754c406a71255, type: 3}
+    - {fileID: 3841631460305813262, guid: 0d3d05a94186a2a4d8fa7113fb72dd51, type: 3}
+    - {fileID: 7475840747948733022, guid: a7a9c7d9754f91d4cb6eafdcab92c90f, type: 3}
+    - {fileID: 6676710133173078524, guid: db8b88a7a587095419394b89e631bbed, type: 3}
+    - {fileID: 8904866540183820343, guid: c49bba452f883a6498cedfa3662b993c, type: 3}
+    - {fileID: 2115112925419803640, guid: 3616b6d6a5bcaad429eaa41a7beb7f07, type: 3}
+    - {fileID: 4886290656939927981, guid: ea372e8592911274abd0fa4c1d9de418, type: 3}
+    - {fileID: 6644270284904084315, guid: 407fc125c37335d45bfb8dfb22597d52, type: 3}
+    fogColor: {r: 0.035, g: 0.07, b: 0.13, a: 1}
+    ambientColor: {r: 0.084, g: 0.206, b: 0.304, a: 1}
+    keyLightColor: {r: 0.676, g: 0.8875, b: 1, a: 1}
+    particleColor: {r: 0.28, g: 0.75, b: 1, a: 1}
+    fogDensity: 0.024
+    keyLightIntensity: 1.5699999

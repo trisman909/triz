@@ -60,6 +60,11 @@ namespace Lanternfall.Gameplay.Run
         public int Gold { get; set; }
         public int EnemiesDefeated { get; set; }
         public int BossesDefeated { get; set; }
+        public int RoomsCleared { get; set; }
+        public int VowsFulfilled { get; private set; }
+        public int VowsBroken { get; private set; }
+        public int OutsideRadianceKills { get; private set; }
+        public float DamageTaken { get; private set; }
         public float OutsideRewardMultiplier { get; set; } = 1f;
         public VowKind? ActiveVow { get; private set; }
         public VowOutcome LastVowOutcome { get; private set; }
@@ -105,12 +110,20 @@ namespace Lanternfall.Gameplay.Run
             _outsideKillsThisRoom = 0;
         }
 
-        public void RecordDamage(float amount) =>
-            _damageThisRoom += Math.Max(0f, amount);
+        public void RecordDamage(float amount)
+        {
+            float accepted = Math.Max(0f, amount);
+            _damageThisRoom += accepted;
+            DamageTaken += accepted;
+        }
 
         public void RecordKill(bool inRadiance)
         {
-            if (!inRadiance) _outsideKillsThisRoom++;
+            if (!inRadiance)
+            {
+                _outsideKillsThisRoom++;
+                OutsideRadianceKills++;
+            }
         }
 
         public VowOutcome ResolveVowForCombatRoom()
@@ -132,6 +145,8 @@ namespace Lanternfall.Gameplay.Run
             LastVowOutcome = fulfilled
                 ? VowOutcome.Fulfilled
                 : VowOutcome.Broken;
+            if (fulfilled) VowsFulfilled++;
+            else VowsBroken++;
             ActiveVow = null;
             return LastVowOutcome;
         }

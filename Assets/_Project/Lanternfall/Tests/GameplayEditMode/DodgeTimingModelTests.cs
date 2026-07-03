@@ -225,6 +225,44 @@ namespace Lanternfall.Tests
             Assert.That(tracker.AddProgress(achievement), Is.False);
             Assert.That(save.achievements, Is.EqualTo(
                 new[] { "achievement.test" }));
+            Assert.That(
+                new AchievementTracker(save).Progress("achievement.test"),
+                Is.EqualTo(2));
+        }
+
+        [Test]
+        public void AllOneHundredAchievementsHaveReachablePersistentMetrics()
+        {
+            AchievementCatalog catalog =
+                AssetDatabase.LoadAssetAtPath<AchievementCatalog>(
+                    "Assets/_Project/Lanternfall/Settings/" +
+                    "LanternfallAchievementCatalog.asset");
+            var maximumByMetric =
+                new System.Collections.Generic.Dictionary<
+                    AchievementMetric, int>();
+            foreach (AchievementDefinition definition in catalog.Entries)
+            {
+                Assert.That(definition.Metric, Is.Not.EqualTo(
+                    AchievementMetric.None));
+                maximumByMetric.TryGetValue(
+                    definition.Metric, out int current);
+                maximumByMetric[definition.Metric] =
+                    Mathf.Max(current, definition.Target);
+            }
+
+            var save = new SaveData();
+            var tracker = new AchievementTracker(save);
+            foreach (System.Collections.Generic.KeyValuePair<
+                     AchievementMetric, int> metric in maximumByMetric)
+                tracker.Report(catalog, metric.Key, metric.Value);
+
+            Assert.That(save.achievements.Count, Is.EqualTo(100));
+            Assert.That(save.achievementProgress.Count, Is.EqualTo(100));
+            var restored = new AchievementTracker(save);
+            foreach (AchievementDefinition definition in catalog.Entries)
+                Assert.That(
+                    restored.Progress(definition.StableId),
+                    Is.GreaterThanOrEqualTo(definition.Target));
         }
 
         [Test]
@@ -365,6 +403,24 @@ namespace Lanternfall.Tests
                 Is.EqualTo(VowOutcome.Fulfilled));
             Assert.That(session.CurrentRewardMultiplier, Is.EqualTo(1.5f));
             Assert.That(session.ConsumeEncounterConsequence(), Is.EqualTo(-1));
+            Assert.That(session.VowsFulfilled, Is.EqualTo(1));
+            Assert.That(session.VowsBroken, Is.EqualTo(1));
+            Assert.That(session.OutsideRadianceKills, Is.EqualTo(3));
+            Assert.That(session.DamageTaken, Is.EqualTo(1f));
+        }
+
+        [Test]
+        public void RunSummaryPreservesAuthoritativeResultFields()
+        {
+            var summary = new RunSummaryData(
+                true, 42UL, "class.cantor", 1532f,
+                40, 81, 5, 220, 3, 2, 1);
+
+            Assert.That(summary.Victory, Is.True);
+            Assert.That(summary.Seed, Is.EqualTo(42UL));
+            Assert.That(summary.RoomsCleared, Is.EqualTo(40));
+            Assert.That(summary.GuardiansDefeated, Is.EqualTo(5));
+            Assert.That(summary.VowsFulfilled, Is.EqualTo(2));
         }
 
         [Test]

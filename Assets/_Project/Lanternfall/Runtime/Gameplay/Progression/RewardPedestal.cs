@@ -1,4 +1,6 @@
 using Lanternfall.Gameplay.Input;
+using Lanternfall.Gameplay.Hub;
+using Lanternfall.Gameplay.Presentation;
 using UnityEngine;
 
 namespace Lanternfall.Gameplay.Progression
@@ -24,6 +26,14 @@ namespace Lanternfall.Gameplay.Progression
             if (inventory == null || relic == null || !inventory.TryAdd(relic))
                 return false;
             gameObject.SetActive(false);
+            HubController.Instance?.ReportAchievement(
+                AchievementMetric.EchoesCollected);
+            GameplayPresentationSignals.RaiseCue(
+                PresentationCue.EchoCollected,
+                transform.position);
+            GameplayPresentationSignals.RaiseSubtitle(
+                "LANTERN",
+                $"{relic.DisplayName} joins the Echo chain.");
             return true;
         }
 

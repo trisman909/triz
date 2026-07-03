@@ -1,4 +1,7 @@
 using Lanternfall.Gameplay.Input;
+using Lanternfall.Gameplay.Hub;
+using Lanternfall.Gameplay.Progression;
+using Lanternfall.Gameplay.Presentation;
 using UnityEngine;
 
 namespace Lanternfall.Gameplay.Player
@@ -18,6 +21,7 @@ namespace Lanternfall.Gameplay.Player
         private DodgeTimingModel _dodge;
         private Vector3 _velocity;
         private Vector3 _dodgeDirection = Vector3.forward;
+        private float _footstepTimer;
 
         public bool IsInvulnerable => _dodge != null && _dodge.IsInvulnerable;
 
@@ -43,7 +47,14 @@ namespace Lanternfall.Gameplay.Player
             if (_dodge == null) _dodge = new DodgeTimingModel(0.32f, 0.20f, 0.72f);
             Vector3 desired = CameraRelative(moveInput);
             if (dodgePressed && _dodge.TryStart())
+            {
                 _dodgeDirection = desired.sqrMagnitude > 0.01f ? desired.normalized : transform.forward;
+                HubController.Instance?.ReportAchievement(
+                    AchievementMetric.DodgesUsed);
+                GameplayPresentationSignals.RaiseCue(
+                    PresentationCue.Dodge,
+                    transform.position);
+            }
 
             _dodge.Tick(deltaTime);
             Vector3 planar;
@@ -66,6 +77,15 @@ namespace Lanternfall.Gameplay.Player
             _velocity.z = planar.z;
             _velocity.y = _controller.isGrounded ? -2f : _velocity.y + gravity * deltaTime;
             _controller.Move(_velocity * deltaTime);
+            _footstepTimer -= deltaTime;
+            if (!_dodge.IsDodging && desired.sqrMagnitude > .1f &&
+                _controller.isGrounded && _footstepTimer <= 0f)
+            {
+                _footstepTimer = sprint ? .24f : .36f;
+                GameplayPresentationSignals.RaiseCue(
+                    PresentationCue.Footstep,
+                    transform.position);
+            }
 
             if (planar.sqrMagnitude > 0.05f)
             {

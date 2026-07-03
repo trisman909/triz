@@ -1,5 +1,6 @@
 using Lanternfall.Gameplay.Input;
 using Lanternfall.Gameplay.Progression;
+using Lanternfall.Gameplay.Presentation;
 using UnityEngine;
 
 namespace Lanternfall.Gameplay.Hub
@@ -24,9 +25,16 @@ namespace Lanternfall.Gameplay.Hub
 
         private void Update()
         {
-            if (_visitor != null && _visitor.InteractPressedThisFrame)
-                HubController.Instance?.AdvanceQuest(
-                    definition, questSteps, completionUnlock);
+            if (_visitor == null || !_visitor.InteractPressedThisFrame) return;
+            if (HubController.Instance?.AdvanceQuest(
+                    definition, questSteps, completionUnlock) != true) return;
+            GameplayPresentationSignals.RaiseCue(
+                PresentationCue.UiConfirm,
+                transform.position);
+            GameplayPresentationSignals.RaiseSubtitle(
+                definition.DisplayName,
+                definition.Greeting,
+                4f);
         }
 
         private void OnTriggerEnter(Collider other) =>
@@ -39,4 +47,3 @@ namespace Lanternfall.Gameplay.Hub
         }
     }
 }
-

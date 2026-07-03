@@ -1,5 +1,6 @@
 using System;
 using Lanternfall.Gameplay.Combat;
+using Lanternfall.Gameplay.Presentation;
 using UnityEngine;
 
 namespace Lanternfall.Gameplay.Bosses
@@ -16,6 +17,9 @@ namespace Lanternfall.Gameplay.Bosses
         private Health _health;
         private Renderer _renderer;
         private BossVisualIdentity _identity;
+        private ActorPresentation _presentation;
+        private CombatTelegraph _telegraph;
+        private GuardianSpectaclePresenter _spectacle;
         private MaterialPropertyBlock _properties;
         private BossPhaseModel _phases;
         private State _state;
@@ -35,6 +39,12 @@ namespace Lanternfall.Gameplay.Bosses
             _renderer = GetComponentInChildren<Renderer>();
             _identity = GetComponent<BossVisualIdentity>() ??
                 gameObject.AddComponent<BossVisualIdentity>();
+            _presentation = GetComponent<ActorPresentation>() ??
+                gameObject.AddComponent<ActorPresentation>();
+            _telegraph = GetComponent<CombatTelegraph>() ??
+                gameObject.AddComponent<CombatTelegraph>();
+            _spectacle = GetComponent<GuardianSpectaclePresenter>() ??
+                gameObject.AddComponent<GuardianSpectaclePresenter>();
             _properties = new MaterialPropertyBlock();
             _phases = new BossPhaseModel();
             _health.Changed += OnHealthChanged;
@@ -107,10 +117,20 @@ namespace Lanternfall.Gameplay.Bosses
         private void ApplyDefinition()
         {
             _identity.Configure(definition);
+            _presentation.Configure(
+                _identity.BaseColor,
+                _identity.ScaleMultiplier,
+                true);
+            _spectacle.Configure(
+                definition.Pattern,
+                _identity.BaseColor);
             _health.Configure(definition.Health, definition.Armor, false);
             transform.localScale =
                 Vector3.one * (_identity.ScaleMultiplier * .2f);
             BossEncounterSignals.RaiseIntro(definition.DisplayName);
+            GameplayPresentationSignals.RaiseSubtitle(
+                "GUARDIAN",
+                $"{definition.DisplayName} awakens.");
             ChangeState(State.Intro, definition.IntroDuration);
         }
 
@@ -129,6 +149,7 @@ namespace Lanternfall.Gameplay.Bosses
 
         private void ExecutePattern(float distance)
         {
+            _spectacle.Play(Phase);
             float damage = definition.AttackDamage * (1f + (Phase - 1) * .3f) *
                 (Enraged ? 1.25f : 1f);
             switch (definition.Pattern)
@@ -195,6 +216,12 @@ namespace Lanternfall.Gameplay.Bosses
             _state = State.Dying;
             _deathProgress = 0f;
             BossEncounterSignals.RaiseDefeated(definition.StableId);
+            GameplayPresentationSignals.RaiseCue(
+                PresentationCue.GuardianDeath,
+                transform.position);
+            GameplayPresentationSignals.RaiseSubtitle(
+                "LANTERN",
+                "A guardian memory returns to the flame.");
         }
 
         private float PreferredRange()
@@ -216,6 +243,17 @@ namespace Lanternfall.Gameplay.Bosses
         {
             _state = state;
             _timer = duration;
+            if (state == State.Telegraph)
+            {
+                _telegraph.Show(PreferredRange(), duration);
+                GameplayPresentationSignals.RaiseCue(
+                    PresentationCue.GuardianTelegraph,
+                    transform.position);
+            }
+            else
+            {
+                _telegraph.Hide();
+            }
             if (_renderer == null) return;
             _renderer.GetPropertyBlock(_properties);
             Color color = state == State.Telegraph

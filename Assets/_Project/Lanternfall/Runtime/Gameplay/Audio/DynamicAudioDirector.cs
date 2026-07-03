@@ -1,6 +1,7 @@
 using System.Collections;
 using Lanternfall.Gameplay.Bosses;
 using Lanternfall.Gameplay.Accessibility;
+using Lanternfall.Gameplay.Presentation;
 using UnityEngine;
 
 namespace Lanternfall.Gameplay.Audio
@@ -57,8 +58,9 @@ namespace Lanternfall.Gameplay.Audio
 
         public void PlayUiConfirm()
         {
-            AudioSource.PlayClipAtPoint(
-                Tone("UI Confirm", 660f, .08f, .12f), transform.position, .5f);
+            GameplayPresentationSignals.RaiseCue(
+                PresentationCue.UiConfirm,
+                transform.position);
         }
 
         private void OnBossIntro(string _) => SetState(MusicState.Boss);
@@ -132,22 +134,5 @@ namespace Lanternfall.Gameplay.Audio
             return clip;
         }
 
-        private static AudioClip Tone(
-            string clipName, float frequency, float duration, float amplitude)
-        {
-            const int sampleRate = 22050;
-            float[] samples = new float[(int)(sampleRate * duration)];
-            for (int index = 0; index < samples.Length; index++)
-            {
-                float time = index / (float)sampleRate;
-                float decay = 1f - index / (float)samples.Length;
-                samples[index] = Mathf.Sin(time * frequency * Mathf.PI * 2f) *
-                    amplitude * decay;
-            }
-            AudioClip clip = AudioClip.Create(
-                clipName, samples.Length, 1, sampleRate, false);
-            clip.SetData(samples, 0);
-            return clip;
-        }
     }
 }

@@ -13,6 +13,7 @@ using Lanternfall.Gameplay.Radiance;
 using Lanternfall.Gameplay.Run;
 using Lanternfall.Gameplay.Localization;
 using Lanternfall.Gameplay.Performance;
+using Lanternfall.Gameplay.Presentation;
 using Lanternfall.Gameplay.UI;
 using Lanternfall.Gameplay.World;
 using UnityEditor;
@@ -103,7 +104,7 @@ namespace Lanternfall.Editor
                 CreateClassRoster(weapons, abilities);
             ContentCatalog contentCatalog =
                 CreateContentCatalog(classes, biomes, enemies, bosses, relics);
-            CreateAchievementCatalog();
+            AchievementCatalog achievementCatalog = CreateAchievementCatalog();
             CreateBalanceProfile();
             CreateLocalizationCatalog();
             CreateExperienceSystems();
@@ -209,12 +210,16 @@ namespace Lanternfall.Editor
                 enemies[0], enemyPrefab, bosses, bossPrefab, firstBiome);
             BuildHub(
                 floorMaterial, wallMaterial, playerMaterial,
-                emberMaterial, relicMaterial, npcs, classes, contentCatalog);
+                emberMaterial, relicMaterial, npcs, classes, contentCatalog,
+                achievementCatalog);
             BuildRunChamber(
                 floorMaterial, wallMaterial, playerMaterial, emberMaterial,
                 cinderStaff, radiantBurst, projectilePrefab,
                 enemyPrefab, bossPrefab, contentCatalog);
-            EditorBuildSettings.scenes = new[]
+            string[] artReviewScenes =
+                ProductionArtBuilder.BuildRepresentativePass();
+            var buildScenes = new System.Collections.Generic.List<
+                EditorBuildSettingsScene>
             {
                 new EditorBuildSettingsScene(HubScenePath, true),
                 new EditorBuildSettingsScene(IntegratedRunScenePath, true),
@@ -222,6 +227,9 @@ namespace Lanternfall.Editor
                 new EditorBuildSettingsScene(RunScenePath, true),
                 new EditorBuildSettingsScene(VerticalSliceScenePath, true)
             };
+            foreach (string artScene in artReviewScenes)
+                buildScenes.Add(new EditorBuildSettingsScene(artScene, true));
+            EditorBuildSettings.scenes = buildScenes.ToArray();
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             ReleaseReadinessValidator.ValidateOrThrow();
@@ -307,6 +315,8 @@ namespace Lanternfall.Editor
             systems.AddComponent<LocalizationBootstrap>().Configure(catalog, "en");
             systems.AddComponent<FrameBudgetMonitor>();
             systems.AddComponent<ReleaseSmokeProbe>();
+            systems.AddComponent<GameplayAudioDirector>();
+            systems.AddComponent<CombatVfxDirector>();
         }
 
         private static BalanceProfile CreateBalanceProfile()
@@ -475,11 +485,56 @@ namespace Lanternfall.Editor
                 destination[cursor++] = new AchievementDefinition(
                     $"achievement.{prefix}.{index + 1:00}",
                     titles[index],
-                    $"Complete the {titles[index].ToLowerInvariant()} challenge.",
+                    $"Advance the {titles[index].ToLowerInvariant()} challenge.",
                     category,
+                    AchievementMetricFor(category, index),
                     target,
                     hidden);
             }
+        }
+
+        private static AchievementMetric AchievementMetricFor(
+            AchievementCategory category,
+            int index)
+        {
+            AchievementMetric[] progression =
+            {
+                AchievementMetric.RunsStarted,
+                AchievementMetric.RunsCompleted,
+                AchievementMetric.EchoesCollected,
+                AchievementMetric.BiomesReached,
+                AchievementMetric.ClassesSelected,
+                AchievementMetric.QuestsAdvanced,
+                AchievementMetric.GoldEarned,
+                AchievementMetric.GuardiansDefeated
+            };
+            AchievementMetric[] exploration =
+            {
+                AchievementMetric.RoomsCleared,
+                AchievementMetric.BiomesReached,
+                AchievementMetric.SecretsVisited,
+                AchievementMetric.HealingRooms,
+                AchievementMetric.TreasureRooms,
+                AchievementMetric.ChallengeRooms,
+                AchievementMetric.UniqueEnemies,
+                AchievementMetric.UniqueGuardians
+            };
+            AchievementMetric[] mastery =
+            {
+                AchievementMetric.EnemiesDefeated,
+                AchievementMetric.GuardiansDefeated,
+                AchievementMetric.VowsFulfilled,
+                AchievementMetric.OutsideRadianceKills,
+                AchievementMetric.ShotsFired,
+                AchievementMetric.AbilitiesUsed,
+                AchievementMetric.DodgesUsed,
+                AchievementMetric.RunsCompleted
+            };
+            AchievementMetric[] source =
+                category == AchievementCategory.Progression ? progression :
+                category == AchievementCategory.Exploration ? exploration :
+                mastery;
+            return source[index % source.Length];
         }
 
         private static WeaponDefinition CreateWeapon(
@@ -1131,7 +1186,8 @@ namespace Lanternfall.Editor
             Material portalMaterial,
             NpcDefinition[] npcs,
             CharacterClassDefinition[] classes,
-            ContentCatalog contentCatalog)
+            ContentCatalog contentCatalog,
+            AchievementCatalog achievementCatalog)
         {
             Scene scene = EditorSceneManager.NewScene(
                 NewSceneSetup.EmptyScene,
@@ -1147,7 +1203,8 @@ namespace Lanternfall.Editor
                 new Vector3(1f, 5f, 22f), wallMaterial);
 
             GameObject systems = new GameObject("Hub Systems");
-            systems.AddComponent<HubController>().Configure(contentCatalog);
+            systems.AddComponent<HubController>().Configure(
+                contentCatalog, achievementCatalog);
 
             GameObject player = GameObject.CreatePrimitive(PrimitiveType.Capsule);
             player.name = "Bearer";

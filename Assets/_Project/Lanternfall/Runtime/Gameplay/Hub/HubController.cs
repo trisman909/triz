@@ -13,13 +13,18 @@ namespace Lanternfall.Gameplay.Hub
     public sealed class HubController : MonoBehaviour
     {
         [SerializeField] private ContentCatalog contentCatalog;
+        [SerializeField] private AchievementCatalog achievementCatalog;
         private SaveService _saves;
+        private AchievementTracker _achievements;
         public static HubController Instance { get; private set; }
         public SaveData Profile { get; private set; }
         public MetaProgression Progression { get; private set; }
         public QuestJournal Quests { get; private set; }
         public RunSession ActiveRun { get; private set; }
+        public RunSummaryData PendingRunSummary { get; private set; }
         public event Action<string> ClassSelected;
+        public event Action<AchievementDefinition> AchievementUnlocked;
+        public event Action<RunSummaryData> RunSummaryAvailable;
         public string SelectedClassId =>
             Profile?.selectedClassId ?? "class.vanguard";
         public string SelectedClassName
@@ -49,6 +54,7 @@ namespace Lanternfall.Gameplay.Hub
             Profile = _saves.Load();
             Progression = new MetaProgression(Profile);
             Quests = new QuestJournal(Profile);
+            _achievements = new AchievementTracker(Profile);
             AccessibilityRuntime.Apply(Profile.settings);
         }
 
@@ -67,6 +73,14 @@ namespace Lanternfall.Gameplay.Hub
 
         public void Configure(ContentCatalog catalog) => contentCatalog = catalog;
 
+        public void Configure(
+            ContentCatalog catalog,
+            AchievementCatalog achievements)
+        {
+            contentCatalog = catalog;
+            achievementCatalog = achievements;
+        }
+
         public bool SelectClass(string stableId)
         {
             if (Profile == null || contentCatalog == null ||
@@ -77,6 +91,7 @@ namespace Lanternfall.Gameplay.Hub
             if (!exists) return false;
             Profile.selectedClassId = stableId;
             ClassSelected?.Invoke(stableId);
+            ReportAchievement(AchievementMetric.ClassesSelected);
             SaveNow();
             return true;
         }
@@ -93,6 +108,7 @@ namespace Lanternfall.Gameplay.Hub
                 !string.IsNullOrWhiteSpace(completionUnlock))
                 Progression.Unlock(completionUnlock);
             if (changed) SaveNow();
+            if (changed) ReportAchievement(AchievementMetric.QuestsAdvanced);
             return changed;
         }
 
@@ -108,6 +124,7 @@ namespace Lanternfall.Gameplay.Hub
             PrepareRun(seed, SelectedClassId);
             Profile.statistics.runsStarted++;
             Profile.statistics.bestRunSeed = seed;
+            ReportAchievement(AchievementMetric.RunsStarted);
             SaveNow();
             SceneManager.LoadScene(sceneName);
         }
@@ -120,12 +137,14 @@ namespace Lanternfall.Gameplay.Hub
         public void CompleteRun()
         {
             if (ActiveRun == null) return;
+            CaptureRunSummary(true);
             Profile.statistics.runsCompleted++;
             Profile.statistics.enemiesDefeated += ActiveRun.EnemiesDefeated;
             Profile.statistics.bossesDefeated += ActiveRun.BossesDefeated;
             Profile.statistics.longestRunSeconds = Mathf.Max(
                 Profile.statistics.longestRunSeconds,
                 ActiveRun.ElapsedSeconds);
+            ReportAchievement(AchievementMetric.RunsCompleted);
             ActiveRun = null;
             SaveNow();
             SceneManager.LoadScene("LanternfallHub");
@@ -134,15 +153,85 @@ namespace Lanternfall.Gameplay.Hub
         public void FailRun()
         {
             if (ActiveRun == null) return;
+            CaptureRunSummary(false);
             Profile.statistics.deaths++;
             Profile.statistics.enemiesDefeated += ActiveRun.EnemiesDefeated;
             Profile.statistics.bossesDefeated += ActiveRun.BossesDefeated;
             Profile.statistics.longestRunSeconds = Mathf.Max(
                 Profile.statistics.longestRunSeconds,
                 ActiveRun.ElapsedSeconds);
+            ReportAchievement(AchievementMetric.Deaths);
             ActiveRun = null;
             SaveNow();
             SceneManager.LoadScene("LanternfallHub");
+        }
+
+        public void ReportAchievement(
+            AchievementMetric metric,
+            int amount = 1,
+            string uniqueContext = null)
+        {
+            if (_achievements == null || achievementCatalog == null ||
+                amount <= 0) return;
+            if (!string.IsNullOrWhiteSpace(uniqueContext))
+            {
+                string key = $"{metric}:{uniqueContext}";
+                if (Profile.achievementContexts.Contains(key)) return;
+                Profile.achievementContexts.Add(key);
+            }
+            int unlocked = _achievements.Report(
+                achievementCatalog,
+                metric,
+                amount,
+                definition => AchievementUnlocked?.Invoke(definition));
+            if (unlocked > 0) SaveNow();
+        }
+
+        public void ReportRoomCompleted(RunRoomPlan room)
+        {
+            if (ActiveRun == null) return;
+            ActiveRun.RoomsCleared++;
+            ReportAchievement(AchievementMetric.RoomsCleared);
+            switch (room.Kind)
+            {
+                case Lanternfall.Core.Run.RoomKind.Secret:
+                    ReportAchievement(AchievementMetric.SecretsVisited);
+                    break;
+                case Lanternfall.Core.Run.RoomKind.Healing:
+                    ReportAchievement(AchievementMetric.HealingRooms);
+                    break;
+                case Lanternfall.Core.Run.RoomKind.Treasure:
+                    ReportAchievement(AchievementMetric.TreasureRooms);
+                    break;
+                case Lanternfall.Core.Run.RoomKind.Challenge:
+                    ReportAchievement(AchievementMetric.ChallengeRooms);
+                    break;
+            }
+        }
+
+        public RunSummaryData ConsumeRunSummary()
+        {
+            RunSummaryData result = PendingRunSummary;
+            PendingRunSummary = null;
+            return result;
+        }
+
+        private void CaptureRunSummary(bool victory)
+        {
+            RunSession run = ActiveRun;
+            PendingRunSummary = new RunSummaryData(
+                victory,
+                run.Seed,
+                run.ClassId,
+                run.ElapsedSeconds,
+                run.RoomsCleared,
+                run.EnemiesDefeated,
+                run.BossesDefeated,
+                run.Gold,
+                run.EchoIds.Count,
+                run.VowsFulfilled,
+                run.VowsBroken);
+            RunSummaryAvailable?.Invoke(PendingRunSummary);
         }
     }
 }
