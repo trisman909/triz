@@ -45,7 +45,7 @@ namespace Lanternfall.Gameplay.Performance
                 FindFirstObjectByType<Health>() != null &&
                 FindFirstObjectByType<FrameBudgetMonitor>() != null &&
                 FindFirstObjectByType<GameHud>() != null &&
-                FindFirstObjectByType<ActorPresentation>() != null &&
+                FindFirstObjectByType<PlayerPresentation>() != null &&
                 hubAudio != null &&
                 hubAudio.GeneratedClipCount == 12 &&
                 hubVfx != null &&
@@ -72,6 +72,7 @@ namespace Lanternfall.Gameplay.Performance
                 biome.GeneratedPropCount == 14 &&
                 hud != null &&
                 hud.RouteText.Contains("ROOM 1/8") &&
+                FindFirstObjectByType<PlayerPresentation>() != null &&
                 FindFirstObjectByType<GameplayAudioDirector>() != null &&
                 FindFirstObjectByType<CombatVfxDirector>() != null &&
                 FindFirstObjectByType<RunChamberController>() != null &&
@@ -134,13 +135,24 @@ namespace Lanternfall.Gameplay.Performance
                 }
             }
             Debug.Log("LANTERNFALL_SMOKE_PASS");
-            Application.Quit(0);
+            StartCoroutine(QuitAfterDelay());
         }
 
         private static void Fail(string reason)
         {
             Debug.LogError($"LANTERNFALL_SMOKE_FAIL: {reason}");
-            Application.Quit(2);
+            ReleaseSmokeProbe probe = FindAnyObjectByType<ReleaseSmokeProbe>();
+            if (probe != null)
+                probe.StartCoroutine(probe.QuitAfterDelay());
+            else
+                Application.Quit();
+        }
+
+        private IEnumerator QuitAfterDelay()
+        {
+            enabled = false;
+            for (int frame = 0; frame < 3; frame++) yield return null;
+            Application.Quit();
         }
 
         private static bool HasArgument(string expected)

@@ -141,6 +141,7 @@ namespace Lanternfall.Editor
             player.GetComponent<Renderer>().sharedMaterial = playerMaterial;
             player.AddComponent<PlayerInputReader>();
             player.AddComponent<PlayerMotor>();
+            player.AddComponent<PlayerPresentation>();
             Health playerHealth = player.AddComponent<Health>();
             playerHealth.Configure(180f, 5f, false);
             player.AddComponent<RunInventory>();
@@ -1087,6 +1088,7 @@ namespace Lanternfall.Editor
             player.GetComponent<Renderer>().sharedMaterial = playerMaterial;
             player.AddComponent<PlayerInputReader>();
             player.AddComponent<PlayerMotor>();
+            player.AddComponent<PlayerPresentation>();
             Health playerHealth = player.AddComponent<Health>();
             playerHealth.Configure(180f, 5f, false);
             player.AddComponent<RunInventory>();
@@ -1214,6 +1216,7 @@ namespace Lanternfall.Editor
             player.GetComponent<Renderer>().sharedMaterial = playerMaterial;
             player.AddComponent<PlayerInputReader>();
             player.AddComponent<PlayerMotor>();
+            player.AddComponent<PlayerPresentation>();
             player.AddComponent<Health>().Configure(180f, 5f, false);
             player.AddComponent<RunInventory>();
             player.AddComponent<GameHud>();
@@ -1330,6 +1333,7 @@ namespace Lanternfall.Editor
             player.GetComponent<Renderer>().sharedMaterial = playerMaterial;
             player.AddComponent<PlayerInputReader>();
             player.AddComponent<PlayerMotor>();
+            player.AddComponent<PlayerPresentation>();
             player.AddComponent<Health>().Configure(180f, 5f, false);
             player.AddComponent<RunInventory>();
             player.AddComponent<GameHud>();

@@ -56,8 +56,13 @@ namespace Lanternfall.Tests
         [UnityTest]
         public IEnumerator ProjectileDeliversResolvedDamageAndReturns()
         {
+            foreach (GameObject root in SceneManager.GetActiveScene().GetRootGameObjects())
+                Object.Destroy(root);
+            yield return null;
+
             GameObject target = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            target.transform.position = new Vector3(0f, 1f, 3f);
+            target.transform.position = new Vector3(0f, 1f, 2f);
+            target.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
             Health health = target.AddComponent<Health>();
             health.Configure(100f, 0f, false);
 
@@ -208,6 +213,7 @@ namespace Lanternfall.Tests
             yield return null;
 
             Assert.That(player.transform.Find("Lanternfall HUD"), Is.Not.Null);
+            Assert.That(hud.HasRequiredHudElements, Is.True);
             hud.SetPaused(true);
             Assert.That(Time.timeScale, Is.EqualTo(0f));
             hud.SetPaused(false);
@@ -375,6 +381,68 @@ namespace Lanternfall.Tests
             Assert.That(
                 Object.FindFirstObjectByType<PlayerInputReader>(),
                 Is.Not.Null);
+            Assert.That(
+                Object.FindFirstObjectByType<PlayerPresentation>(),
+                Is.Not.Null);
+        }
+
+        [UnityTest]
+        public IEnumerator PlayerPresentationStaysConsistentAcrossBiomeSwitching()
+        {
+            SceneManager.LoadScene("ArtReview_DrownedNarthex");
+            yield return null;
+            yield return null;
+
+            PlayerPresentation first =
+                Object.FindFirstObjectByType<PlayerPresentation>();
+            Assert.That(first, Is.Not.Null);
+            string classVisual = first.ClassVisualId;
+
+            RepresentativeBiomeSwitcher switcher =
+                Object.FindFirstObjectByType<RepresentativeBiomeSwitcher>();
+            switcher.SwitchToBiome(2);
+            yield return null;
+            yield return null;
+
+            PlayerPresentation second =
+                Object.FindFirstObjectByType<PlayerPresentation>();
+            Assert.That(second, Is.Not.Null);
+            Assert.That(
+                second.ClassVisualId,
+                Is.EqualTo(classVisual),
+                "Biome switching changed the bearer visual class.");
+        }
+
+        [UnityTest]
+        public IEnumerator PlayerPresentationProvidesMovementAndDodgeFeedback()
+        {
+            GameObject floor = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            floor.transform.position = new Vector3(0f, -0.5f, 0f);
+            floor.transform.localScale = new Vector3(20f, 1f, 20f);
+
+            GameObject player = new GameObject("Presentation Bearer");
+            player.transform.position = Vector3.up;
+            player.AddComponent<CharacterController>();
+            PlayerMotor motor = player.AddComponent<PlayerMotor>();
+            PlayerPresentation presentation =
+                player.AddComponent<PlayerPresentation>();
+            yield return null;
+
+            for (int index = 0; index < 6; index++)
+            {
+                motor.Step(Vector2.up, true, false, 0.02f);
+                yield return null;
+            }
+
+            Assert.That(presentation.HasFeedbackRig, Is.True);
+            Assert.That(presentation.MotionAmount, Is.GreaterThan(0.05f));
+            motor.Step(Vector2.up, false, true, 0.02f);
+            yield return null;
+            Assert.That(presentation.DodgeFeedbackActive, Is.True);
+
+            Object.Destroy(player);
+            Object.Destroy(floor);
+            yield return null;
         }
 
         [UnityTest]
@@ -486,7 +554,7 @@ namespace Lanternfall.Tests
                 Object.FindFirstObjectByType<CombatVfxDirector>(),
                 Is.Not.Null);
             Assert.That(
-                Object.FindFirstObjectByType<ActorPresentation>(),
+                Object.FindFirstObjectByType<PlayerPresentation>(),
                 Is.Not.Null);
             Assert.That(
                 Object.FindFirstObjectByType<GameHud>().RouteText,

@@ -32,6 +32,8 @@ rooms are presentation proofs, not five finished campaign levels.
   magenta or violet while ACES/post-processing remains active.
 - Menus, route HUD, run summary, remapping, subtitles, reduced motion,
   high-contrast telegraphs and flash/shake limits remain operational.
+- Follow-on Phase 18A presentation work keeps the accepted chambers intact
+  while moving the bearer and HUD toward a more reviewable game-facing style.
 
 ## What is still placeholder
 
@@ -45,6 +47,9 @@ rooms are presentation proofs, not five finished campaign levels.
   has not received this art language.
 - The representative review build is visual/player-review quality, not a final
   content-complete public release candidate.
+- The bearer now reads more consistently across biomes, but still uses a
+  procedural placeholder display rig rather than a final rigged production
+  character.
 
 ## Approval boundary
 
@@ -66,3 +71,24 @@ candidate.
 - Packaged Direct3D 11 smoke: exit 0, `LANTERNFALL_SMOKE_PASS`
   (`TestResults/windows_rc_smoke_current.log`).
 - Smoke route: hub, integrated run chamber and all five art-review chambers.
+
+## Phase 18A follow-on review notes
+
+- The user's representative-build review accepted biome switching, Drowned
+  color, room scale, obstacle size, camera feel, HUD readability and general
+  movement comfort as the baseline to preserve.
+- Phase 18A therefore focused on bearer consistency, movement/dodge
+  presentation and HUD professionalism without reworking chamber layouts.
+- Final closeout fixes after the first rebuilt 18A player review:
+  - HUD startup no longer flashes an incorrect `0/180` vitality state due to
+    component load order.
+  - The old root placeholder body renderer is removed so the runtime bearer
+    does not appear as a duplicated capsule under the new procedural display.
+- Current Phase 18A rebuild evidence:
+  - EditMode 35/35 passed (`2026-07-06T11:24:11.2541375Z`).
+  - PlayMode 17/17 passed (`2026-07-06T11:28:12.3396995Z`).
+  - Readiness passed (`2026-07-06T11:29:43.2346166Z`).
+  - Strict Windows build succeeded
+    (`TestResults/phase18a_windows_build_manualfix.log`).
+  - Packaged D3D11 smoke exited 0 with `LANTERNFALL_SMOKE_PASS`
+    (`TestResults/phase18a_windows_rc_smoke_manualfix.log`).

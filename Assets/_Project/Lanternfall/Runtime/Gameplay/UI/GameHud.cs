@@ -1,14 +1,16 @@
+using System.Collections.Generic;
 using System.Text;
 using Lanternfall.Gameplay.Accessibility;
 using Lanternfall.Gameplay.Bosses;
 using Lanternfall.Gameplay.Combat;
-using Lanternfall.Gameplay.Input;
 using Lanternfall.Gameplay.Hub;
+using Lanternfall.Gameplay.Input;
 using Lanternfall.Gameplay.Localization;
-using Lanternfall.Gameplay.Progression;
-using Lanternfall.Gameplay.Save;
-using Lanternfall.Gameplay.Run;
+using Lanternfall.Gameplay.Player;
 using Lanternfall.Gameplay.Presentation;
+using Lanternfall.Gameplay.Progression;
+using Lanternfall.Gameplay.Run;
+using Lanternfall.Gameplay.Save;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -16,39 +18,51 @@ using UnityEngine.UI;
 namespace Lanternfall.Gameplay.UI
 {
     /// <summary>
-    /// Responsive, code-built HUD shared by every playable scene.
-    /// It remains readable at 720p through 4K and supports runtime UI scaling.
+    /// Stylized runtime HUD shared by every playable scene. It preserves the
+    /// original code-built workflow while presenting a more intentional dark
+    /// cathedral interface than the prototype pass.
     /// </summary>
     [RequireComponent(typeof(Health), typeof(PlayerInputReader))]
     public sealed class GameHud : MonoBehaviour
     {
+        private static readonly Color PanelInk = new Color(.03f, .04f, .06f, .9f);
+        private static readonly Color PanelShade = new Color(.12f, .09f, .07f, .55f);
+        private static readonly Color BorderGold = new Color(.67f, .49f, .22f, .92f);
+        private static readonly Color TextWarm = new Color(.95f, .95f, .96f);
+        private static readonly Color HeaderGold = new Color(1f, .88f, .62f);
+        private static readonly Color Tide = new Color(.18f, .82f, .92f);
+        private static readonly Color Ember = new Color(1f, .43f, .14f);
+
         private Health _health;
         private PlayerInputReader _input;
         private PlayerCombat _combat;
+        private PlayerMotor _motor;
         private RunInventory _inventory;
         private CanvasScaler _scaler;
         private Image _healthFill;
         private Image _bossFill;
         private GameObject _bossPanel;
         private GameObject _pausePanel;
+        private GameObject _subtitlePanel;
+        private GameObject _summaryPanel;
+        private GameObject _titlePanel;
+        private GameObject _announcementPanel;
+        private GameObject _onboardingPanel;
+        private CanvasGroup _titleGroup;
         private Text _healthText;
         private Text _bossText;
         private Text _resourcesText;
         private Text _abilityText;
+        private Text _dodgeText;
+        private Text _callingText;
         private Text _announcement;
         private Text _pauseCopy;
         private Text _routeText;
-        private GameObject _subtitlePanel;
         private Text _subtitleText;
-        private GameObject _summaryPanel;
         private Text _summaryText;
-        private GameObject _titlePanel;
-        private CanvasGroup _titleGroup;
         private Text _titleText;
-        private GameObject _onboardingPanel;
         private Texture2D _iconAtlas;
-        private readonly System.Collections.Generic.List<Sprite> _runtimeIcons =
-            new System.Collections.Generic.List<Sprite>(12);
+        private readonly List<Sprite> _runtimeIcons = new List<Sprite>(12);
         private SettingsData _settings;
         private bool _paused;
         private float _announcementTime;
@@ -66,29 +80,36 @@ namespace Lanternfall.Gameplay.UI
         public bool SummaryVisible =>
             _summaryPanel != null && _summaryPanel.activeSelf;
         public string RouteText => _routeText?.text ?? string.Empty;
-
-        private static readonly Color Ink = new Color(.025f, .035f, .055f, .92f);
-        private static readonly Color Ember = new Color(1f, .43f, .14f);
-        private static readonly Color Tide = new Color(.18f, .82f, .92f);
+        public bool HasRequiredHudElements =>
+            _healthFill != null &&
+            _resourcesText != null &&
+            _abilityText != null &&
+            _dodgeText != null &&
+            _routeText != null;
 
         private void Awake()
         {
             _health = GetComponent<Health>();
             _input = GetComponent<PlayerInputReader>();
             _combat = GetComponent<PlayerCombat>();
+            _motor = GetComponent<PlayerMotor>();
             _inventory = GetComponent<RunInventory>();
             _settings = HubController.Instance?.Profile?.settings ?? new SettingsData();
             _input.LoadBindingOverrides(_settings.bindingOverrides);
             AccessibilityRuntime.Apply(_settings);
             Build();
-            ActorPresentation actor =
-                GetComponent<ActorPresentation>() ??
-                gameObject.AddComponent<ActorPresentation>();
-            actor.Configure(Tide, 1f, false);
             OnHealthChanged(_health.Current, _health.Maximum);
             RefreshResources();
             RefreshRoute();
             ShowPendingSummary();
+        }
+
+        private void Start()
+        {
+            if (_health != null)
+                OnHealthChanged(_health.Current, _health.Maximum);
+            RefreshResources();
+            RefreshRoute();
         }
 
         private void OnEnable()
@@ -155,22 +176,19 @@ namespace Lanternfall.Gameplay.UI
                 _onboardingPanel.SetActive(false);
                 _onboardingSeen = true;
             }
-            if (_combat != null && _abilityText != null)
-            {
-                float remaining = _combat.AbilityCooldownRemaining;
-                _abilityText.text = remaining > 0f
-                    ? $"Q / LB  ABILITY  {remaining:0.0}s"
-                    : "Q / LB  ABILITY  READY";
-            }
+
+            RefreshReadinessCopy();
+
             if (_announcementTime > 0f)
             {
                 _announcementTime -= Time.unscaledDeltaTime;
-                if (_announcementTime <= 0f) _announcement.gameObject.SetActive(false);
+                if (_announcementTime <= 0f && _announcementPanel != null)
+                    _announcementPanel.SetActive(false);
             }
             if (_subtitleTime > 0f)
             {
                 _subtitleTime -= Time.unscaledDeltaTime;
-                if (_subtitleTime <= 0f)
+                if (_subtitleTime <= 0f && _subtitlePanel != null)
                     _subtitlePanel.SetActive(false);
             }
             _routeRefresh -= Time.unscaledDeltaTime;
@@ -186,7 +204,7 @@ namespace Lanternfall.Gameplay.UI
         {
             _paused = paused;
             Time.timeScale = paused ? 0f : 1f;
-            _pausePanel.SetActive(paused);
+            if (_pausePanel != null) _pausePanel.SetActive(paused);
             if (paused)
             {
                 RefreshPauseCopy();
@@ -194,7 +212,38 @@ namespace Lanternfall.Gameplay.UI
                     PresentationCue.UiConfirm,
                     transform.position);
             }
-            else HubController.Instance?.SaveNow();
+            else
+            {
+                HubController.Instance?.SaveNow();
+            }
+        }
+
+        public void ShowTitleCard(string copy, float durationSeconds = 3f)
+        {
+            if (_titlePanel == null || _titleText == null) return;
+            _titleText.text = copy;
+            _titlePanel.SetActive(true);
+            if (_titleGroup != null) _titleGroup.alpha = 1f;
+            _titleTime = durationSeconds;
+        }
+
+        public void DisplayRunSummary(RunSummaryData summary)
+        {
+            if (summary == null || _summaryText == null) return;
+            int minutes = Mathf.FloorToInt(summary.ElapsedSeconds / 60f);
+            int seconds = Mathf.FloorToInt(summary.ElapsedSeconds % 60f);
+            _summaryText.text =
+                $"{L("run.summary", "RUN SUMMARY")}\n\n" +
+                $"{(summary.Victory ? L("run.victory", "THE LANTERN ENDURES") : L("run.defeat", "THE MEMORY FADES"))}\n\n" +
+                $"TIME  {minutes:00}:{seconds:00}\n" +
+                $"ROOMS  {summary.RoomsCleared}/40\n" +
+                $"ENEMIES  {summary.EnemiesDefeated}\n" +
+                $"GUARDIANS  {summary.GuardiansDefeated}/5\n" +
+                $"GOLD  {summary.Gold}\n" +
+                $"ECHOES  {summary.Echoes}/3\n" +
+                $"VOWS KEPT / BROKEN  {summary.VowsFulfilled} / {summary.VowsBroken}\n" +
+                $"SEED  {summary.Seed}\n\nE / A  RETURN TO COURT";
+            _summaryPanel.SetActive(true);
         }
 
         private void Build()
@@ -214,105 +263,203 @@ namespace Lanternfall.Gameplay.UI
             _scaler.referencePixelsPerUnit = 100f;
             _scaler.dynamicPixelsPerUnit = 1f;
             canvasObject.AddComponent<GraphicRaycaster>();
-            _iconAtlas = Resources.Load<Texture2D>(
-                "UI/Lanternfall_UI_IconAtlas");
+            _iconAtlas = Resources.Load<Texture2D>("UI/Lanternfall_UI_IconAtlas");
             RefreshCanvasScale();
 
-            GameObject healthPanel = Panel(
-                canvasObject.transform, "Vitality", new Vector2(24f, -24f),
-                new Vector2(450f, 104f), new Vector2(0f, 1f));
-            _healthFill = Bar(healthPanel.transform, "Health", Tide, 18f, 50f);
-            Icon(healthPanel.transform, "Lantern Icon", 0,
-                new Vector2(20f, -18f), 48f, new Vector2(0f, 1f));
-            _healthText = Label(healthPanel.transform, "Health Text",
-                "LANTERN  180 / 180", 25, TextAnchor.UpperLeft);
-            SetRect(_healthText.rectTransform,
-                new Vector2(74f, -10f), new Vector2(348f, 38f), new Vector2(0f, 1f));
+            GameObject vitality = Panel(
+                canvasObject.transform,
+                "Vitality",
+                new Vector2(28f, -24f),
+                new Vector2(468f, 130f),
+                new Vector2(0f, 1f));
+            Header(vitality.transform, "LANTERN VITALITY");
+            _healthFill = Bar(vitality.transform, "Health", Tide, 18f, 64f);
+            Icon(vitality.transform, "Lantern Icon", 0, new Vector2(22f, -22f), 54f, new Vector2(0f, 1f));
+            _healthText = Label(
+                vitality.transform,
+                "Health Text",
+                "LANTERN  180 / 180",
+                27,
+                TextAnchor.UpperLeft);
+            SetRect(
+                _healthText.rectTransform,
+                new Vector2(84f, -18f),
+                new Vector2(340f, 40f),
+                new Vector2(0f, 1f));
 
-            GameObject resources = Panel(
-                canvasObject.transform, "Run Status", new Vector2(24f, 24f),
-                new Vector2(620f, 92f), Vector2.zero);
-            _resourcesText = Label(resources.transform, "Resources",
-                "GOLD 0   ECHOES 0/3   BUFFS —   DEBUFFS —", 19,
+            GameObject bearer = Panel(
+                canvasObject.transform,
+                "Bearer Readiness",
+                new Vector2(-28f, -24f),
+                new Vector2(498f, 150f),
+                new Vector2(1f, 1f));
+            Header(bearer.transform, "BEARER READINESS");
+            Icon(bearer.transform, "Ability Icon", 2, new Vector2(24f, -48f), 36f, new Vector2(0f, 1f));
+            Icon(bearer.transform, "Dodge Icon", 7, new Vector2(24f, -86f), 36f, new Vector2(0f, 1f));
+            _abilityText = Label(
+                bearer.transform,
+                "Ability Text",
+                "ABILITY  READY",
+                18,
                 TextAnchor.MiddleLeft);
-            Stretch(_resourcesText.rectTransform, 16f);
-            Icon(resources.transform, "Echo Icon", 1,
-                new Vector2(-42f, 0f), 38f, new Vector2(1f, .5f));
+            SetRect(
+                _abilityText.rectTransform,
+                new Vector2(74f, -46f),
+                new Vector2(386f, 28f),
+                new Vector2(0f, 1f));
+            _dodgeText = Label(
+                bearer.transform,
+                "Dodge Text",
+                "DODGE  READY",
+                18,
+                TextAnchor.MiddleLeft);
+            SetRect(
+                _dodgeText.rectTransform,
+                new Vector2(74f, -84f),
+                new Vector2(386f, 28f),
+                new Vector2(0f, 1f));
 
-            GameObject ability = Panel(
-                canvasObject.transform, "Ability", new Vector2(-24f, 24f),
-                new Vector2(370f, 82f), new Vector2(1f, 0f));
-            _abilityText = Label(ability.transform, "Cooldown",
-                "Q / LB  ABILITY  READY", 22, TextAnchor.MiddleCenter);
-            Stretch(_abilityText.rectTransform, 10f);
-            Icon(ability.transform, "Ability Icon", 2,
-                new Vector2(20f, 0f), 42f, new Vector2(0f, .5f));
+            GameObject status = Panel(
+                canvasObject.transform,
+                "Run Status",
+                new Vector2(-28f, 28f),
+                new Vector2(498f, 112f),
+                new Vector2(1f, 0f));
+            Header(status.transform, "RUN STATUS");
+            _resourcesText = Label(
+                status.transform,
+                "Resources",
+                "GOLD 0   ECHOES 0/3   QUIET   NO VOW",
+                18,
+                TextAnchor.MiddleLeft);
+            SetRect(
+                _resourcesText.rectTransform,
+                new Vector2(20f, -18f),
+                new Vector2(440f, 32f),
+                new Vector2(0f, 1f));
+            _callingText = Label(
+                status.transform,
+                "Calling",
+                "CALLING  VANGUARD   ·   WEAPON",
+                18,
+                TextAnchor.MiddleLeft);
+            SetRect(
+                _callingText.rectTransform,
+                new Vector2(20f, 16f),
+                new Vector2(440f, 28f),
+                new Vector2(0f, 0f));
 
-            GameObject minimap = Panel(
-                canvasObject.transform, "Minimap", new Vector2(-24f, -24f),
-                new Vector2(280f, 164f), Vector2.one);
-            _routeText = Label(minimap.transform, "Route",
-                "NARTHEX ROUTE\n◆ CURRENT CHAMBER\n? UNCHARTED", 18,
+            GameObject route = Panel(
+                canvasObject.transform,
+                "Route Banner",
+                new Vector2(0f, 28f),
+                new Vector2(560f, 104f),
+                new Vector2(.5f, 0f));
+            Header(route.transform, "DESCENT ROUTE");
+            Icon(route.transform, "Route Icon", 3, new Vector2(22f, -22f), 42f, new Vector2(0f, 1f));
+            _routeText = Label(
+                route.transform,
+                "Route Text",
+                "LANTERN COURT\nSELECT A CALLING\nENTER THE DESCENT",
+                18,
                 TextAnchor.MiddleCenter);
-            Stretch(_routeText.rectTransform, 14f);
-            Icon(minimap.transform, "Route Icon", 3,
-                new Vector2(18f, -18f), 40f, new Vector2(0f, 1f));
+            SetRect(
+                _routeText.rectTransform,
+                new Vector2(0f, -4f),
+                new Vector2(496f, 58f),
+                new Vector2(.5f, .5f));
 
             _bossPanel = Panel(
-                canvasObject.transform, "Guardian", new Vector2(0f, -30f),
-                new Vector2(820f, 110f), new Vector2(.5f, 1f));
-            _bossFill = Bar(_bossPanel.transform, "Guardian Health", Ember, 18f, 50f);
-            _bossText = Label(_bossPanel.transform, "Guardian Name",
-                "GUARDIAN", 25, TextAnchor.UpperCenter);
-            SetRect(_bossText.rectTransform,
-                new Vector2(0f, -8f), new Vector2(760f, 38f), new Vector2(.5f, 1f));
+                canvasObject.transform,
+                "Guardian",
+                new Vector2(0f, -24f),
+                new Vector2(920f, 126f),
+                new Vector2(.5f, 1f));
+            Header(_bossPanel.transform, "GUARDIAN");
+            _bossFill = Bar(_bossPanel.transform, "Guardian Health", Ember, 22f, 64f);
+            _bossText = Label(
+                _bossPanel.transform,
+                "Guardian Name",
+                "GUARDIAN",
+                28,
+                TextAnchor.UpperCenter);
+            SetRect(
+                _bossText.rectTransform,
+                new Vector2(0f, -18f),
+                new Vector2(800f, 40f),
+                new Vector2(.5f, 1f));
             _bossPanel.SetActive(false);
 
-            _announcement = Label(canvasObject.transform, "Announcement",
-                string.Empty, 38, TextAnchor.MiddleCenter);
-            SetRect(_announcement.rectTransform,
-                Vector2.zero, new Vector2(900f, 100f), new Vector2(.5f, .68f));
-            _announcement.gameObject.SetActive(false);
+            _announcementPanel = Panel(
+                canvasObject.transform,
+                "Announcement",
+                Vector2.zero,
+                new Vector2(840f, 94f),
+                new Vector2(.5f, .66f));
+            _announcement = Label(
+                _announcementPanel.transform,
+                "Announcement Text",
+                string.Empty,
+                34,
+                TextAnchor.MiddleCenter);
+            Stretch(_announcement.rectTransform, 12f);
+            _announcementPanel.SetActive(false);
 
             _pausePanel = Panel(
-                canvasObject.transform, "Pause & Settings", Vector2.zero,
-                new Vector2(620f, 570f), new Vector2(.5f, .5f));
-            _pauseCopy = Label(_pausePanel.transform, "Pause Copy",
-                string.Empty, 22, TextAnchor.MiddleCenter);
-            Stretch(_pauseCopy.rectTransform, 28f);
-            Icon(_pausePanel.transform, "Settings Icon", 4,
-                new Vector2(24f, -24f), 46f, new Vector2(0f, 1f));
+                canvasObject.transform,
+                "Pause & Settings",
+                Vector2.zero,
+                new Vector2(700f, 620f),
+                new Vector2(.5f, .5f));
+            Header(_pausePanel.transform, "LANTERN SETTINGS");
+            _pauseCopy = Label(
+                _pausePanel.transform,
+                "Pause Copy",
+                string.Empty,
+                22,
+                TextAnchor.MiddleCenter);
+            Stretch(_pauseCopy.rectTransform, 34f);
+            Icon(_pausePanel.transform, "Settings Icon", 4, new Vector2(24f, -24f), 46f, new Vector2(0f, 1f));
             _pausePanel.SetActive(false);
 
             _subtitlePanel = Panel(
-                canvasObject.transform, "Subtitles", new Vector2(0f, 42f),
-                new Vector2(980f, 104f), new Vector2(.5f, 0f));
+                canvasObject.transform,
+                "Subtitles",
+                new Vector2(0f, 42f),
+                new Vector2(980f, 104f),
+                new Vector2(.5f, 0f));
             _subtitleText = Label(
                 _subtitlePanel.transform,
                 "Subtitle Copy",
                 string.Empty,
                 27,
                 TextAnchor.MiddleCenter);
-            Stretch(_subtitleText.rectTransform, 14f);
+            Stretch(_subtitleText.rectTransform, 16f);
             _subtitlePanel.SetActive(false);
 
             _summaryPanel = Panel(
-                canvasObject.transform, "Run Summary", Vector2.zero,
-                new Vector2(760f, 650f), new Vector2(.5f, .5f));
+                canvasObject.transform,
+                "Run Summary",
+                Vector2.zero,
+                new Vector2(760f, 650f),
+                new Vector2(.5f, .5f));
+            Header(_summaryPanel.transform, "RUN SUMMARY");
             _summaryText = Label(
                 _summaryPanel.transform,
                 "Run Summary Copy",
                 string.Empty,
                 28,
                 TextAnchor.MiddleCenter);
-            Stretch(_summaryText.rectTransform, 34f);
+            Stretch(_summaryText.rectTransform, 40f);
+            Icon(_summaryPanel.transform, "Summary Icon", 5, new Vector2(32f, -32f), 58f, new Vector2(0f, 1f));
             _summaryPanel.SetActive(false);
-            Icon(_summaryPanel.transform, "Summary Icon", 5,
-                new Vector2(32f, -32f), 58f, new Vector2(0f, 1f));
 
             _titlePanel = Panel(
-                canvasObject.transform, "Title Card", Vector2.zero,
-                new Vector2(940f, 240f), new Vector2(.5f, .62f));
+                canvasObject.transform,
+                "Title Card",
+                Vector2.zero,
+                new Vector2(940f, 240f),
+                new Vector2(.5f, .62f));
             _titleGroup = _titlePanel.AddComponent<CanvasGroup>();
             _titleText = Label(
                 _titlePanel.transform,
@@ -321,9 +468,8 @@ namespace Lanternfall.Gameplay.UI
                 50,
                 TextAnchor.MiddleCenter);
             _titleText.supportRichText = true;
-            Stretch(_titleText.rectTransform, 24f);
-            Icon(_titlePanel.transform, "Title Lantern", 0,
-                new Vector2(38f, -38f), 72f, new Vector2(0f, 1f));
+            Stretch(_titleText.rectTransform, 28f);
+            Icon(_titlePanel.transform, "Title Lantern", 0, new Vector2(38f, -38f), 72f, new Vector2(0f, 1f));
             _titlePanel.SetActive(false);
 
             if (SceneManager.GetActiveScene().name == "LanternfallHub")
@@ -338,22 +484,22 @@ namespace Lanternfall.Gameplay.UI
                         canvasObject.transform,
                         "First Light Guide",
                         new Vector2(24f, 124f),
-                        new Vector2(610f, 184f),
+                        new Vector2(620f, 204f),
                         Vector2.zero);
+                    Header(_onboardingPanel.transform, "FIRST LIGHT");
                     Text guide = Label(
                         _onboardingPanel.transform,
                         "Guide",
-                        "FIRST LIGHT\n" +
                         "WASD / LEFT STICK  MOVE\n" +
                         "E / A  CHOOSE A CALLING · ENTER THE DESCENT\n" +
                         "ESC / START  SETTINGS & REMAPPING",
                         22,
                         TextAnchor.MiddleLeft);
-                    Stretch(guide.rectTransform, 22f);
-                    Icon(_onboardingPanel.transform, "Guide Icon", 6,
-                        new Vector2(-24f, 20f), 44f, new Vector2(1f, 0f));
+                    Stretch(guide.rectTransform, 32f);
+                    Icon(_onboardingPanel.transform, "Guide Icon", 6, new Vector2(-24f, 20f), 44f, new Vector2(1f, 0f));
                 }
             }
+
             ApplyAccessibility();
         }
 
@@ -363,13 +509,23 @@ namespace Lanternfall.Gameplay.UI
             RefreshPauseCopy();
         }
 
-        public void ShowTitleCard(string copy, float durationSeconds = 3f)
+        private void RefreshReadinessCopy()
         {
-            if (_titlePanel == null || _titleText == null) return;
-            _titleText.text = copy;
-            _titlePanel.SetActive(true);
-            if (_titleGroup != null) _titleGroup.alpha = 1f;
-            _titleTime = durationSeconds;
+            if (_combat != null && _abilityText != null)
+            {
+                float remaining = _combat.AbilityCooldownRemaining;
+                _abilityText.text = remaining > 0f
+                    ? $"ABILITY  {_combat.AbilityName.ToUpperInvariant()}   {remaining:0.0}s"
+                    : $"ABILITY  {_combat.AbilityName.ToUpperInvariant()}   READY";
+            }
+
+            if (_motor != null && _dodgeText != null)
+            {
+                float remaining = _motor.DodgeCooldownRemaining;
+                _dodgeText.text = remaining > 0f
+                    ? $"DODGE  SPACE / B   {remaining:0.0}s"
+                    : "DODGE  SPACE / B   READY";
+            }
         }
 
         private void ReadSettingsInput()
@@ -494,8 +650,16 @@ namespace Lanternfall.Gameplay.UI
             _resourcesText.text =
                 $"{L("hud.gold", "GOLD")} {gold}   " +
                 $"{L("hud.echoes", "ECHOES")} {relics}/3   " +
-                $"CALLING {calling.ToUpperInvariant()}   " +
                 $"{resonance}   {vow}";
+
+            if (_callingText != null)
+            {
+                string weapon = _combat != null
+                    ? _combat.WeaponName.ToUpperInvariant()
+                    : "WEAPON";
+                _callingText.text =
+                    $"CALLING  {calling.ToUpperInvariant()}   ·   {weapon}";
+            }
         }
 
         private void OnBossIntro(string bossName)
@@ -525,8 +689,9 @@ namespace Lanternfall.Gameplay.UI
 
         private void Announce(string copy)
         {
+            if (_announcementPanel == null || _announcement == null) return;
             _announcement.text = copy.ToUpperInvariant();
-            _announcement.gameObject.SetActive(true);
+            _announcementPanel.SetActive(true);
             _announcementTime = 2.5f;
         }
 
@@ -542,8 +707,7 @@ namespace Lanternfall.Gameplay.UI
             }
             RunRoomPlan room = run.Current;
             var route = new StringBuilder(64);
-            route.Append($"BIOME {room.BiomeIndex + 1}/5 · " +
-                         $"ROOM {room.RoomIndex + 1}/8\n");
+            route.Append($"BIOME {room.BiomeIndex + 1}/5 · ROOM {room.RoomIndex + 1}/8\n");
             for (int index = 0; index < RunSession.MainRoomsPerBiome; index++)
                 route.Append(index < room.RoomIndex ? "● " :
                     index == room.RoomIndex ? "◆ " : "○ ");
@@ -554,10 +718,8 @@ namespace Lanternfall.Gameplay.UI
 
         private void OnSubtitle(string speaker, string copy, float duration)
         {
-            if (!AccessibilityRuntime.Subtitles ||
-                _subtitleText == null) return;
-            _subtitleText.text =
-                $"<b>{speaker.ToUpperInvariant()}</b>\n{copy}";
+            if (!AccessibilityRuntime.Subtitles || _subtitleText == null) return;
+            _subtitleText.text = $"<b>{speaker.ToUpperInvariant()}</b>\n{copy}";
             _subtitleText.supportRichText = true;
             _subtitlePanel.SetActive(true);
             _subtitleTime = duration;
@@ -591,38 +753,66 @@ namespace Lanternfall.Gameplay.UI
             DisplayRunSummary(summary);
         }
 
-        public void DisplayRunSummary(RunSummaryData summary)
-        {
-            if (summary == null || _summaryText == null) return;
-            int minutes = Mathf.FloorToInt(summary.ElapsedSeconds / 60f);
-            int seconds = Mathf.FloorToInt(summary.ElapsedSeconds % 60f);
-            _summaryText.text =
-                $"{L("run.summary", "RUN SUMMARY")}\n\n" +
-                $"{(summary.Victory ? L("run.victory", "THE LANTERN ENDURES") : L("run.defeat", "THE MEMORY FADES"))}\n\n" +
-                $"TIME  {minutes:00}:{seconds:00}\n" +
-                $"ROOMS  {summary.RoomsCleared}/40\n" +
-                $"ENEMIES  {summary.EnemiesDefeated}\n" +
-                $"GUARDIANS  {summary.GuardiansDefeated}/5\n" +
-                $"GOLD  {summary.Gold}\n" +
-                $"ECHOES  {summary.Echoes}/3\n" +
-                $"VOWS KEPT / BROKEN  {summary.VowsFulfilled} / {summary.VowsBroken}\n" +
-                $"SEED  {summary.Seed}\n\nE / A  RETURN TO COURT";
-            _summaryPanel.SetActive(true);
-        }
-
         private static GameObject Panel(
-            Transform parent, string name, Vector2 position,
-            Vector2 size, Vector2 anchor)
+            Transform parent,
+            string name,
+            Vector2 position,
+            Vector2 size,
+            Vector2 anchor)
         {
-            GameObject panel = new GameObject(name, typeof(RectTransform), typeof(Image));
+            GameObject panel = new GameObject(
+                name,
+                typeof(RectTransform),
+                typeof(Image));
             panel.transform.SetParent(parent, false);
             Image image = panel.GetComponent<Image>();
-            image.color = Ink;
+            image.color = PanelInk;
             Outline outline = panel.AddComponent<Outline>();
-            outline.effectColor = new Color(.58f, .39f, .16f, .72f);
-            outline.effectDistance = new Vector2(2f, -2f);
+            outline.effectColor = BorderGold;
+            outline.effectDistance = new Vector2(2.5f, -2.5f);
+            Shadow shadow = panel.AddComponent<Shadow>();
+            shadow.effectColor = new Color(0f, 0f, 0f, .45f);
+            shadow.effectDistance = new Vector2(0f, -5f);
             SetRect(panel.GetComponent<RectTransform>(), position, size, anchor);
+
+            GameObject trim = new GameObject(
+                "Inner Trim",
+                typeof(RectTransform),
+                typeof(Image));
+            trim.transform.SetParent(panel.transform, false);
+            trim.GetComponent<Image>().color = PanelShade;
+            Stretch(trim.GetComponent<RectTransform>(), 6f);
+
             return panel;
+        }
+
+        private static void Header(Transform parent, string copy)
+        {
+            Text header = Label(
+                parent,
+                $"{copy} Header",
+                copy,
+                16,
+                TextAnchor.UpperLeft);
+            header.color = HeaderGold;
+            SetRect(
+                header.rectTransform,
+                new Vector2(18f, -10f),
+                new Vector2(300f, 24f),
+                new Vector2(0f, 1f));
+
+            GameObject line = new GameObject(
+                $"{copy} Accent",
+                typeof(RectTransform),
+                typeof(Image));
+            line.transform.SetParent(parent, false);
+            Image image = line.GetComponent<Image>();
+            image.color = BorderGold;
+            RectTransform rect = line.GetComponent<RectTransform>();
+            rect.anchorMin = new Vector2(0f, 1f);
+            rect.anchorMax = new Vector2(1f, 1f);
+            rect.offsetMin = new Vector2(18f, -34f);
+            rect.offsetMax = new Vector2(-18f, -31f);
         }
 
         private Image Icon(
@@ -645,12 +835,15 @@ namespace Lanternfall.Gameplay.UI
                 100f);
             _runtimeIcons.Add(sprite);
             GameObject item = new GameObject(
-                name, typeof(RectTransform), typeof(Image));
+                name,
+                typeof(RectTransform),
+                typeof(Image));
             item.transform.SetParent(parent, false);
             Image image = item.GetComponent<Image>();
             image.sprite = sprite;
             image.preserveAspect = true;
             image.raycastTarget = false;
+            image.color = Color.white;
             SetRect(
                 item.GetComponent<RectTransform>(),
                 position,
@@ -660,19 +853,29 @@ namespace Lanternfall.Gameplay.UI
         }
 
         private static Image Bar(
-            Transform parent, string name, Color color, float inset, float top)
+            Transform parent,
+            string name,
+            Color color,
+            float inset,
+            float top)
         {
             GameObject background = new GameObject(
-                $"{name} Track", typeof(RectTransform), typeof(Image));
+                $"{name} Track",
+                typeof(RectTransform),
+                typeof(Image));
             background.transform.SetParent(parent, false);
-            background.GetComponent<Image>().color = new Color(.07f, .08f, .1f, 1f);
+            background.GetComponent<Image>().color =
+                new Color(.07f, .08f, .1f, 1f);
             RectTransform track = background.GetComponent<RectTransform>();
             track.anchorMin = new Vector2(0f, 0f);
             track.anchorMax = new Vector2(1f, 1f);
             track.offsetMin = new Vector2(inset, 14f);
             track.offsetMax = new Vector2(-inset, -top);
+
             GameObject fill = new GameObject(
-                name, typeof(RectTransform), typeof(Image));
+                name,
+                typeof(RectTransform),
+                typeof(Image));
             fill.transform.SetParent(background.transform, false);
             Image image = fill.GetComponent<Image>();
             image.color = color;
@@ -683,22 +886,29 @@ namespace Lanternfall.Gameplay.UI
         }
 
         private static Text Label(
-            Transform parent, string name, string copy, int size, TextAnchor alignment)
+            Transform parent,
+            string name,
+            string copy,
+            int size,
+            TextAnchor alignment)
         {
-            GameObject label = new GameObject(name, typeof(RectTransform), typeof(Text));
+            GameObject label = new GameObject(
+                name,
+                typeof(RectTransform),
+                typeof(Text));
             label.transform.SetParent(parent, false);
             Text text = label.GetComponent<Text>();
             text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             text.text = copy;
             text.fontSize = size;
             text.alignment = alignment;
-            text.color = Color.white;
+            text.color = TextWarm;
             text.supportRichText = false;
             text.resizeTextForBestFit = false;
             text.alignByGeometry = true;
             Outline outline = label.AddComponent<Outline>();
-            outline.effectColor = new Color(0f, 0f, 0f, .8f);
-            outline.effectDistance = new Vector2(1.5f, -1.5f);
+            outline.effectColor = new Color(0f, 0f, 0f, .82f);
+            outline.effectDistance = new Vector2(1f, -1f);
             return text;
         }
 
@@ -715,7 +925,10 @@ namespace Lanternfall.Gameplay.UI
         }
 
         private static void SetRect(
-            RectTransform rect, Vector2 position, Vector2 size, Vector2 anchor)
+            RectTransform rect,
+            Vector2 position,
+            Vector2 size,
+            Vector2 anchor)
         {
             rect.anchorMin = anchor;
             rect.anchorMax = anchor;

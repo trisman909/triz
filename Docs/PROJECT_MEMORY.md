@@ -17,6 +17,97 @@ remain authoritative.
 - The user approved the installed Unity Supported release instead of waiting
   for Unity 6.3 LTS.
 
+## Permanent production goal
+
+Lanternfall should become a polished, replayable, original 3D roguelite that
+feels spacious, readable, atmospheric, and satisfying to play.
+
+Do not treat “technically working” as finished. A feature is only accepted
+when it feels good in actual play, looks intentional, and is understandable to
+the player.
+
+### Permanent creative direction
+
+- Dark mystical roguelite atmosphere.
+- Distinct biome identity.
+- Spacious rooms, not cramped obstacle mazes.
+- Smooth readable combat.
+- Professional UI/HUD.
+- Clear player feedback.
+- Strong movement and dodge feel.
+- Original identity, not a clone of Binding of Isaac.
+
+### Permanent player-feel rules
+
+- Rooms should feel big and movement-friendly.
+- The player should have space to move, dodge, aim, and circle enemies.
+- Obstacles should be smaller, fewer, and intentional.
+- Decorative props should usually stay near edges/background or have no
+  collider.
+- Avoid cluttering rooms just because space exists.
+- Keep wide movement lanes and loop paths.
+- The camera should stay comfortably centered with only mild look-ahead.
+- Moving upward should not make the player feel blind to the area
+  behind/around them.
+- Combat must remain readable before it becomes visually fancy.
+
+### Permanent player-character rules
+
+- The player character should not randomly change because of biome.
+- The player should remain visually consistent unless the player explicitly
+  selected a different class.
+- Class identity should come from weapon, silhouette, VFX, attack style, and
+  UI, not accidental swaps.
+
+### Permanent polish rules
+
+- HUD must look like a real game UI, not default Unity placeholder UI.
+- Movement should not feel like a static object sliding.
+- Dodge should have clear visual/audio feedback.
+- Hits, damage, boss health, rewards, pickups, and room completion must be
+  obvious.
+- Every build should be judged by actual play-feel, not only automated tests.
+
+### Permanent workflow rules
+
+- Work in small milestones.
+- Stop after each milestone for player review.
+- Do not continue automatically into the next major phase.
+- Do not chase “commercial complete” in one long autonomous run.
+- Do not add new content before existing content feels good.
+- Prefer improving the core loop over adding more enemies, bosses, biomes, or
+  systems.
+- Preserve accepted work unless a test or playtest proves it is broken.
+- Avoid broad rewrites unless genuinely necessary.
+- Use targeted tests while developing.
+- Run full tests/build/smoke only at milestone end.
+- Update project docs and commit only after verification passes.
+
+### Current milestone priority order
+
+1. Player presentation and HUD professionalism.
+2. Full-run gameplay feel: room purpose, healing, rewards, pacing, boss
+   clarity.
+3. Class identity and combat feedback.
+4. Save/progression clarity.
+5. Full-game art integration.
+6. Balance and polish.
+7. Release preparation only after the game is genuinely fun and stable.
+
+### Permanent definition of done
+
+A milestone is not done just because it compiles.
+
+It is done when:
+
+- tests pass
+- build works
+- smoke passes
+- documentation is updated
+- changes are committed
+- the player can understand and feel the improvement in-game
+- no major accepted feature regressed
+
 ## Repository and tools
 
 - Intended remote: `https://github.com/trisman909/triz.git`.
@@ -50,10 +141,12 @@ remain authoritative.
 
 ## Current state
 
-The project remains at the Phase 17 representative-chamber review milestone.
-Do not start full-game art integration until the user approves this review
-build. `trisman909/triz` remains the intended remote and the user has
-authorized pushing `master`.
+The user accepted the Phase 17 representative review chambers and redirected
+the next milestone to Phase 18A: player presentation and HUD professionalism.
+Do not start full-game art integration yet; the next milestone after this
+checkpoint remains gameplay-feel work rather than broad content expansion.
+`trisman909/triz` remains the intended remote and the user has authorized
+pushing `master`.
 
 ## Phase 13 verified work
 
@@ -161,6 +254,53 @@ chambers. Drowned Narthex remains cyan/blue-green with ACES/post-processing
 active in the accepted representative capture path and the packaged D3D11
 review build. Full-game art integration must not begin until the user approves
 this review build. This checkpoint is not commercial completion.
+
+## Phase 18A player-presentation checkpoint
+
+Phase 18A fixes the confusing review-build bearer swap by removing the
+biome-specific review avatar path and attaching a runtime
+`PlayerPresentation` component to the playable bearer in hub, run, sandbox
+and representative scenes. The bearer now resolves its visual identity from
+the selected class or active run class, not from biome. The procedural
+presentation rig provides class-specific palette/weapon silhouettes plus
+lightweight bob, lean, lantern and weapon sway, footstep dust, dodge trail and
+dodge-burst feedback without requiring a humanoid animation rig.
+
+`GameHud` was rebuilt into a darker framed runtime HUD with clearer vitality,
+readiness, route and run-status hierarchy. It now surfaces ability/dodge
+readiness, calling/weapon context and a more intentional announcement/title
+language instead of the earlier placeholder layout. A final closeout fix added
+`Start()` refresh logic so startup health text no longer depends on component
+`Awake()` ordering. `PlayerPresentation` also now removes the old root
+placeholder renderer so the bearer does not appear as a duplicated capsule
+under the new procedural rig.
+
+Batch verification on this machine still requires the repository
+`Phase17BatchVerificationRunner` path without forced `-quit`; native
+`-runTests` remains unreliable immediately after domain reload. One packaged
+smoke teardown crash was traced to the smoke probe's explicit quit path and
+fixed by switching to a short delayed normal `Application.Quit()`.
+
+Current Phase 18A evidence in the worktree:
+
+- EditMode: 35/35 passed (`2026-07-06T11:24:11.2541375Z`).
+- PlayMode: 17/17 passed (`2026-07-06T11:28:12.3396995Z`).
+- Release-readiness validation: passed
+  (`2026-07-06T11:29:43.2346166Z`).
+- Strict Windows x64 `1.0.0-rc.2` build succeeded
+  (`TestResults/phase18a_windows_build_manualfix.log`,
+  `Builds/WindowsRC/Lanternfall.exe`,
+  111,840,950 reported bytes).
+- Packaged Direct3D 11 smoke exited 0 with `LANTERNFALL_SMOKE_PASS`
+  (`TestResults/phase18a_windows_rc_smoke_manualfix.log`).
+
+Manual closeout notes for this checkpoint are intentionally narrow: the user's
+earlier review already accepted room scale, movement comfort, dodge comfort,
+camera framing and Drowned color. The final 18A closeout only changed HUD
+startup presentation and removal of the old root placeholder body, so the last
+manual pass focused on startup/player-presentation correctness rather than
+retesting chamber layout or room art. Phase 18B should begin with full-run
+gameplay feel, not new content.
 
 ## Architecture invariants
 

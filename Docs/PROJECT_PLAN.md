@@ -21,7 +21,99 @@ Updated: 2026-07-06
 | 14 | Radiance geometry, Vows, full Echo reward cadence | Complete |
 | 15 | Five playable biomes and distinct release encounters | Complete |
 | 16 | Production presentation, audio, UI and achievement wiring | Verified checkpoint |
-| 17 | Five-chamber production-art direction and player review build | Review build ready for approval |
+| 17 | Five-chamber production-art direction and player review build | Accepted player-review checkpoint |
+| 18A | Player presentation and HUD professionalism | Ready to commit |
+
+## Permanent production goal
+
+Lanternfall should become a polished, replayable, original 3D roguelite that
+feels spacious, readable, atmospheric, and satisfying to play.
+
+Do not treat “technically working” as finished. A feature is only accepted
+when it feels good in actual play, looks intentional, and is understandable to
+the player.
+
+## Permanent creative direction
+
+- Dark mystical roguelite atmosphere.
+- Distinct biome identity.
+- Spacious rooms, not cramped obstacle mazes.
+- Smooth readable combat.
+- Professional UI/HUD.
+- Clear player feedback.
+- Strong movement and dodge feel.
+- Original identity, not a clone of Binding of Isaac.
+
+## Permanent player-feel rules
+
+- Rooms should feel big and movement-friendly.
+- The player should have space to move, dodge, aim, and circle enemies.
+- Obstacles should be smaller, fewer, and intentional.
+- Decorative props should usually stay near edges/background or have no
+  collider.
+- Avoid cluttering rooms just because space exists.
+- Keep wide movement lanes and loop paths.
+- The camera should stay comfortably centered with only mild look-ahead.
+- Moving upward should not make the player feel blind to the area
+  behind/around them.
+- Combat must remain readable before it becomes visually fancy.
+
+## Permanent player-character rules
+
+- The player character should not randomly change because of biome.
+- The player should remain visually consistent unless the player explicitly
+  selected a different class.
+- Class identity should come from weapon, silhouette, VFX, attack style, and
+  UI, not accidental swaps.
+
+## Permanent polish rules
+
+- HUD must look like a real game UI, not default Unity placeholder UI.
+- Movement should not feel like a static object sliding.
+- Dodge should have clear visual/audio feedback.
+- Hits, damage, boss health, rewards, pickups, and room completion must be
+  obvious.
+- Every build should be judged by actual play-feel, not only automated tests.
+
+## Permanent workflow rules
+
+- Work in small milestones.
+- Stop after each milestone for player review.
+- Do not continue automatically into the next major phase.
+- Do not chase “commercial complete” in one long autonomous run.
+- Do not add new content before existing content feels good.
+- Prefer improving the core loop over adding more enemies, bosses, biomes, or
+  systems.
+- Preserve accepted work unless a test or playtest proves it is broken.
+- Avoid broad rewrites unless genuinely necessary.
+- Use targeted tests while developing.
+- Run full tests/build/smoke only at milestone end.
+- Update project docs and commit only after verification passes.
+
+## Current milestone priority order
+
+1. Player presentation and HUD professionalism.
+2. Full-run gameplay feel: room purpose, healing, rewards, pacing, boss
+   clarity.
+3. Class identity and combat feedback.
+4. Save/progression clarity.
+5. Full-game art integration.
+6. Balance and polish.
+7. Release preparation only after the game is genuinely fun and stable.
+
+## Permanent definition of done
+
+A milestone is not done just because it compiles.
+
+It is done when:
+
+- tests pass
+- build works
+- smoke passes
+- documentation is updated
+- changes are committed
+- the player can understand and feel the improvement in-game
+- no major accepted feature regressed
 
 ## Phase rules
 
@@ -324,3 +416,36 @@ commit before the next phase begins.
 - [ ] Commercial completion remains blocked by the open audit items, including
   human run-timing, manual device/audio/usability review and minimum-PC 60 FPS
   capture.
+
+## Phase 18A verification
+
+- [x] Representative-scene biome switching no longer swaps the bearer by biome.
+- [x] Playable bearer presentation now resolves from the selected/active class
+  and stays visually consistent across biome loads unless class selection
+  changes.
+- [x] Lightweight procedural movement presentation adds bob, lean, lantern and
+  weapon sway, plus footstep dust support.
+- [x] Dodge presentation adds visible trail/burst feedback and stronger pose
+  deformation/readability.
+- [x] HUD was restyled into a darker framed Lanternfall layout with clearer
+  vitality, readiness, route and run-status hierarchy.
+- [x] Health, calling/weapon and ability/dodge readiness displays are surfaced
+  by the runtime HUD.
+- [x] Final startup HUD fix removed the erroneous `0/180` load-order display.
+- [x] Final player-root fix removed the old placeholder capsule renderer below
+  the new bearer presentation rig.
+- [x] EditMode tests: 35/35 passed
+  (`2026-07-06T11:24:11.2541375Z`).
+- [x] PlayMode tests: 17/17 passed
+  (`2026-07-06T11:28:12.3396995Z`).
+- [x] Release-readiness validation passed
+  (`2026-07-06T11:29:43.2346166Z`).
+- [x] Strict Windows x64 `1.0.0-rc.2` build succeeded
+  (`TestResults/phase18a_windows_build_manualfix.log`,
+  111,840,950 reported bytes).
+- [x] Packaged Direct3D 11 smoke passed with exit code 0 and
+  `LANTERNFALL_SMOKE_PASS`
+  (`TestResults/phase18a_windows_rc_smoke_manualfix.log`).
+- [x] Manual closeout notes recorded for HUD startup, movement/dodge
+  continuity, and bearer consistency scope.
+- [ ] Commit and push Phase 18A.

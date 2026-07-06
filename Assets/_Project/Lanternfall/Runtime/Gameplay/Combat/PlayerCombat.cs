@@ -29,6 +29,8 @@ namespace Lanternfall.Gameplay.Combat
             startingAbility != null ? startingAbility.Cooldown : 0f;
         public string AbilityName =>
             startingAbility != null ? startingAbility.name : "Ability";
+        public string WeaponName =>
+            startingWeapon != null ? startingWeapon.name : "Weapon";
         public float AbilityCooldownMultiplier => _abilityCooldownMultiplier;
 
         private void Awake()

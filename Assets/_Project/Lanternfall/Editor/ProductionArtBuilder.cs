@@ -1495,7 +1495,7 @@ namespace Lanternfall.Editor
                 new Vector3(0f, 1f, -6.2f),
                 new Vector3(0f, 1f, -8.2f)
             };
-            GameObject player = BuildPlayer(character, playerSpawns[biome]);
+            GameObject player = BuildPlayer(playerSpawns[biome]);
             GameObject displayEnemy =
                 (GameObject)PrefabUtility.InstantiatePrefab(enemy);
             displayEnemy.name = "Enemy Silhouette Display";
@@ -1725,8 +1725,7 @@ namespace Lanternfall.Editor
             }
         }
 
-        private static GameObject BuildPlayer(
-            GameObject characterPrefab, Vector3 spawn)
+        private static GameObject BuildPlayer(Vector3 spawn)
         {
             var player = new GameObject("Bearer");
             player.transform.position = spawn;
@@ -1738,12 +1737,8 @@ namespace Lanternfall.Editor
             player.AddComponent<PlayerMotor>();
             player.AddComponent<Health>().Configure(180f, 5f, false);
             player.AddComponent<RunInventory>();
+            player.AddComponent<PlayerPresentation>();
             player.AddComponent<GameHud>();
-            GameObject model =
-                (GameObject)PrefabUtility.InstantiatePrefab(characterPrefab);
-            model.name = "Production Bearer Model";
-            model.transform.SetParent(player.transform, false);
-            model.transform.localPosition = Vector3.down;
             return player;
         }
 

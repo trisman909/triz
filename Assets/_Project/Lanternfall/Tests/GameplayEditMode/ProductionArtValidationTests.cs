@@ -126,6 +126,14 @@ namespace Lanternfall.Tests
 
                 GameObject bearer = GameObject.Find("Bearer");
                 Assert.That(bearer, Is.Not.Null, Slugs[biome]);
+                Assert.That(
+                    bearer.GetComponent<PlayerPresentation>(),
+                    Is.Not.Null,
+                    $"{Slugs[biome]} is missing PlayerPresentation.");
+                Assert.That(
+                    bearer.transform.Find("Production Bearer Model"),
+                    Is.Null,
+                    $"{Slugs[biome]} still contains the review-only biome avatar.");
                 Collider[] overlaps = Physics.OverlapBox(
                     bearer.transform.position + Vector3.up * .9f,
                     new Vector3(1.35f, .9f, 1.35f),

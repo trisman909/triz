@@ -32,6 +32,9 @@ namespace Lanternfall.Gameplay.Player
         public bool IsInvulnerable => IsDodging && _elapsed <= _invulnerabilityDuration;
         public bool CanStart => !IsDodging && _cooldownRemaining <= 0f;
         public float NormalizedTime => IsDodging ? Math.Min(1f, _elapsed / _duration) : 1f;
+        public float CooldownRemaining => _cooldownRemaining;
+        public float CooldownDuration => _cooldown;
+        public float Duration => _duration;
 
         public bool TryStart()
         {
@@ -52,4 +55,3 @@ namespace Lanternfall.Gameplay.Player
         }
     }
 }
-

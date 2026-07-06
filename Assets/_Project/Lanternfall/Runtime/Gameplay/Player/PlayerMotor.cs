@@ -2,6 +2,7 @@ using Lanternfall.Gameplay.Input;
 using Lanternfall.Gameplay.Hub;
 using Lanternfall.Gameplay.Progression;
 using Lanternfall.Gameplay.Presentation;
+using System;
 using UnityEngine;
 
 namespace Lanternfall.Gameplay.Player
@@ -24,6 +25,15 @@ namespace Lanternfall.Gameplay.Player
         private float _footstepTimer;
 
         public bool IsInvulnerable => _dodge != null && _dodge.IsInvulnerable;
+        public bool IsDodging => _dodge != null && _dodge.IsDodging;
+        public Vector3 CurrentPlanarVelocity { get; private set; }
+        public float DodgeCooldownRemaining =>
+            _dodge != null ? _dodge.CooldownRemaining : 0f;
+        public float DodgeCooldownDuration =>
+            _dodge != null ? _dodge.CooldownDuration : 0f;
+        public float MoveSpeed => moveSpeed;
+        public float SprintMultiplier => sprintMultiplier;
+        public event Action Dodged;
 
         public void ConfigureMoveSpeed(float speed) =>
             moveSpeed = Mathf.Max(.1f, speed);
@@ -54,6 +64,7 @@ namespace Lanternfall.Gameplay.Player
                 GameplayPresentationSignals.RaiseCue(
                     PresentationCue.Dodge,
                     transform.position);
+                Dodged?.Invoke();
             }
 
             _dodge.Tick(deltaTime);
@@ -75,6 +86,7 @@ namespace Lanternfall.Gameplay.Player
 
             _velocity.x = planar.x;
             _velocity.z = planar.z;
+            CurrentPlanarVelocity = planar;
             _velocity.y = _controller.isGrounded ? -2f : _velocity.y + gravity * deltaTime;
             _controller.Move(_velocity * deltaTime);
             _footstepTimer -= deltaTime;
