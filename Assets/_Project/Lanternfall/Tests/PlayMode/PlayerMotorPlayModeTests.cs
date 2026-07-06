@@ -111,7 +111,12 @@ namespace Lanternfall.Tests
             EnemyBrain brain = enemy.AddComponent<EnemyBrain>();
             brain.Configure(definition, target.transform, EliteModifier.None);
 
-            yield return new WaitForSeconds(0.15f);
+            float timeout = 1f;
+            while (targetHealth.Current >= 100f && timeout > 0f)
+            {
+                timeout -= Time.deltaTime;
+                yield return null;
+            }
 
             Assert.That(targetHealth.Current, Is.LessThan(100f));
             Object.Destroy(enemy);
@@ -211,6 +216,12 @@ namespace Lanternfall.Tests
                 "TEST", "Readable subtitle content.", 1f);
             yield return null;
             Assert.That(hud.SubtitleVisible, Is.True);
+            hud.ShowTitleCard("TEST CHAMBER", .5f);
+            yield return null;
+            Canvas canvas =
+                player.GetComponentInChildren<Canvas>(true);
+            Assert.That(canvas, Is.Not.Null);
+            Assert.That(canvas.pixelPerfect, Is.True);
             hud.DisplayRunSummary(new RunSummaryData(
                 true, 7UL, "class.test", 120f,
                 40, 50, 5, 100, 3, 1, 0));
@@ -342,6 +353,28 @@ namespace Lanternfall.Tests
                 Is.True);
             Assert.That(AccessibilityRuntime.CameraShake, Is.Zero);
             AccessibilityRuntime.Apply(new SettingsData());
+        }
+
+        [UnityTest]
+        public IEnumerator RepresentativeBiomeSwitcherLoadsRequestedScene()
+        {
+            SceneManager.LoadScene("ArtReview_DrownedNarthex");
+            yield return null;
+            yield return null;
+
+            RepresentativeBiomeSwitcher switcher =
+                Object.FindFirstObjectByType<RepresentativeBiomeSwitcher>();
+            Assert.That(switcher, Is.Not.Null);
+            switcher.SwitchToBiome(4);
+            yield return null;
+            yield return null;
+
+            Assert.That(
+                SceneManager.GetActiveScene().name,
+                Is.EqualTo("ArtReview_StormvaultFoundry"));
+            Assert.That(
+                Object.FindFirstObjectByType<PlayerInputReader>(),
+                Is.Not.Null);
         }
 
         [UnityTest]

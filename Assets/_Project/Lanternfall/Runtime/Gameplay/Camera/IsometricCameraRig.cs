@@ -34,6 +34,16 @@ namespace Lanternfall.Gameplay.Camera
                 camera.orthographicSize = _baseZoom;
         }
 
+        public void SnapImmediately()
+        {
+            if (target == null) return;
+            transform.position = target.position + offset;
+            transform.rotation = Quaternion.Euler(48f, 0f, 0f);
+            _followVelocity = Vector3.zero;
+            if (TryGetComponent(out UnityEngine.Camera camera))
+                camera.orthographicSize = _targetZoom = _baseZoom;
+        }
+
         public void Shake(float amplitude, float duration)
         {
             if (AccessibilityRuntime.ReducedMotion) return;
@@ -49,6 +59,7 @@ namespace Lanternfall.Gameplay.Camera
                 camera.orthographic = true;
                 camera.orthographicSize = _baseZoom;
             }
+            SnapImmediately();
         }
 
         private void LateUpdate()

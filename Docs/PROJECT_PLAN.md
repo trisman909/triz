@@ -1,6 +1,6 @@
 # Lanternfall production plan
 
-Updated: 2026-07-03
+Updated: 2026-07-06
 
 | Phase | Deliverable | Status |
 |---|---|---|
@@ -21,7 +21,7 @@ Updated: 2026-07-03
 | 14 | Radiance geometry, Vows, full Echo reward cadence | Complete |
 | 15 | Five playable biomes and distinct release encounters | Complete |
 | 16 | Production presentation, audio, UI and achievement wiring | Verified checkpoint |
-| 17 | Five-chamber production-art direction and player review build | Awaiting approval |
+| 17 | Five-chamber production-art direction and player review build | Review build ready for approval |
 
 ## Phase rules
 
@@ -305,10 +305,20 @@ commit before the next phase begins.
   procedural fallback geometry alone receives color overrides.
 - [x] Reduced motion, flash limiting, camera-shake suppression, subtitles and
   high-contrast telegraphs remain wired and PlayMode-verified.
-- [x] EditMode: 35/35; PlayMode: 14/14; release-readiness validation passed.
-- [x] Strict Windows x64 `1.0.0-rc.2` build succeeded (109,136,226 reported
-  bytes) and its D3D12 packaged smoke traversed hub, run chamber and all five
-  review chambers with exit code 0.
+- [x] D3D11 representative captures are the accepted visual authority on the
+  local Intel UHD 620 machine; Drowned Narthex remains cyan/blue-green with
+  ACES active in that path.
+- [x] EditMode: 35/35 passed (`2026-07-05T21:12:21.8818311Z`).
+- [x] PlayMode: 15/15 passed (`TestResults/Phase17_PlayMode.xml`,
+  `2026-07-06 00:06:26Z`–`00:06:43Z`) after fixing the batch runner callback
+  persistence across PlayMode domain reload.
+- [x] Release-readiness validation passed
+  (`2026-07-06T00:08:02.7604472Z`).
+- [x] Strict Windows x64 `1.0.0-rc.2` build succeeded
+  (`Builds/WindowsRC/Lanternfall.exe`, 111,916,134 reported bytes).
+- [x] Fresh packaged Direct3D 11 smoke exited 0 with
+  `LANTERNFALL_SMOKE_PASS` after traversing the hub, integrated run chamber
+  and all five review chambers (`TestResults/windows_rc_smoke_current.log`).
 - [ ] Obtain player approval of the five representative chambers.
 - [ ] Do not begin full-game art integration until that approval is received.
 - [ ] Commercial completion remains blocked by the open audit items, including

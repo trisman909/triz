@@ -44,6 +44,7 @@ namespace Lanternfall.Gameplay.UI
         private Text _summaryText;
         private GameObject _titlePanel;
         private CanvasGroup _titleGroup;
+        private Text _titleText;
         private GameObject _onboardingPanel;
         private Texture2D _iconAtlas;
         private readonly System.Collections.Generic.List<Sprite> _runtimeIcons =
@@ -56,6 +57,8 @@ namespace Lanternfall.Gameplay.UI
         private int _bindingSlot;
         private string _rebindStatus = "READY";
         private float _titleTime;
+        private int _screenWidth;
+        private int _screenHeight;
         private static bool _onboardingSeen;
 
         public bool SubtitleVisible =>
@@ -134,6 +137,8 @@ namespace Lanternfall.Gameplay.UI
         {
             if (_input.PausePressedThisFrame) SetPaused(!_paused);
             if (_paused) ReadSettingsInput();
+            if (_screenWidth != Screen.width || _screenHeight != Screen.height)
+                RefreshCanvasScale();
             if (SummaryVisible && _input.InteractPressedThisFrame)
                 _summaryPanel.SetActive(false);
             if (_titlePanel != null && _titlePanel.activeSelf)
@@ -199,66 +204,72 @@ namespace Lanternfall.Gameplay.UI
             Canvas canvas = canvasObject.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             canvas.sortingOrder = 100;
+            canvas.pixelPerfect = true;
             _scaler = canvasObject.AddComponent<CanvasScaler>();
-            _scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            _scaler.uiScaleMode = CanvasScaler.ScaleMode.ConstantPixelSize;
             _scaler.referenceResolution = new Vector2(1920f, 1080f);
-            _scaler.matchWidthOrHeight = .5f;
+            _scaler.screenMatchMode =
+                CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
+            _scaler.matchWidthOrHeight = .35f;
+            _scaler.referencePixelsPerUnit = 100f;
+            _scaler.dynamicPixelsPerUnit = 1f;
             canvasObject.AddComponent<GraphicRaycaster>();
             _iconAtlas = Resources.Load<Texture2D>(
                 "UI/Lanternfall_UI_IconAtlas");
+            RefreshCanvasScale();
 
             GameObject healthPanel = Panel(
                 canvasObject.transform, "Vitality", new Vector2(24f, -24f),
-                new Vector2(420f, 92f), new Vector2(0f, 1f));
+                new Vector2(450f, 104f), new Vector2(0f, 1f));
             _healthFill = Bar(healthPanel.transform, "Health", Tide, 18f, 50f);
             Icon(healthPanel.transform, "Lantern Icon", 0,
-                new Vector2(20f, -18f), 44f, new Vector2(0f, 1f));
+                new Vector2(20f, -18f), 48f, new Vector2(0f, 1f));
             _healthText = Label(healthPanel.transform, "Health Text",
-                "LANTERN  180 / 180", 22, TextAnchor.UpperLeft);
+                "LANTERN  180 / 180", 25, TextAnchor.UpperLeft);
             SetRect(_healthText.rectTransform,
-                new Vector2(68f, -10f), new Vector2(330f, 34f), new Vector2(0f, 1f));
+                new Vector2(74f, -10f), new Vector2(348f, 38f), new Vector2(0f, 1f));
 
             GameObject resources = Panel(
                 canvasObject.transform, "Run Status", new Vector2(24f, 24f),
-                new Vector2(520f, 82f), Vector2.zero);
+                new Vector2(620f, 92f), Vector2.zero);
             _resourcesText = Label(resources.transform, "Resources",
                 "GOLD 0   ECHOES 0/3   BUFFS —   DEBUFFS —", 19,
                 TextAnchor.MiddleLeft);
             Stretch(_resourcesText.rectTransform, 16f);
             Icon(resources.transform, "Echo Icon", 1,
-                new Vector2(-42f, 0f), 34f, new Vector2(1f, .5f));
+                new Vector2(-42f, 0f), 38f, new Vector2(1f, .5f));
 
             GameObject ability = Panel(
                 canvasObject.transform, "Ability", new Vector2(-24f, 24f),
-                new Vector2(320f, 72f), new Vector2(1f, 0f));
+                new Vector2(370f, 82f), new Vector2(1f, 0f));
             _abilityText = Label(ability.transform, "Cooldown",
-                "Q / LB  ABILITY  READY", 19, TextAnchor.MiddleCenter);
+                "Q / LB  ABILITY  READY", 22, TextAnchor.MiddleCenter);
             Stretch(_abilityText.rectTransform, 10f);
             Icon(ability.transform, "Ability Icon", 2,
-                new Vector2(18f, 0f), 38f, new Vector2(0f, .5f));
+                new Vector2(20f, 0f), 42f, new Vector2(0f, .5f));
 
             GameObject minimap = Panel(
                 canvasObject.transform, "Minimap", new Vector2(-24f, -24f),
-                new Vector2(250f, 150f), Vector2.one);
+                new Vector2(280f, 164f), Vector2.one);
             _routeText = Label(minimap.transform, "Route",
                 "NARTHEX ROUTE\n◆ CURRENT CHAMBER\n? UNCHARTED", 18,
                 TextAnchor.MiddleCenter);
-            Stretch(_routeText.rectTransform, 12f);
+            Stretch(_routeText.rectTransform, 14f);
             Icon(minimap.transform, "Route Icon", 3,
-                new Vector2(18f, -18f), 36f, new Vector2(0f, 1f));
+                new Vector2(18f, -18f), 40f, new Vector2(0f, 1f));
 
             _bossPanel = Panel(
                 canvasObject.transform, "Guardian", new Vector2(0f, -30f),
-                new Vector2(780f, 96f), new Vector2(.5f, 1f));
+                new Vector2(820f, 110f), new Vector2(.5f, 1f));
             _bossFill = Bar(_bossPanel.transform, "Guardian Health", Ember, 18f, 50f);
             _bossText = Label(_bossPanel.transform, "Guardian Name",
-                "GUARDIAN", 22, TextAnchor.UpperCenter);
+                "GUARDIAN", 25, TextAnchor.UpperCenter);
             SetRect(_bossText.rectTransform,
-                new Vector2(0f, -8f), new Vector2(740f, 34f), new Vector2(.5f, 1f));
+                new Vector2(0f, -8f), new Vector2(760f, 38f), new Vector2(.5f, 1f));
             _bossPanel.SetActive(false);
 
             _announcement = Label(canvasObject.transform, "Announcement",
-                string.Empty, 34, TextAnchor.MiddleCenter);
+                string.Empty, 38, TextAnchor.MiddleCenter);
             SetRect(_announcement.rectTransform,
                 Vector2.zero, new Vector2(900f, 100f), new Vector2(.5f, .68f));
             _announcement.gameObject.SetActive(false);
@@ -280,7 +291,7 @@ namespace Lanternfall.Gameplay.UI
                 _subtitlePanel.transform,
                 "Subtitle Copy",
                 string.Empty,
-                24,
+                27,
                 TextAnchor.MiddleCenter);
             Stretch(_subtitleText.rectTransform, 14f);
             _subtitlePanel.SetActive(false);
@@ -292,31 +303,34 @@ namespace Lanternfall.Gameplay.UI
                 _summaryPanel.transform,
                 "Run Summary Copy",
                 string.Empty,
-                25,
+                28,
                 TextAnchor.MiddleCenter);
             Stretch(_summaryText.rectTransform, 34f);
             _summaryPanel.SetActive(false);
             Icon(_summaryPanel.transform, "Summary Icon", 5,
                 new Vector2(32f, -32f), 58f, new Vector2(0f, 1f));
 
+            _titlePanel = Panel(
+                canvasObject.transform, "Title Card", Vector2.zero,
+                new Vector2(940f, 240f), new Vector2(.5f, .62f));
+            _titleGroup = _titlePanel.AddComponent<CanvasGroup>();
+            _titleText = Label(
+                _titlePanel.transform,
+                "Title",
+                string.Empty,
+                50,
+                TextAnchor.MiddleCenter);
+            _titleText.supportRichText = true;
+            Stretch(_titleText.rectTransform, 24f);
+            Icon(_titlePanel.transform, "Title Lantern", 0,
+                new Vector2(38f, -38f), 72f, new Vector2(0f, 1f));
+            _titlePanel.SetActive(false);
+
             if (SceneManager.GetActiveScene().name == "LanternfallHub")
             {
-                _titlePanel = Panel(
-                    canvasObject.transform, "Title Card", Vector2.zero,
-                    new Vector2(920f, 250f), new Vector2(.5f, .62f));
-                _titleGroup = _titlePanel.AddComponent<CanvasGroup>();
-                Text title = Label(
-                    _titlePanel.transform,
-                    "Title",
-                    "L A N T E R N F A L L\n" +
-                    "<size=24>CARRY THE LAST LIGHT</size>",
-                    54,
-                    TextAnchor.MiddleCenter);
-                title.supportRichText = true;
-                Stretch(title.rectTransform, 24f);
-                Icon(_titlePanel.transform, "Title Lantern", 0,
-                    new Vector2(38f, -38f), 72f, new Vector2(0f, 1f));
-                _titleTime = 4.5f;
+                ShowTitleCard(
+                    "L A N T E R N F A L L\n<size=24>CARRY THE LAST LIGHT</size>",
+                    4.5f);
 
                 if (!_onboardingSeen)
                 {
@@ -333,7 +347,7 @@ namespace Lanternfall.Gameplay.UI
                         "WASD / LEFT STICK  MOVE\n" +
                         "E / A  CHOOSE A CALLING · ENTER THE DESCENT\n" +
                         "ESC / START  SETTINGS & REMAPPING",
-                        20,
+                        22,
                         TextAnchor.MiddleLeft);
                     Stretch(guide.rectTransform, 22f);
                     Icon(_onboardingPanel.transform, "Guide Icon", 6,
@@ -345,10 +359,17 @@ namespace Lanternfall.Gameplay.UI
 
         private void ApplyAccessibility()
         {
-            if (_scaler != null)
-                _scaler.referenceResolution =
-                    new Vector2(1920f, 1080f) / AccessibilityRuntime.UiScale;
+            RefreshCanvasScale();
             RefreshPauseCopy();
+        }
+
+        public void ShowTitleCard(string copy, float durationSeconds = 3f)
+        {
+            if (_titlePanel == null || _titleText == null) return;
+            _titleText.text = copy;
+            _titlePanel.SetActive(true);
+            if (_titleGroup != null) _titleGroup.alpha = 1f;
+            _titleTime = durationSeconds;
         }
 
         private void ReadSettingsInput()
@@ -673,7 +694,24 @@ namespace Lanternfall.Gameplay.UI
             text.alignment = alignment;
             text.color = Color.white;
             text.supportRichText = false;
+            text.resizeTextForBestFit = false;
+            text.alignByGeometry = true;
+            Outline outline = label.AddComponent<Outline>();
+            outline.effectColor = new Color(0f, 0f, 0f, .8f);
+            outline.effectDistance = new Vector2(1.5f, -1.5f);
             return text;
+        }
+
+        private void RefreshCanvasScale()
+        {
+            if (_scaler == null) return;
+            _screenWidth = Screen.width;
+            _screenHeight = Screen.height;
+            float widthScale = Mathf.Max(.75f, _screenWidth / 1920f);
+            float heightScale = Mathf.Max(.75f, _screenHeight / 1080f);
+            float resolutionScale = Mathf.Lerp(heightScale, widthScale, .35f);
+            _scaler.scaleFactor =
+                Mathf.Clamp(resolutionScale * AccessibilityRuntime.UiScale, .85f, 2.25f);
         }
 
         private static void SetRect(

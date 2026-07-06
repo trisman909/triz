@@ -1,6 +1,6 @@
 # Lanternfall durable project memory
 
-Last updated: 2026-07-02
+Last updated: 2026-07-06
 
 This is the concise cross-session handoff. `AGENTS.md` requires every future
 agent to read and maintain it. The worktree, Unity results, and Git history
@@ -50,38 +50,10 @@ remain authoritative.
 
 ## Current state
 
-Phase 10 is verified, committed and pushed. It includes a
-responsive generated HUD, live keyboard/controller settings, persisted binding
-overrides, a clamped accessibility runtime profile, original procedural
-adaptive music, and an exactly 100-entry validated achievement catalog with
-save-backed tracking. Final evidence is 17/17 EditMode, 8/8 PlayMode, and a
-164,793,134-byte Windows development build. The user explicitly confirmed that
-`trisman909/triz` is the intended remote and authorized pushing `master`.
-
-Phase 11 is verified, committed and pushed as `3c9b474`. It adds a fixed-memory 60 FPS
-telemetry window, declared minimum-PC budgets, four-tier/five-biome centralized
-balance, English fallback and pseudo-locale QA, a 1,000-seed generation soak,
-and a unified release-readiness validator. Evidence: 21/21 EditMode, 9/9
-PlayMode including the live vertical slice, validator pass, and a
-164,806,502-byte Windows development build.
-
-Next actions:
-
-Phase 12 is verified, committed and pushed as `04fc84d`. The production builder sets version
-`1.0.0-rc.1`, strict non-development Windows x64 options, clean output,
-core-file SHA-256 checksums and a JSON release manifest. A packaged D3D12 smoke
-run on Intel UHD 620 traversed hub to first biome and exited 0 with
-`LANTERNFALL_SMOKE_PASS`; final build size is 99,582,628 bytes. The work also
-fixed real player corruption caused by secondary `LocalizationBootstrap` and
-`BiomeAtmosphere` MonoBehaviours embedded in scenes; each component now has its
-own matching source file, and no scene contains embedded MonoScripts.
-
-The final audit proved the packaging pipeline but found the game is not
-commercially complete. Integrated runs, core pillars and systemic biome/
-encounter identities are now implemented through Phase 15, while production
-presentation, achievements, accessibility, audio and minimum-PC proof remain.
-`Docs/COMPLETION_AUDIT.md` is authoritative. The plan now continues through
-Phases 13–17 rather than making a false completion claim.
+The project remains at the Phase 17 representative-chamber review milestone.
+Do not start full-game art integration until the user approves this review
+build. `trisman909/triz` remains the intended remote and the user has
+authorized pushing `master`.
 
 ## Phase 13 verified work
 
@@ -158,13 +130,16 @@ Volume profiles also contained null component references. The builder now
 forces a neutral custom-reflection environment, validates/normalizes URP Lit
 materials and persists Volume components as sub-assets.
 
+The review correction pass enlarged the playable floors around the real player
+controller, moved spawns inward for better gameplay-camera framing, added
+instant biome switching on keys `1`–`5`, tightened HUD scaling/text clarity,
+and refreshed clean-load captures after the chamber corrections.
+
 Fresh clean-process captures now confirm all five chambers reload consistently.
-Drowned Narthex is cyan/blue-green rather than purple; Siltglass remains a
-sandy-violet radial observatory, Ember a red-orange furnace trench, Gloam a
-green irregular root clearing and Stormvault a blue metallic machine grid.
-The profiles retain ACES. Drowned disables camera post-processing because an
-Intel/D3D12 driver-path fault was independently shown to fold its cyan emission
-violet; its authored ACES profile remains valid for later platform retesting.
+Drowned Narthex is cyan/blue-green under active ACES/post-processing rather
+than magenta or purple; Siltglass remains a sandy-violet radial observatory,
+Ember a red-orange furnace trench, Gloam a green irregular root clearing and
+Stormvault a blue metallic machine grid.
 
 Runtime-created materials are backed by Resources material assets so player
 shader stripping cannot remove URP Lit, Unlit or Particles/Unlit. This was
@@ -173,12 +148,19 @@ materials no longer receive unnecessary property blocks. The actor ornament
 reconfiguration path also now clears its destroyed rig reference before
 rebuilding, preserving guardian/enemy readability after scene startup.
 
-Final evidence: 35/35 EditMode, 14/14 PlayMode, release-readiness pass, strict
-Windows x64 `1.0.0-rc.2` build (109,136,226 reported bytes), and packaged
-D3D12 smoke exit 0 with `LANTERNFALL_SMOKE_PASS` after traversing the hub,
-integrated run chamber and all five representative chambers. Full-game art
-integration must not begin until the user approves this review build. This
-checkpoint is not commercial completion.
+Final evidence: 35/35 EditMode (`2026-07-05T21:12:21.8818311Z`), 15/15
+PlayMode (`TestResults/Phase17_PlayMode.xml`, run started `2026-07-06
+00:06:26Z` and finished `00:06:43Z`), release-readiness pass
+(`2026-07-06T00:08:02.7604472Z`), accepted D3D11 clean-load captures for all
+five representative chambers, strict Windows x64 `1.0.0-rc.2` build
+(`Builds/WindowsRC/Lanternfall.exe`, manifest built `2026-07-06T00:18:02.8753950Z`,
+111,916,134 reported bytes), and fresh packaged Direct3D 11 smoke exit 0 with
+`LANTERNFALL_SMOKE_PASS` (`TestResults/windows_rc_smoke_current.log`) after
+traversing the hub, integrated run chamber and all five representative
+chambers. Drowned Narthex remains cyan/blue-green with ACES/post-processing
+active in the accepted representative capture path and the packaged D3D11
+review build. Full-game art integration must not begin until the user approves
+this review build. This checkpoint is not commercial completion.
 
 ## Architecture invariants
 

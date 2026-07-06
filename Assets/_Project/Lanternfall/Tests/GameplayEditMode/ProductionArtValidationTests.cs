@@ -88,12 +88,20 @@ namespace Lanternfall.Tests
                     UnityEngine.Object.FindObjectsByType<ProductionAssetMarker>(
                         FindObjectsSortMode.None);
                 Assert.That(markers.Length, Is.GreaterThanOrEqualTo(11));
+                ProductionAssetMarker[] floorMarkers = markers
+                    .Where(marker =>
+                        marker.Kind == ProductionAssetKind.Floor ||
+                        marker.Kind == ProductionAssetKind.Arena)
+                    .ToArray();
+                Assert.That(floorMarkers.Length, Is.GreaterThanOrEqualTo(2));
                 string layout = string.Join(
                     "|",
                     markers
                         .Where(item =>
-                            item.Kind == ProductionAssetKind.Floor)
+                            item.Kind != ProductionAssetKind.Floor &&
+                            item.Kind != ProductionAssetKind.Arena)
                         .Select(item =>
+                            $"{item.Kind}:" +
                             $"{item.transform.position.x:F1}," +
                             $"{item.transform.position.z:F1}," +
                             $"{item.transform.eulerAngles.y:F0}")
@@ -106,6 +114,7 @@ namespace Lanternfall.Tests
                     UnityEngine.Object.FindObjectsByType<BiomeHazard>(
                         FindObjectsSortMode.None).Length,
                     Is.EqualTo(hazardCounts[biome]));
+                AssertContinuousTraversal(floorMarkers, Slugs[biome]);
 
                 Camera camera =
                     UnityEngine.Object.FindAnyObjectByType<Camera>();
@@ -113,9 +122,53 @@ namespace Lanternfall.Tests
                 UniversalAdditionalCameraData cameraData =
                     camera.GetComponent<UniversalAdditionalCameraData>();
                 Assert.That(cameraData, Is.Not.Null);
+                Assert.That(cameraData.renderPostProcessing, Is.True);
+
+                GameObject bearer = GameObject.Find("Bearer");
+                Assert.That(bearer, Is.Not.Null, Slugs[biome]);
+                Collider[] overlaps = Physics.OverlapBox(
+                    bearer.transform.position + Vector3.up * .9f,
+                    new Vector3(1.35f, .9f, 1.35f),
+                    Quaternion.identity);
+                int blocking = overlaps.Count(collider =>
+                    !collider.isTrigger &&
+                    collider.transform.root.gameObject != bearer);
                 Assert.That(
-                    cameraData.renderPostProcessing,
-                    Is.EqualTo(biome != 0));
+                    blocking,
+                    Is.EqualTo(0),
+                    $"{Slugs[biome]} spawn is obstructed.");
+                GameObject landmark = markers
+                    .First(item => item.Kind == ProductionAssetKind.Landmark)
+                    .gameObject;
+                AssertPathExists(
+                    bearer.transform.position,
+                    landmark.transform.position,
+                    floorMarkers,
+                    Slugs[biome]);
+
+                Bounds chamberBounds = ComputePlayableBounds(floorMarkers);
+                foreach (ProductionAssetMarker marker in markers)
+                    Assert.That(
+                        chamberBounds.Contains(marker.transform.position),
+                        Is.True,
+                        $"{Slugs[biome]} contains out-of-bounds marker {marker.name}.");
+                foreach (Collider collider in
+                         UnityEngine.Object.FindObjectsByType<Collider>(
+                             FindObjectsSortMode.None))
+                {
+                    if (!collider.enabled) continue;
+                    if (collider.transform.root.gameObject == bearer) continue;
+                    Assert.That(
+                        chamberBounds.Contains(collider.bounds.center),
+                        Is.True,
+                        $"{Slugs[biome]} contains an out-of-bounds collider " +
+                        $"{collider.name}.");
+                }
+
+                RepresentativeBiomeSwitcher switcher =
+                    UnityEngine.Object.FindAnyObjectByType<
+                        RepresentativeBiomeSwitcher>();
+                Assert.That(switcher, Is.Not.Null, Slugs[biome]);
 
                 Volume volume =
                     UnityEngine.Object.FindAnyObjectByType<Volume>();
@@ -240,6 +293,157 @@ namespace Lanternfall.Tests
                 material.shader.name,
                 Does.StartWith("Universal Render Pipeline/"),
                 context);
+        }
+
+        private static void AssertContinuousTraversal(
+            ProductionAssetMarker[] floorMarkers,
+            string slug)
+        {
+            var visited = new HashSet<int> { 0 };
+            var queue = new Queue<int>();
+            queue.Enqueue(0);
+            while (queue.Count > 0)
+            {
+                int current = queue.Dequeue();
+                for (int other = 0; other < floorMarkers.Length; other++)
+                {
+                    Vector3 currentPosition =
+                        floorMarkers[current].transform.position;
+                    Vector3 otherPosition =
+                        floorMarkers[other].transform.position;
+                    if (visited.Contains(other) ||
+                        !AreAdjacent(currentPosition, otherPosition))
+                        continue;
+                    if (IsDiagonal(currentPosition, otherPosition) &&
+                        !HasFloorAtMidpoint(currentPosition, otherPosition))
+                        continue;
+                    Assert.That(
+                        HasFloorAtMidpoint(
+                            currentPosition,
+                            otherPosition),
+                        Is.True,
+                        $"{slug} has a floor gap between connected tiles at " +
+                        $"{currentPosition} and {otherPosition}.");
+                    visited.Add(other);
+                    queue.Enqueue(other);
+                }
+            }
+            Assert.That(
+                visited.Count,
+                Is.EqualTo(floorMarkers.Length),
+                $"{slug} floor is not fully connected.");
+        }
+
+        private static void AssertPathExists(
+            Vector3 start,
+            Vector3 destination,
+            ProductionAssetMarker[] floorMarkers,
+            string slug)
+        {
+            int startIndex = NearestFloor(start, floorMarkers);
+            int endIndex = NearestFloor(destination, floorMarkers);
+            var visited = new HashSet<int> { startIndex };
+            var queue = new Queue<int>();
+            queue.Enqueue(startIndex);
+            while (queue.Count > 0)
+            {
+                int current = queue.Dequeue();
+                if (current == endIndex) return;
+                for (int other = 0; other < floorMarkers.Length; other++)
+                {
+                    Vector3 currentPosition =
+                        floorMarkers[current].transform.position;
+                    Vector3 otherPosition =
+                        floorMarkers[other].transform.position;
+                    if (visited.Contains(other) ||
+                        !AreAdjacent(currentPosition, otherPosition))
+                        continue;
+                    if (IsDiagonal(currentPosition, otherPosition) &&
+                        !HasFloorAtMidpoint(currentPosition, otherPosition))
+                        continue;
+                    visited.Add(other);
+                    queue.Enqueue(other);
+                }
+            }
+            Assert.Fail($"{slug} has no connected route from spawn to landmark.");
+        }
+
+        private static int NearestFloor(
+            Vector3 point,
+            ProductionAssetMarker[] floorMarkers)
+        {
+            int nearest = 0;
+            float distance = float.MaxValue;
+            for (int index = 0; index < floorMarkers.Length; index++)
+            {
+                float candidate = Vector3.Distance(
+                    point,
+                    floorMarkers[index].transform.position);
+                if (candidate >= distance) continue;
+                distance = candidate;
+                nearest = index;
+            }
+            return nearest;
+        }
+
+        private static Bounds ComputePlayableBounds(
+            ProductionAssetMarker[] floorMarkers)
+        {
+            Collider firstCollider =
+                floorMarkers[0].GetComponentInChildren<Collider>();
+            Bounds bounds = firstCollider != null
+                ? firstCollider.bounds
+                : new Bounds(
+                    floorMarkers[0].transform.position,
+                    new Vector3(4f, 4f, 4f));
+            foreach (ProductionAssetMarker marker in floorMarkers)
+            {
+                Collider collider = marker.GetComponentInChildren<Collider>();
+                if (collider != null) bounds.Encapsulate(collider.bounds);
+                else bounds.Encapsulate(marker.transform.position);
+            }
+            bounds.Expand(new Vector3(1f, 6f, 1f));
+            return bounds;
+        }
+
+        private static bool AreAdjacent(Vector3 a, Vector3 b)
+        {
+            Vector2 delta = new Vector2(a.x - b.x, a.z - b.z);
+            return delta.sqrMagnitude <= 32.5f;
+        }
+
+        private static bool IsDiagonal(Vector3 a, Vector3 b) =>
+            Mathf.Abs(a.x - b.x) > .1f &&
+            Mathf.Abs(a.z - b.z) > .1f;
+
+        private static bool HasFloorAtMidpoint(Vector3 a, Vector3 b)
+        {
+            Vector3 midpoint = Vector3.Lerp(a, b, .5f);
+            Vector3[] probes =
+            {
+                midpoint,
+                midpoint + new Vector3(.9f, 0f, 0f),
+                midpoint + new Vector3(-.9f, 0f, 0f),
+                midpoint + new Vector3(0f, 0f, .9f),
+                midpoint + new Vector3(0f, 0f, -.9f)
+            };
+            foreach (Vector3 probe in probes)
+            {
+                RaycastHit[] hits = Physics.RaycastAll(
+                    probe + Vector3.up * 6f,
+                    Vector3.down,
+                    12f);
+                foreach (RaycastHit hit in hits.OrderBy(item => item.distance))
+                {
+                    ProductionAssetMarker marker =
+                        hit.collider.GetComponentInParent<ProductionAssetMarker>();
+                    if (marker != null &&
+                        (marker.Kind == ProductionAssetKind.Floor ||
+                         marker.Kind == ProductionAssetKind.Arena))
+                        return true;
+                }
+            }
+            return false;
         }
     }
 }

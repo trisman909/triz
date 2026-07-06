@@ -24,10 +24,12 @@ rooms are presentation proofs, not five finished campaign levels.
 - The five locations no longer read as recolors of one stone kit.
 - Gameplay-camera composition, landmark framing, atmosphere and traversal
   grammar differ materially between every chamber.
+- The review versions are now spacious showroom chambers with open movement,
+  wide loop paths and direct biome switching on keys `1`–`5`.
 - Authored surfaces, fog, particles, lights, enemies, guardian ornaments,
   accessible telegraphs and pooled effects render through URP.
 - Drowned Narthex survives a fresh reload as cyan/blue-green rather than
-  magenta or violet.
+  magenta or violet while ACES/post-processing remains active.
 - Menus, route HUD, run summary, remapping, subtitles, reduced motion,
   high-contrast telegraphs and flash/shake limits remain operational.
 
@@ -41,8 +43,8 @@ rooms are presentation proofs, not five finished campaign levels.
   professional composition, performance, mix and mastering review.
 - Review rooms demonstrate one composition per biome; the complete 40-room run
   has not received this art language.
-- Drowned camera post-processing is disabled as a verified driver-specific
-  color-preservation workaround pending broader GPU testing.
+- The representative review build is visual/player-review quality, not a final
+  content-complete public release candidate.
 
 ## Approval boundary
 
@@ -54,9 +56,13 @@ candidate.
 
 ## Verification evidence
 
-- EditMode: 35/35 passed.
-- PlayMode: 14/14 passed.
-- Release-readiness validation: passed.
-- Windows x64 strict build: 109,136,226 reported bytes.
-- Packaged Direct3D 12 smoke: exit 0, `LANTERNFALL_SMOKE_PASS`.
+- EditMode: 35/35 passed (`2026-07-05T21:12:21.8818311Z`).
+- PlayMode: 15/15 passed (`TestResults/Phase17_PlayMode.xml`,
+  `2026-07-06 00:06:26Z`–`00:06:43Z`).
+- Release-readiness validation: passed
+  (`2026-07-06T00:08:02.7604472Z`).
+- Windows x64 strict build: `Builds/WindowsRC/Lanternfall.exe`,
+  111,916,134 reported bytes.
+- Packaged Direct3D 11 smoke: exit 0, `LANTERNFALL_SMOKE_PASS`
+  (`TestResults/windows_rc_smoke_current.log`).
 - Smoke route: hub, integrated run chamber and all five art-review chambers.

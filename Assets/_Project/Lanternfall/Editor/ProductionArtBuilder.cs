@@ -234,6 +234,10 @@ namespace Lanternfall.Editor
             UniversalAdditionalCameraData cameraData =
                 camera.GetComponent<UniversalAdditionalCameraData>();
             bool postProcessing = cameraData.renderPostProcessing;
+            CaptureCamera(
+                camera,
+                "Docs/ArtDirection/Diagnostics/" +
+                "DrownedScene_ACES.png");
             cameraData.renderPostProcessing = false;
             CaptureCamera(
                 camera,
@@ -546,18 +550,21 @@ namespace Lanternfall.Editor
 
         private static void GenerateUiAndVfxTextures()
         {
-            const int atlasSize = 512;
+            const int atlasSize = 1024;
+            const int cellSize = atlasSize / 4;
             var pixels = new Color[atlasSize * atlasSize];
             for (int icon = 0; icon < 16; icon++)
             {
                 int cellX = icon % 4;
                 int cellY = icon / 4;
                 Color accent = Accents[icon % 5];
-                for (int y = 0; y < 128; y++)
-                for (int x = 0; x < 128; x++)
+                for (int y = 0; y < cellSize; y++)
+                for (int x = 0; x < cellSize; x++)
                 {
-                    float nx = (x - 63.5f) / 58f;
-                    float ny = (y - 63.5f) / 58f;
+                    float nx =
+                        (x - (cellSize * .5f - .5f)) / (cellSize * .46f);
+                    float ny =
+                        (y - (cellSize * .5f - .5f)) / (cellSize * .46f);
                     float radius = Mathf.Sqrt(nx * nx + ny * ny);
                     float angle = Mathf.Atan2(ny, nx);
                     float petals = .52f + .14f *
@@ -568,8 +575,8 @@ namespace Lanternfall.Editor
                     Color color = border
                         ? new Color(.75f, .58f, .28f, 1f)
                         : glyph ? accent : Color.clear;
-                    int px = cellX * 128 + x;
-                    int py = cellY * 128 + y;
+                    int px = cellX * cellSize + x;
+                    int py = cellY * cellSize + y;
                     pixels[py * atlasSize + px] = color;
                 }
             }
@@ -657,8 +664,25 @@ namespace Lanternfall.Editor
                         Mathf.Clamp01(SmoothFamilies[biome] + .2f),
                         Accents[biome] * 4f, biome)
                 };
+                // The showroom floor is presented as a room-scale slab rather
+                // than a carpet of repeated four-metre modules. A larger UV
+                // repeat keeps the authored surface readable at that scale.
+                SetTextureScale(result[biome][0], new Vector2(8f, 8f));
             }
             return result;
+        }
+
+        private static void SetTextureScale(Material material, Vector2 scale)
+        {
+            string[] textureProperties =
+            {
+                "_BaseMap", "_MainTex", "_BumpMap",
+                "_MetallicGlossMap", "_EmissionMap"
+            };
+            foreach (string property in textureProperties)
+                if (material.HasProperty(property))
+                    material.SetTextureScale(property, scale);
+            EditorUtility.SetDirty(material);
         }
 
         private static Material CreateMaterial(
@@ -1416,36 +1440,36 @@ namespace Lanternfall.Editor
             {
                 new[]
                 {
-                    new Vector3(-3.2f, .08f, -1.2f),
-                    new Vector3(3.2f, .08f, -1.2f),
-                    new Vector3(-3.2f, .08f, 4.5f),
-                    new Vector3(3.2f, .08f, 4.5f)
+                    new Vector3(-8f, .08f, -6f),
+                    new Vector3(8f, .08f, -6f),
+                    new Vector3(-8f, .08f, 10f),
+                    new Vector3(8f, .08f, 10f)
                 },
                 new[]
                 {
-                    new Vector3(-3.7f, .08f, 2.2f),
-                    new Vector3(2.1f, .08f, -2.8f),
-                    new Vector3(3.8f, .08f, 2f)
+                    new Vector3(-8f, .08f, 0f),
+                    new Vector3(0f, .08f, 10f),
+                    new Vector3(8f, .08f, 0f)
                 },
                 new[]
                 {
-                    new Vector3(-1.55f, .08f, -1.7f),
-                    new Vector3(1.55f, .08f, .8f),
-                    new Vector3(-1.55f, .08f, 3.3f),
-                    new Vector3(1.55f, .08f, 5.8f)
+                    new Vector3(0f, .08f, -10f),
+                    new Vector3(0f, .08f, -2f),
+                    new Vector3(0f, .08f, 6f),
+                    new Vector3(0f, .08f, 14f)
                 },
                 new[]
                 {
-                    new Vector3(-2.8f, .08f, -1.4f),
-                    new Vector3(3.6f, .08f, 1.8f),
-                    new Vector3(-.4f, .08f, 4.7f)
+                    new Vector3(-8f, .08f, -2f),
+                    new Vector3(8f, .08f, 2f),
+                    new Vector3(0f, .08f, 10f)
                 },
                 new[]
                 {
-                    new Vector3(-4.4f, .08f, -.8f),
-                    new Vector3(0f, .08f, 1.7f),
-                    new Vector3(4.4f, .08f, -.8f),
-                    new Vector3(0f, .08f, 5.2f)
+                    new Vector3(-8f, .08f, 0f),
+                    new Vector3(0f, .08f, 8f),
+                    new Vector3(8f, .08f, 0f),
+                    new Vector3(0f, .08f, 14f)
                 }
             };
             for (int index = 0;
@@ -1465,27 +1489,45 @@ namespace Lanternfall.Editor
 
             Vector3[] playerSpawns =
             {
-                new Vector3(0f, 1f, -5.2f),
-                new Vector3(0f, 1f, -5.4f),
-                new Vector3(0f, 1f, -5.2f),
-                new Vector3(-2.9f, 1f, -4.3f),
-                new Vector3(0f, 1f, -5.1f)
+                new Vector3(0f, 1f, -6.4f),
+                new Vector3(0f, 1f, -8.4f),
+                new Vector3(0f, 1f, -7.4f),
+                new Vector3(0f, 1f, -6.2f),
+                new Vector3(0f, 1f, -8.2f)
             };
             GameObject player = BuildPlayer(character, playerSpawns[biome]);
             GameObject displayEnemy =
                 (GameObject)PrefabUtility.InstantiatePrefab(enemy);
             displayEnemy.name = "Enemy Silhouette Display";
-            displayEnemy.transform.position = new Vector3(-4.1f, .2f, 1.6f);
+            displayEnemy.transform.position = biome switch
+            {
+                0 => new Vector3(-10f, .2f, 2f),
+                1 => new Vector3(-10f, .2f, -6f),
+                2 => new Vector3(-10f, .2f, 4f),
+                3 => new Vector3(-10f, .2f, 0f),
+                _ => new Vector3(-10f, .2f, 6f)
+            };
             displayEnemy.transform.rotation = Quaternion.Euler(0f, 145f, 0f);
+            displayEnemy.transform.localScale *= .92f;
             displayEnemy.AddComponent<ActorPresentation>().Configure(
                 Accents[biome], .85f, false);
+            DisableColliders(displayEnemy);
             GameObject displayGuardian =
                 (GameObject)PrefabUtility.InstantiatePrefab(guardian);
             displayGuardian.name = "Guardian Silhouette Display";
-            displayGuardian.transform.position = new Vector3(4.1f, .2f, 1.6f);
+            displayGuardian.transform.position = biome switch
+            {
+                0 => new Vector3(10f, .2f, 8f),
+                1 => new Vector3(10f, .2f, 2f),
+                2 => new Vector3(10f, .2f, 10f),
+                3 => new Vector3(10f, .2f, 6f),
+                _ => new Vector3(10f, .2f, 10f)
+            };
             displayGuardian.transform.rotation = Quaternion.Euler(0f, -145f, 0f);
+            displayGuardian.transform.localScale *= .94f;
             displayGuardian.AddComponent<ActorPresentation>().Configure(
                 Accents[biome], 1.2f, true);
+            DisableColliders(displayGuardian);
             BossAttackPattern[] showcasePatterns =
             {
                 BossAttackPattern.BellShockwave,
@@ -1500,23 +1542,30 @@ namespace Lanternfall.Editor
                 Accents[biome]);
 
             AddWorldLabel(
-                new Vector3(0f, 4.7f, 5.7f),
+                biome switch
+                {
+                    0 => new Vector3(0f, 4.1f, 12f),
+                    1 => new Vector3(0f, 4.1f, 8f),
+                    2 => new Vector3(0f, 4.2f, 12f),
+                    3 => new Vector3(0f, 4.2f, 8f),
+                    _ => new Vector3(0f, 4.2f, 12f)
+                },
                 $"{profile.DisplayName}\n{profile.EnvironmentalStory}",
                 52, .065f);
             AddWorldLabel(
-                new Vector3(-4.1f, 3.25f, 1.6f),
+                displayEnemy.transform.position + new Vector3(0f, 3.1f, 0f),
                 "ENEMY SILHOUETTE", 38, .05f);
             AddWorldLabel(
-                new Vector3(4.1f, 4.25f, 1.6f),
+                displayGuardian.transform.position + new Vector3(0f, 4f, 0f),
                 "GUARDIAN SILHOUETTE", 38, .05f);
 
             Vector3[] exitPositions =
             {
-                new Vector3(0f, 0f, 9f),
-                new Vector3(0f, 0f, 7.5f),
-                new Vector3(0f, 0f, 9f),
-                new Vector3(1.5f, 0f, 7.7f),
-                new Vector3(0f, 0f, 9f)
+                new Vector3(0f, 0f, 18f),
+                new Vector3(0f, 0f, 14f),
+                new Vector3(0f, 0f, 18f),
+                new Vector3(0f, 0f, 14f),
+                new Vector3(0f, 0f, 18f)
             };
             float[] exitYaw = { 0f, 0f, 0f, -12f, 0f };
             GameObject portal = Place(
@@ -1536,7 +1585,7 @@ namespace Lanternfall.Editor
                     : "NEXT BIOME REVIEW",
                 42, .055f);
 
-            BuildCamera(player.transform, biome != 0);
+            BuildCamera(player.transform, biome);
             BuildExperienceSystems(biome);
             EditorSceneManager.SaveScene(scene, scenePath);
         }
@@ -1544,139 +1593,134 @@ namespace Lanternfall.Editor
         private static void BuildBiomeComposition(
             int biome, GameObject[] prefabs)
         {
-            void Module(ProductionAssetKind kind, float x, float z, float yaw = 0f) =>
-                Place(prefabs[(int)kind], new Vector3(x, 0f, z), yaw);
-            void Floor(float x, float z, float yaw = 0f) =>
-                Module(ProductionAssetKind.Floor, x, z, yaw);
+            GameObject Module(
+                ProductionAssetKind kind,
+                float x,
+                float z,
+                float yaw = 0f,
+                float footprintScale = 1f,
+                bool disableColliders = false)
+            {
+                GameObject item =
+                    Place(prefabs[(int)kind], new Vector3(x, 0f, z), yaw);
+                if (!Mathf.Approximately(footprintScale, 1f))
+                    ScaleFootprint(item, footprintScale);
+                if (disableColliders)
+                    DisableColliders(item);
+                return item;
+            }
+
+            void Underlay(
+                float x,
+                float z,
+                float scaleX,
+                float scaleZ,
+                float y = -.02f)
+            {
+                GameObject item = Place(
+                    prefabs[(int)ProductionAssetKind.Floor],
+                    new Vector3(x, y, z),
+                    0f);
+                Vector3 scale = item.transform.localScale;
+                item.transform.localScale = new Vector3(
+                    scale.x * scaleX,
+                    scale.y,
+                    scale.z * scaleZ);
+                item.name = "Continuous Playable Floor";
+            }
 
             Module(ProductionAssetKind.Arena, 0f, -.5f);
             switch (biome)
             {
                 case 0: // Processional drowned nave: ordered aisle and broken transept.
-                    for (int z = -2; z <= 2; z++) Floor(0f, z * 4f);
-                    for (int z = -1; z <= 1; z++)
+                    Underlay(0f, 4f, 7.1f, 10.2f);
+                    Module(ProductionAssetKind.Wall, -4f, 24f);
+                    Module(ProductionAssetKind.Wall, 4f, 24f);
+                    Module(ProductionAssetKind.Corner, -12f, 20f, 90f, .82f);
+                    Module(ProductionAssetKind.Corner, 12f, 20f, 270f, .82f);
+                    for (int z = -12; z <= 20; z += 8)
                     {
-                        Floor(-4f, z * 4f);
-                        Floor(4f, z * 4f);
+                        Module(ProductionAssetKind.Column, -9.5f, z, 0f, .68f);
+                        Module(ProductionAssetKind.Column, 9.5f, z, 0f, .68f);
                     }
-                    Floor(-8f, 4f);
-                    Floor(8f, 4f);
-                    Module(ProductionAssetKind.Wall, -4f, 8f);
-                    Module(ProductionAssetKind.Wall, 4f, 8f);
-                    Module(ProductionAssetKind.Corner, -6f, 6f, 90f);
-                    Module(ProductionAssetKind.Corner, 6f, 6f, 270f);
-                    for (int z = -2; z <= 5; z += 3)
-                    {
-                        Module(ProductionAssetKind.Column, -4.8f, z);
-                        Module(ProductionAssetKind.Column, 4.8f, z);
-                    }
-                    Module(ProductionAssetKind.Landmark, 0f, 4.5f);
-                    Module(ProductionAssetKind.Decoration, -2.8f, 6f, 20f);
-                    Module(ProductionAssetKind.Decoration, 3.1f, 5.2f, -25f);
-                    Module(ProductionAssetKind.Breakable, -4.6f, -4f, 12f);
-                    Module(ProductionAssetKind.Breakable, 4.5f, -3.4f, 75f);
-                    Module(ProductionAssetKind.Lantern, -3.1f, 1.8f);
-                    Module(ProductionAssetKind.Lantern, 3.1f, 1.8f);
+                    Module(ProductionAssetKind.Landmark, 0f, 20.4f, 0f, .82f);
+                    Module(ProductionAssetKind.Decoration, -10f, 12f, 20f, .7f, true);
+                    Module(ProductionAssetKind.Decoration, 10f, 11.2f, -25f, .7f, true);
+                    Module(ProductionAssetKind.Breakable, -10f, -12f, 12f, .72f, true);
+                    Module(ProductionAssetKind.Breakable, 10f, -12f, 75f, .72f, true);
+                    Module(ProductionAssetKind.Lantern, -7.4f, 2.2f, 0f, .78f, true);
+                    Module(ProductionAssetKind.Lantern, 7.4f, 2.2f, 0f, .78f, true);
                     break;
                 case 1: // Radial observatory: rotated plates orbit a fractured orrery.
-                    Floor(0f, 0f);
-                    Floor(0f, -8f);
-                    for (int spoke = 0; spoke < 8; spoke++)
-                    {
-                        float angle = spoke * 45f;
-                        float radians = angle * Mathf.Deg2Rad;
-                        Floor(Mathf.Sin(radians) * 4.3f,
-                            Mathf.Cos(radians) * 4.3f, angle);
-                    }
-                    Module(ProductionAssetKind.Landmark, 0f, 1.4f, 18f);
+                    Underlay(0f, 0f, 8.6f, 8.6f);
+                    Module(ProductionAssetKind.Landmark, 0f, 4.2f, 18f, .76f);
                     for (int spoke = 0; spoke < 4; spoke++)
                     {
                         float angle = spoke * 90f + 45f;
                         float radians = angle * Mathf.Deg2Rad;
                         Module(ProductionAssetKind.Column,
-                            Mathf.Sin(radians) * 5.6f,
-                            Mathf.Cos(radians) * 5.6f, -angle);
+                            Mathf.Sin(radians) * 10.8f,
+                            Mathf.Cos(radians) * 10.8f, -angle, .66f);
                     }
-                    Module(ProductionAssetKind.Wall, -5.5f, 5.5f, 45f);
-                    Module(ProductionAssetKind.Wall, 5.5f, 5.5f, -45f);
-                    Module(ProductionAssetKind.Corner, -6f, -1f, 45f);
-                    Module(ProductionAssetKind.Corner, 6f, -1f, -45f);
-                    Module(ProductionAssetKind.Decoration, -3.2f, 2.8f, 35f);
-                    Module(ProductionAssetKind.Decoration, 3.4f, -2.7f, -70f);
-                    Module(ProductionAssetKind.Breakable, -5.2f, -4.3f);
-                    Module(ProductionAssetKind.Lantern, 5.1f, 4.5f);
+                    Module(ProductionAssetKind.Wall, -12f, 12f, 45f, .8f);
+                    Module(ProductionAssetKind.Wall, 12f, 12f, -45f, .8f);
+                    Module(ProductionAssetKind.Corner, -12f, 0f, 45f, .78f);
+                    Module(ProductionAssetKind.Corner, 12f, 0f, -45f, .78f);
+                    Module(ProductionAssetKind.Decoration, -11f, 6f, 35f, .68f, true);
+                    Module(ProductionAssetKind.Decoration, 11f, -6f, -70f, .68f, true);
+                    Module(ProductionAssetKind.Breakable, -10f, -10f, 0f, .7f, true);
+                    Module(ProductionAssetKind.Lantern, 10f, 10f, 0f, .78f, true);
                     break;
                 case 2: // Ossuary furnace: long iron trench with a dangerous centerline.
-                    for (int z = -2; z <= 2; z++)
-                    {
-                        Floor(-2f, z * 4f);
-                        Floor(2f, z * 4f);
-                    }
-                    Floor(-6f, 0f);
-                    Floor(6f, 0f);
-                    Floor(-6f, 4f);
-                    Floor(6f, 4f);
-                    Module(ProductionAssetKind.Wall, -6f, 2f, 90f);
-                    Module(ProductionAssetKind.Wall, 6f, 2f, 270f);
-                    Module(ProductionAssetKind.Corner, -6f, 7f, 90f);
-                    Module(ProductionAssetKind.Corner, 6f, 7f, 180f);
-                    Module(ProductionAssetKind.Landmark, 0f, 6.2f);
-                    Module(ProductionAssetKind.Column, -5.1f, -2.2f);
-                    Module(ProductionAssetKind.Column, 5.1f, 4.2f);
-                    Module(ProductionAssetKind.Decoration, -4.2f, 4.8f, 90f);
-                    Module(ProductionAssetKind.Decoration, 4.4f, -.8f, -90f);
-                    for (int z = -3; z <= 4; z += 3)
-                        Module(ProductionAssetKind.Breakable, -3.8f, z, z * 13f);
-                    Module(ProductionAssetKind.Lantern, -2.3f, 6f);
-                    Module(ProductionAssetKind.Lantern, 2.3f, 6f);
+                    Underlay(0f, 4f, 7.1f, 10.2f);
+                    Module(ProductionAssetKind.Wall, -12f, 8f, 90f, .82f);
+                    Module(ProductionAssetKind.Wall, 12f, 8f, 270f, .82f);
+                    Module(ProductionAssetKind.Corner, -12f, 24f, 90f, .78f);
+                    Module(ProductionAssetKind.Corner, 12f, 24f, 180f, .78f);
+                    Module(ProductionAssetKind.Landmark, 0f, 21.6f, 0f, .8f);
+                    Module(ProductionAssetKind.Column, -9.2f, -3.8f, 0f, .7f);
+                    Module(ProductionAssetKind.Column, 9.2f, 9.8f, 0f, .7f);
+                    Module(ProductionAssetKind.Decoration, -10.4f, 11.2f, 90f, .68f, true);
+                    Module(ProductionAssetKind.Decoration, 10.6f, -.8f, -90f, .68f, true);
+                    for (int z = -12; z <= 12; z += 8)
+                        Module(ProductionAssetKind.Breakable, -10f, z, z * 13f, .7f, true);
+                    Module(ProductionAssetKind.Breakable, 10f, 4f, -22f, .7f, true);
+                    Module(ProductionAssetKind.Lantern, -7.7f, 11.6f, 0f, .78f, true);
+                    Module(ProductionAssetKind.Lantern, 7.7f, 11.6f, 0f, .78f, true);
                     break;
                 case 3: // Orchard clearing: asymmetric, encroaching roots and shrine clusters.
-                    Floor(-3.4f, -7.5f, 18f);
-                    Floor(0f, 0f, 8f);
-                    Floor(-3.8f, .4f, -12f);
-                    Floor(3.9f, -.5f, 17f);
-                    Floor(-3.2f, 4.1f, 24f);
-                    Floor(1f, 4.2f, -18f);
-                    Floor(4.6f, 4f, 10f);
-                    Floor(-1.6f, -4f, -9f);
-                    Floor(3.2f, -3.8f, 21f);
-                    Module(ProductionAssetKind.Wall, -5f, 5f, 34f);
-                    Module(ProductionAssetKind.Wall, 5.7f, 3.8f, -28f);
-                    Module(ProductionAssetKind.Corner, -6f, -.6f, 62f);
-                    Module(ProductionAssetKind.Column, -4f, 1.8f, 18f);
-                    Module(ProductionAssetKind.Column, 4.8f, -1.7f, -25f);
-                    Module(ProductionAssetKind.Landmark, -1f, 3.4f, -15f);
-                    Module(ProductionAssetKind.Decoration, -4.4f, -2.8f, 44f);
-                    Module(ProductionAssetKind.Decoration, 3.7f, 3.7f, -36f);
-                    Module(ProductionAssetKind.Decoration, 5f, .8f, 80f);
-                    Module(ProductionAssetKind.Breakable, -2.5f, -4.4f, 22f);
-                    Module(ProductionAssetKind.Lantern, 2.2f, 4.7f);
+                    Underlay(0f, 0f, 7.7f, 7.7f);
+                    Module(ProductionAssetKind.Wall, -12f, 12f, 34f, .82f);
+                    Module(ProductionAssetKind.Wall, 12f, 12f, -28f, .82f);
+                    Module(ProductionAssetKind.Corner, -12f, 0f, 62f, .8f);
+                    Module(ProductionAssetKind.Column, -10f, 6f, 18f, .66f);
+                    Module(ProductionAssetKind.Column, 10f, 2f, -25f, .66f);
+                    Module(ProductionAssetKind.Landmark, 2f, 14.2f, -15f, .8f);
+                    Module(ProductionAssetKind.Decoration, -11f, -4f, 44f, .7f, true);
+                    Module(ProductionAssetKind.Decoration, 10f, 6f, -36f, .7f, true);
+                    Module(ProductionAssetKind.Decoration, 12f, 0f, 80f, .68f, true);
+                    Module(ProductionAssetKind.Breakable, 10f, -8f, 22f, .72f, true);
+                    Module(ProductionAssetKind.Lantern, 8f, 10f, 0f, .78f, true);
                     break;
                 default: // Foundry: hard grid, paired pylons and machine-gate axis.
-                    for (int z = -1; z <= 1; z++)
-                    for (int x = -2; x <= 2; x++) Floor(x * 4f, z * 4f);
-                    for (int x = -1; x <= 1; x++)
+                    Underlay(0f, 4f, 8.6f, 10.2f);
+                    Module(ProductionAssetKind.Gate, 0f, -16f, 180f, .82f);
+                    Module(ProductionAssetKind.Wall, -16f, 4f, 90f, .82f);
+                    Module(ProductionAssetKind.Wall, 16f, 4f, 270f, .82f);
+                    Module(ProductionAssetKind.Corner, -16f, 24f, 90f, .8f);
+                    Module(ProductionAssetKind.Corner, 16f, 24f, 180f, .8f);
+                    for (int z = -12; z <= 20; z += 8)
                     {
-                        Floor(x * 4f, -8f);
-                        Floor(x * 4f, 8f);
+                        Module(ProductionAssetKind.Column, -8f, z, 0f, .68f);
+                        Module(ProductionAssetKind.Column, 8f, z, 0f, .68f);
                     }
-                    Module(ProductionAssetKind.Gate, 0f, -5.8f, 180f);
-                    Module(ProductionAssetKind.Wall, -6f, 2f, 90f);
-                    Module(ProductionAssetKind.Wall, 6f, 2f, 270f);
-                    Module(ProductionAssetKind.Corner, -6f, 7f, 90f);
-                    Module(ProductionAssetKind.Corner, 6f, 7f, 180f);
-                    for (int z = -1; z <= 6; z += 3)
-                    {
-                        Module(ProductionAssetKind.Column, -4.7f, z);
-                        Module(ProductionAssetKind.Column, 4.7f, z);
-                    }
-                    Module(ProductionAssetKind.Landmark, 0f, 5.4f);
-                    Module(ProductionAssetKind.Decoration, -3.6f, 4.2f, 90f);
-                    Module(ProductionAssetKind.Decoration, 3.6f, 4.2f, -90f);
-                    Module(ProductionAssetKind.Breakable, -4.2f, -3.8f);
-                    Module(ProductionAssetKind.Breakable, 4.2f, -3.8f);
-                    Module(ProductionAssetKind.Lantern, -2.7f, 2.3f);
-                    Module(ProductionAssetKind.Lantern, 2.7f, 2.3f);
+                    Module(ProductionAssetKind.Landmark, 0f, 21.8f, 0f, .82f);
+                    Module(ProductionAssetKind.Decoration, -12f, 10f, 90f, .68f, true);
+                    Module(ProductionAssetKind.Decoration, 12f, 10f, -90f, .68f, true);
+                    Module(ProductionAssetKind.Breakable, -12f, -12f, 0f, .72f, true);
+                    Module(ProductionAssetKind.Breakable, 12f, -12f, 0f, .72f, true);
+                    Module(ProductionAssetKind.Lantern, -8f, 6.2f, 0f, .78f, true);
+                    Module(ProductionAssetKind.Lantern, 8f, 6.2f, 0f, .78f, true);
                     break;
             }
         }
@@ -1704,7 +1748,7 @@ namespace Lanternfall.Editor
         }
 
         private static void BuildCamera(
-            Transform target, bool renderPostProcessing)
+            Transform target, int biome)
         {
             var cameraObject = new GameObject("Presentation Camera");
             cameraObject.tag = "MainCamera";
@@ -1715,21 +1759,27 @@ namespace Lanternfall.Editor
             if (cameraData == null)
                 cameraData =
                     cameraObject.AddComponent<UniversalAdditionalCameraData>();
-            cameraData.renderPostProcessing = renderPostProcessing;
+            cameraData.renderPostProcessing = true;
             camera.orthographic = true;
-            camera.orthographicSize = 8.5f;
+            Vector3[] offsets =
+            {
+                new Vector3(0f, 12.2f, -10.98f),
+                new Vector3(0f, 12.2f, -10.98f),
+                new Vector3(0f, 12.5f, -11.25f),
+                new Vector3(0f, 11.9f, -10.71f),
+                new Vector3(0f, 12.5f, -11.25f)
+            };
+            float[] sizes = { 6.3f, 6.6f, 6.6f, 6.3f, 6.7f };
+            camera.orthographicSize = sizes[biome];
             camera.clearFlags = CameraClearFlags.SolidColor;
             camera.backgroundColor = new Color(.008f, .012f, .02f);
             cameraObject.AddComponent<AudioListener>();
             IsometricCameraRig rig =
                 cameraObject.AddComponent<IsometricCameraRig>();
             rig.SetTarget(target);
-            // Review scenes use a gentle forward look-ahead so the player
-            // remains in the lower third while the biome landmark frames the
-            // route ahead through the real gameplay camera.
-            rig.ConfigureView(new Vector3(0f, 13f, -9f), 9.3f);
+            rig.ConfigureView(offsets[biome], sizes[biome]);
             cameraObject.transform.position =
-                target.position + new Vector3(0f, 13f, -9f);
+                target.position + offsets[biome];
             cameraObject.transform.rotation = Quaternion.Euler(48f, 0f, 0f);
         }
 
@@ -1741,6 +1791,17 @@ namespace Lanternfall.Editor
             systems.AddComponent<CombatVfxDirector>();
             systems.AddComponent<DynamicAudioDirector>();
             systems.AddComponent<BiomeAmbientAudio>().Configure(biome);
+            systems.AddComponent<RepresentativeBiomeSwitcher>().Configure(
+                biome,
+                new[]
+                {
+                    $"ArtReview_{BiomeSlugs[0]}",
+                    $"ArtReview_{BiomeSlugs[1]}",
+                    $"ArtReview_{BiomeSlugs[2]}",
+                    $"ArtReview_{BiomeSlugs[3]}",
+                    $"ArtReview_{BiomeSlugs[4]}"
+                },
+                BiomeNames);
         }
 
         private static void BuildLighting(ProductionBiomeArtProfile profile)
@@ -1749,9 +1810,12 @@ namespace Lanternfall.Editor
             Light key = keyObject.AddComponent<Light>();
             key.type = LightType.Directional;
             key.color = profile.KeyLightColor;
-            key.intensity = profile.KeyLightIntensity;
-            key.shadows = LightShadows.Soft;
-            key.shadowStrength = .72f;
+            key.intensity = profile.KeyLightIntensity * 1.18f;
+            // Intel/D3D12 renders the long orthographic shadow atlas as hard
+            // rectangular patches after a clean scene load. In these review
+            // showrooms that reads as floor holes, so the authored ambient,
+            // rim, emissive and fog lighting carries depth without that atlas.
+            key.shadows = LightShadows.None;
             keyObject.transform.rotation = Quaternion.Euler(52f, -38f, 0f);
             RenderSettings.sun = key;
 
@@ -1759,10 +1823,10 @@ namespace Lanternfall.Editor
             Light rim = rimObject.AddComponent<Light>();
             rim.type = LightType.Point;
             rim.color = profile.ParticleColor;
-            rim.intensity = 4f;
-            rim.range = 12f;
+            rim.intensity = 5.6f;
+            rim.range = 18f;
             rim.shadows = LightShadows.None;
-            rimObject.transform.position = new Vector3(0f, 4f, -1f);
+            rimObject.transform.position = new Vector3(0f, 4.5f, 2f);
         }
 
         private static void ConfigureGlobalAtmosphere(
@@ -1805,10 +1869,6 @@ namespace Lanternfall.Editor
                 if (subAsset is VolumeComponent)
                     UnityEngine.Object.DestroyImmediate(subAsset, true);
             volume.components.Clear();
-            // URP 17's bloom path on this D3D device folds the Drowned
-            // cyan HDR emission toward violet. The controlled no-post capture
-            // proves the material inputs are correct, so Drowned uses emissive
-            // geometry and local lights without bloom.
             if (biome != 0)
             {
                 Bloom bloom = AddVolumeComponent<Bloom>(volume);
@@ -1825,21 +1885,17 @@ namespace Lanternfall.Editor
             vignette.active = true;
             vignette.intensity.Override(.24f);
             vignette.smoothness.Override(.58f);
-            // The Drowned palette is graded through ACES, fog, and its
-            // cyan/green light rig. URP 17's ColorAdjustments LUT folds this
-            // biome's intense cyan emission toward violet, so it is
-            // deliberately excluded rather than compensating with a tint.
-            if (biome != 0)
-            {
-                ColorAdjustments color =
-                    AddVolumeComponent<ColorAdjustments>(volume);
-                color.active = true;
-                color.postExposure.Override(.2f);
-                color.contrast.Override(18f);
-                color.saturation.Override(-6f);
-                color.colorFilter.Override(
-                    Color.Lerp(Color.white, profile.KeyLightColor, .16f));
-            }
+            ColorAdjustments color =
+                AddVolumeComponent<ColorAdjustments>(volume);
+            color.active = true;
+            color.postExposure.Override(biome == 0 ? .12f : .38f);
+            color.contrast.Override(biome == 0 ? 6f : 16f);
+            color.saturation.Override(biome == 0 ? 0f : -6f);
+            color.colorFilter.Override(
+                Color.Lerp(
+                    Color.white,
+                    profile.KeyLightColor,
+                    biome == 0 ? .12f : .16f));
             EditorUtility.SetDirty(volume);
 
             GameObject volumeObject = new GameObject("Realm Color Grade");
@@ -1989,33 +2045,16 @@ namespace Lanternfall.Editor
 
         private static void CaptureScene(string scenePath, string output)
         {
-            Scene scene = EditorSceneManager.OpenScene(
+            EditorSceneManager.OpenScene(
                 scenePath, OpenSceneMode.Single);
             UnityEngine.Camera camera =
                 UnityEngine.Object.FindFirstObjectByType<UnityEngine.Camera>();
             if (camera == null) camera = CreateCaptureCamera();
-            bool drowned = scenePath.IndexOf(
-                "DrownedNarthex",
-                StringComparison.OrdinalIgnoreCase) >= 0;
+            camera.GetComponent<IsometricCameraRig>()?.SnapImmediately();
             UniversalAdditionalCameraData cameraData =
                 camera.GetComponent<UniversalAdditionalCameraData>();
             if (cameraData != null)
-                cameraData.renderPostProcessing = !drowned;
-            if (drowned)
-            {
-                GameObject grade = GameObject.Find("Realm Color Grade");
-                if (grade != null) grade.SetActive(false);
-            }
-            GameObject bearer = GameObject.Find("Bearer");
-            if (bearer != null)
-            {
-                camera.transform.position =
-                    bearer.transform.position +
-                    new Vector3(0f, 13f, -9f);
-                camera.transform.rotation = Quaternion.Euler(48f, 0f, 0f);
-            }
-            camera.orthographic = true;
-            camera.orthographicSize = 9.3f;
+                cameraData.renderPostProcessing = true;
             CaptureCamera(camera, output);
         }
 
@@ -2028,6 +2067,10 @@ namespace Lanternfall.Editor
             camera.orthographicSize = 8.5f;
             camera.clearFlags = CameraClearFlags.SolidColor;
             camera.backgroundColor = new Color(.015f, .018f, .025f);
+            camera.allowHDR = true;
+            camera.allowMSAA = false;
+            camera.allowDynamicResolution = false;
+            camera.forceIntoRenderTexture = true;
             cameraObject.transform.position = new Vector3(0f, 12f, -10f);
             cameraObject.transform.rotation = Quaternion.Euler(48f, 0f, 0f);
             return camera;
@@ -2037,7 +2080,14 @@ namespace Lanternfall.Editor
             UnityEngine.Camera camera, string output)
         {
             Directory.CreateDirectory(Path.GetDirectoryName(output));
-            var render = new RenderTexture(1280, 720, 24);
+            var render = new RenderTexture(
+                1280, 720, 24, RenderTextureFormat.ARGB32,
+                RenderTextureReadWrite.sRGB)
+            {
+                antiAliasing = 1,
+                useMipMap = false,
+                autoGenerateMips = false
+            };
             var image = new Texture2D(
                 1280, 720, TextureFormat.RGB24, false);
             RenderTexture previous = RenderTexture.active;
@@ -2047,8 +2097,9 @@ namespace Lanternfall.Editor
             camera.targetTexture = render;
             camera.Render();
             RenderTexture.active = render;
+            GL.Flush();
             image.ReadPixels(new Rect(0, 0, 1280, 720), 0, 0);
-            image.Apply();
+            image.Apply(false, false);
             File.WriteAllBytes(output, image.EncodeToPNG());
             camera.targetTexture = null;
             RenderTexture.active = previous;
@@ -2064,7 +2115,27 @@ namespace Lanternfall.Editor
                 (GameObject)PrefabUtility.InstantiatePrefab(prefab);
             item.transform.position = position;
             item.transform.rotation = Quaternion.Euler(0f, yaw, 0f);
+            ProductionAssetMarker marker =
+                item.GetComponent<ProductionAssetMarker>();
+            if (marker != null &&
+                (marker.Kind == ProductionAssetKind.Floor ||
+                 marker.Kind == ProductionAssetKind.Arena))
+            {
+                Vector3 scale = item.transform.localScale;
+                item.transform.localScale =
+                    new Vector3(scale.x * 1.08f, scale.y, scale.z * 1.08f);
+            }
             return item;
+        }
+
+        private static void ScaleFootprint(GameObject item, float xzScale)
+        {
+            if (item == null) return;
+            Vector3 scale = item.transform.localScale;
+            item.transform.localScale = new Vector3(
+                scale.x * xzScale,
+                scale.y,
+                scale.z * xzScale);
         }
 
         private static void AddWorldLabel(
@@ -2080,6 +2151,12 @@ namespace Lanternfall.Editor
             label.anchor = TextAnchor.MiddleCenter;
             label.alignment = TextAlignment.Center;
             label.color = new Color(.95f, .82f, .55f);
+        }
+
+        private static void DisableColliders(GameObject root)
+        {
+            foreach (Collider collider in root.GetComponentsInChildren<Collider>())
+                collider.enabled = false;
         }
 
         private static DamageElement ElementFor(int biome) =>
@@ -2098,16 +2175,26 @@ namespace Lanternfall.Editor
             TextureImporter importer =
                 AssetImporter.GetAtPath(path) as TextureImporter;
             if (importer == null) return;
+            bool isUiAtlas = path.IndexOf(
+                "UI_IconAtlas",
+                StringComparison.OrdinalIgnoreCase) >= 0;
             importer.textureType = type;
             importer.sRGBTexture = sRgb;
             importer.wrapMode = TextureWrapMode.Repeat;
             importer.filterMode = FilterMode.Bilinear;
-            importer.mipmapEnabled = true;
+            importer.mipmapEnabled = !isUiAtlas;
             importer.alphaSource = TextureImporterAlphaSource.None;
             importer.npotScale = TextureImporterNPOTScale.None;
             importer.textureCompression =
-                TextureImporterCompression.CompressedHQ;
-            importer.maxTextureSize = 1024;
+                isUiAtlas
+                    ? TextureImporterCompression.Uncompressed
+                    : TextureImporterCompression.CompressedHQ;
+            importer.maxTextureSize = isUiAtlas ? 2048 : 1024;
+            if (isUiAtlas)
+            {
+                importer.alphaIsTransparency = true;
+                importer.spritePixelsPerUnit = 100f;
+            }
             importer.SaveAndReimport();
         }
 
